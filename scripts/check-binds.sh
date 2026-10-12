@@ -95,11 +95,12 @@ while IFS= read -r line; do
         *) err "unknown dispatcher '$dispatcher' in: $line" ;;
     esac
 
-    # 4. key is documented (unless covered by an aggregate row)
-    if ! printf '%s' "$key" | grep -Eqi -- "$aggregate"; then
-        v="$key"
+    # 4. key is documented (unless covered by an aggregate row). Pure-bash
+    # substring test: no external processes, so the result is deterministic.
+    if [[ ! "$key" =~ $aggregate ]]; then
+        v="${key,,}"
         [ "$v" = "comma" ] && v=","
-        if ! printf '%s\n' "$tsv_keys" | grep -Fqi -- "$v"; then
+        if [[ "$tsv_keys" != *"$v"* ]]; then
             err "key '$key' (from: $line) is not listed in config/hypr/keybinds.tsv"
         fi
     fi
