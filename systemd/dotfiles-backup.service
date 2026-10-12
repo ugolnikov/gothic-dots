@@ -1,5 +1,5 @@
 [Unit]
-Description=Commit and push dotfiles changes to their GitHub remote
+Description=Snapshot dotfiles changes to the snapshots branch on GitHub
 After=network-online.target
 Wants=network-online.target
 

@@ -11,6 +11,7 @@
 [![last commit](https://img.shields.io/github/last-commit/ugolnikov/gothic-dots?style=flat-square&labelColor=0a0a0b&color=a31621)](#)
 [![commits](https://img.shields.io/github/commit-activity/t/ugolnikov/gothic-dots?style=flat-square&labelColor=0a0a0b&color=a31621)](#)
 [![repo size](https://img.shields.io/github/repo-size/ugolnikov/gothic-dots?style=flat-square&labelColor=0a0a0b&color=a31621)](#)
+[![issues](https://img.shields.io/github/issues/ugolnikov/gothic-dots?style=flat-square&labelColor=0a0a0b&color=a31621)](https://github.com/ugolnikov/gothic-dots/issues)
 
 Personal dotfiles, tuned for performance and low input latency, on a lightweight
 stack (foot, Waybar, rofi, mako).
@@ -237,9 +238,14 @@ wallpaper-derived palette is enabled. Install: `starship` (already in
 ## Auto-backup
 
 The repository is the source of truth; local edits reach GitHub on their own.
-`scripts/dotfiles-backup.sh` runs `git add -A`, commits a snapshot and pushes to
-`origin`; on a clean tree it just exits. It is driven by the systemd timer
-`dotfiles-backup.timer` (right after boot and every 6 hours thereafter).
+`scripts/dotfiles-backup.sh` snapshots the working tree and pushes it to a
+dedicated `snapshots` branch — **not** `main` — so `main` stays reserved for
+hand-written commits. It builds the commit with plumbing, so your working tree
+and current branch are left untouched (only the index is used, then reset); on a
+clean tree it just exits. It is driven by the systemd timer
+`dotfiles-backup.timer` (right after boot and every 6 hours thereafter). Set
+`DOTFILES_SNAPSHOT_BRANCH` to use another branch. Snapshots made before this
+change already sit on `main`; they are left as-is (no history rewrite).
 
 ```bash
 # run by hand
