@@ -58,6 +58,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── gen-keybinds.sh        # regenerate the README keybind table
 │   ├── check-binds.sh         # binds.conf ↔ keybinds.tsv/scripts drift check
 │   ├── check-coverage.sh      # every tracked config is linked by install.sh
+│   ├── check-packages.sh      # packages.txt/aur.packages.txt vs Arch repos + AUR
 │   ├── scan-secrets.sh        # block commits/pushes that look like secrets
 │   └── server/                # server-only helpers (Ubuntu: apt, fail2ban, postgres)
 │       ├── clean-ubuntu.sh
@@ -109,6 +110,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── systemd/oomd.conf
 │   ├── ananicy.d/00-gothic.rules
 │   └── keyd/default.conf      # ru-latin shortcuts while a modifier is held
+├── Makefile                   # make install / test / lint / fmt / doctor / backup
 └── install.sh                 # Auto-install (packages + symlinks; --only, --dry-run, …)
 ```
 
@@ -234,6 +236,20 @@ The prompt (fish) is **Starship**, themed gothic. It reads
 `~/.config/starship.toml`, or `~/.cache/wallust/starship.toml` when the
 wallpaper-derived palette is enabled. Install: `starship` (already in
 `config/hypr/packages.txt`).
+
+## Tasks
+
+A thin `Makefile` wraps the common jobs (`make` or `make help` lists them):
+
+```bash
+make install         # link configs (no packages)
+make test            # bats test suite
+make lint            # secrets, binds, coverage, keybind table
+make fmt             # shfmt + fish_indent
+make doctor          # desktop health check
+make backup          # snapshot local edits to the snapshots branch
+make check-packages  # validate package names against Arch repos + AUR
+```
 
 ## Auto-backup
 

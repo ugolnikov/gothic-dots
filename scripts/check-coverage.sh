@@ -27,7 +27,7 @@ if [ "${#linked[@]}" -eq 0 ]; then
 fi
 
 # Tracked paths that are intentionally not symlinked by install.sh.
-allow_files='^(README\.md|LICENSE|install\.sh|\.gitignore|\.gitattributes|\.shellcheckrc|\.markdownlint\.jsonc|claude/settings\.local\.json\.EXAMPLE)$'
+allow_files='^(README\.md|LICENSE|Makefile|install\.sh|\.gitignore|\.gitattributes|\.shellcheckrc|\.markdownlint\.jsonc|claude/settings\.local\.json\.EXAMPLE)$'
 allow_dirs='^(docs|\.github|\.githooks|scripts|etc|systemd|tests)/'
 
 is_linked() {

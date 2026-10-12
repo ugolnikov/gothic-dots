@@ -220,6 +220,11 @@ if [ ! -f "$HOME/.vim/autoload/plug.vim" ]; then
     run bash -c 'curl -fLo "$HOME/.vim/autoload/plug.vim" --create-dirs \
         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 fi
+# 8b. Install/refresh the vim plugins declared in .vimrc (best effort).
+if command -v vim >/dev/null 2>&1 && [ -f "$HOME/.vimrc" ]; then
+    echo "==> vim plugins"
+    run vim -es -u "$HOME/.vimrc" -i NONE -c 'PlugInstall --sync' -c 'qa!' || true
+fi
 
 # 9. Auto-backup (systemd), with --timer
 if [ "$TIMER" = 1 ] && command -v systemctl >/dev/null 2>&1; then
