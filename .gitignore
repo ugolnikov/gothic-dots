@@ -1,0 +1,17 @@
+# --- Secrets: never commit (see README) ---
+# The *.EXAMPLE templates in zsh/ and fish/ ARE tracked on purpose.
+zsh/secrets.zsh
+fish/secrets.fish
+.secrets.zsh
+.secrets.fish
+claude/settings.local.json
+
+# --- Editor / OS junk ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.netrwhist
+.idea/
+.vscode/
