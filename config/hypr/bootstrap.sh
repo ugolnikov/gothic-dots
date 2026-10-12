@@ -9,8 +9,15 @@ set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-mapfile -t repo < <(grep -vE '^\s*(#|$)' "$DIR/packages.txt")
-mapfile -t aur < <(grep -vE '^\s*(#|$)' "$DIR/aur.packages.txt" 2>/dev/null || true)
+# pkg_list <file> — package names; full-line and inline (# ...) comments stripped
+# so a trailing comment can never be passed to pacman as part of the name.
+pkg_list() {
+    grep -vE '^[[:space:]]*(#|$)' "$1" 2>/dev/null |
+        sed -E 's/[[:space:]]*#.*$//' |
+        awk 'NF'
+}
+mapfile -t repo < <(pkg_list "$DIR/packages.txt")
+mapfile -t aur < <(pkg_list "$DIR/aur.packages.txt")
 
 if ((${#repo[@]})); then
     echo "==> pacman: ${#repo[@]} пакетов"
