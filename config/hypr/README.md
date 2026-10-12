@@ -3,12 +3,12 @@
 A full Hyprland desktop: compositor, bar (Waybar), launcher (tofi), terminal
 (**foot**), notifications (mako), wallpaper/lock (awww, hypridle, hyprlock).
 The system font is a gothic serif via fontconfig. Target: **Arch / CachyOS**
-(everything from the official repositories).
+(official repositories, plus a few AUR extras: tofi, wallust).
 
 ## Install (CachyOS / Arch)
 
 ```bash
-# 1. packages: repo + AUR (ttf-cormorant and friends) via paru/yay
+# 1. packages: repo + AUR (tofi, wallust, …) via paru/yay
 ./bootstrap.sh
 
 # 2. lay down the configs (from the dotfiles root)
@@ -100,8 +100,8 @@ the settings center (**Light theme**) or with `SUPER + Shift + T`.
 
 The full, generated table lives in the top-level `README.md` — single source:
 `config/hypr/keybinds.tsv` rendered by `scripts/gen-keybinds.sh`. The actual
-binds are in `conf.d/binds.conf`; `SUPER + Alt + Shift` switches the us/ru
-layout and `Caps Lock` acts as Escape (both from `conf.d/input.conf`).
+binds are in `conf.d/binds.conf`; `Alt + Shift` switches the us/ru layout and
+`Caps Lock` acts as Escape (both from `conf.d/input.conf`).
 
 ## Wallpaper and animation
 

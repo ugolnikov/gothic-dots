@@ -160,7 +160,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + drag` (LMB / RMB) | move / resize window |
 | `Print` / `SUPER + Print` / `SUPER + Shift + Print` | screenshot: full / region / window |
 | `SUPER + Shift + S` | screenshot: region → annotate (swappy) |
-| `SUPER + Alt + Shift` | switch keyboard layout (us / ru) |
+| `Alt + Shift` | switch keyboard layout (us / ru) |
 | `Caps Lock` | Escape |
 | `XF86 Audio*` / `XF86 Brightness*` | volume / media / brightness |
 <!-- keybinds:end -->
