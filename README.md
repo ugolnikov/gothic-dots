@@ -68,7 +68,11 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   └── pre-push               # advisory check-binds / check-coverage before a push
 ├── .github/
 │   ├── workflows/lint.yml     # CI: syntax, linters, guards, bats tests
-│   └── dependabot.yml         # keeps the pinned Action SHAs current
+│   ├── dependabot.yml         # keeps the pinned Action SHAs current
+│   ├── ISSUE_TEMPLATE/        # issue forms
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── CODEOWNERS
+├── SECURITY.md                # no secrets in-tree; report privately
 ├── tests/
 │   └── dotfiles.bats          # smoke/regression tests for the tooling
 ├── systemd/                   # auto-backup units (installed to /etc/systemd/system)
@@ -304,6 +308,9 @@ CI (`.github/workflows/lint.yml`) runs the same gates plus `shfmt` and
 `markdownlint-cli2` (rules in `.markdownlint.jsonc`) and the `bats` tests in
 `tests/`. The GitHub Actions are pinned to commit SHAs, kept current by
 Dependabot (`.github/dependabot.yml`).
+
+The security policy is in [`SECURITY.md`](SECURITY.md): keep secrets in
+`~/.secrets.fish` / `~/.secrets.sh`, and report problems privately.
 
 ```bash
 # scan everything by hand
