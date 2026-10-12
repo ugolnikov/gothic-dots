@@ -6,6 +6,7 @@
 #   ./install.sh --system        also install system configs (zram/oomd/ananicy)
 #   ./install.sh --force         overwrite existing targets without a backup
 #   ./install.sh --dry-run       print the steps, change nothing
+#   ./install.sh --uninstall     remove this repo's symlinks (inverse of install)
 #
 # Safety: never destroys your existing configs. Anything that would be replaced
 # is moved to ~/.dotfiles-backup/<timestamp>/ first, keeping its relative path.
@@ -21,6 +22,7 @@ TIMER=0
 DRY=0
 FORCE=0
 SYSTEM=0
+UNINSTALL=0
 for a in "$@"; do
     case "$a" in
         --no-packages) PKGS=0 ;;
@@ -28,7 +30,8 @@ for a in "$@"; do
         --system) SYSTEM=1 ;;
         --dry-run) DRY=1 ;;
         --force) FORCE=1 ;;
-        -h | --help) sed -n '2,12p' "$0"; exit 0 ;;
+        --uninstall) UNINSTALL=1 ;;
+        -h | --help) sed -n '2,13p' "$0"; exit 0 ;;
         *)
             echo "unknown argument: $a" >&2
             exit 2
@@ -88,11 +91,47 @@ link() {
     LINKED=$((LINKED + 1))
 }
 
+# unlink <path> — remove a symlink only if it points into this repository.
+unlink() {
+    if is_ours "$1"; then
+        say "remove   $1"
+        run rm -f -- "$1"
+        LINKED=$((LINKED + 1))
+    fi
+}
+
 if [ "$DRY" = 1 ]; then echo "==> dry run (no changes)"; fi
 if [ "$(id -u)" = 0 ]; then
     echo "==> note: running as root — configs will be linked into $HOME"
 fi
 echo "==> dotfiles: $DIR"
+
+# 0. --uninstall: remove only our own symlinks, leave everything else alone.
+if [ "$UNINSTALL" = 1 ]; then
+    echo "==> uninstall: removing symlinks into $DIR"
+    for d in "$DIR"/config/*/; do
+        unlink "$HOME/.config/$(basename "$d")"
+    done
+    unlink "$HOME/.config/starship.toml"
+    for f in .vimrc .tmux.conf .gitconfig .editorconfig .bashrc .profile; do
+        unlink "$HOME/$f"
+    done
+    unlink "$HOME/.config/fish"
+    unlink "$HOME/.claude/settings.json"
+    for b in "$DIR"/bin/*; do
+        [ -e "$b" ] || continue
+        unlink "$HOME/.local/bin/$(basename "$b")"
+    done
+    if [ -d "$DIR/.git" ] && command -v git >/dev/null 2>&1; then
+        run git -C "$DIR" config --unset core.hooksPath 2>/dev/null || true
+    fi
+    echo "==> done: $LINKED removed"
+    last="$(ls -1d "$HOME"/.dotfiles-backup/*/ 2>/dev/null | tail -1 || true)"
+    if [ -n "$last" ]; then
+        echo "    earlier configs (if any) are in $last"
+    fi
+    exit 0
+fi
 
 # 1. Packages (official + AUR) — Arch/CachyOS only.
 if [ "$PKGS" = 1 ] && command -v pacman >/dev/null 2>&1 && [ -x "$DIR/config/hypr/bootstrap.sh" ]; then
@@ -136,7 +175,7 @@ done
 
 # 6. Executable bits
 run chmod +x "$DIR"/config/hypr/scripts/*.sh "$DIR"/config/hypr/bootstrap.sh \
-    "$DIR"/scripts/*.sh "$DIR"/.githooks/pre-commit 2>/dev/null || true
+    "$DIR"/scripts/*.sh "$DIR"/scripts/server/*.sh "$DIR"/.githooks/pre-commit 2>/dev/null || true
 
 # 7. Font cache + bat theme cache
 if command -v fc-cache >/dev/null 2>&1; then run fc-cache -f; fi

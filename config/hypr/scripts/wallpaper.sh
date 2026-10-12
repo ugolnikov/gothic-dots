@@ -15,9 +15,9 @@ WALL="${1:-$HOME/.config/hypr/wallpaper.png}"
 
 if [ ! -f "$WALL" ]; then
     if command -v magick >/dev/null 2>&1; then
-        magick -size 2560x1440 gradient:'#1e1e2e-#11111b' "$WALL"
+        magick -size 2560x1440 gradient:'#17171a-#0a0a0b' "$WALL"
     elif command -v convert >/dev/null 2>&1; then
-        convert -size 2560x1440 gradient:'#1e1e2e-#11111b' "$WALL"
+        convert -size 2560x1440 gradient:'#17171a-#0a0a0b' "$WALL"
     else
         echo "wallpaper.sh: нет картинки и нет imagemagick для генерации" >&2
         exit 1

@@ -48,8 +48,9 @@ config/hypr/
 │   └── binds.conf         # keybinds
 ├── hypridle.conf          # idle / lock by timeout
 ├── hyprlock.conf          # lock screen
-├── scripts/               # settings, theme, wallpaper(-picker), screenshot, launcher,
-│                          #   run-in-terminal, notifications, system-setup
+├── scripts/               # settings, theme(-mode), wallpaper(-picker), screenshot,
+│                          #   clipboard, launcher, run-in-terminal, notifications,
+│                          #   system-setup
 ├── packages.txt           # repository packages
 ├── aur.packages.txt       # AUR packages (paru/yay)
 └── bootstrap.sh           # install packages, then symlink the configs
@@ -83,6 +84,18 @@ When enabled, wallust recolors Hyprland, Waybar, rofi, mako, swaync, tofi and
 Starship through `colors.dynamic.*` / `~/.cache/wallust/*` files. By default
 those files do not exist, so the fixed gothic colors apply.
 
+A **light ("ivory") variant** of the gothic palette is available too, reusing the
+same `*.dynamic.*` files:
+
+```bash
+~/.config/hypr/scripts/theme-mode.sh light    # dark, toggle, status also work
+```
+
+It recolors Hyprland, Waybar, rofi, kitty and swaync. Because it and wallust
+share the same files they are mutually exclusive. foot, mako, tofi, hyprlock
+and GTK keep the fixed palette. Toggle it from the settings center
+(**Light theme**).
+
 ## Keybinds
 
 | Key | Action |
@@ -105,6 +118,8 @@ those files do not exist, so the fixed gothic colors apply.
 | `SUPER + W` | wallpaper picker |
 | `SUPER + ,` | settings |
 | `Print` / `SUPER + Print` | screenshot: full / region |
+| `SUPER + Shift + S` | screenshot → annotate (swappy) |
+| `SUPER + Shift + V` | clipboard history (cliphist) |
 | `SUPER + R` | reload Hyprland config |
 
 `SUPER + Alt + Shift` switches the us/ru layout, `Caps Lock` acts as Escape. The
@@ -167,6 +182,8 @@ A lightweight rofi menu (`scripts/settings.sh`). Changes on the fly:
 * **Notifications** — mako / swaync (written to `~/.config/hypr/notifications`);
 * **Layout** — dwindle / master / scrolling (written to `layout.dynamic.conf`);
 * **Animations** — on / off (written to `animations.dynamic.conf`);
+* **Light theme** — dark gothic ⇄ light "ivory" palette (`theme-mode.sh`);
+* **Random wallpaper** — random image from `~/Wallpapers` etc. at each login;
 * **Bar**, **Monitors**, **Keybinds**, **Qt theme**, **Reload**, **Power**.
 
 Terminal and notification choices go through the wrappers

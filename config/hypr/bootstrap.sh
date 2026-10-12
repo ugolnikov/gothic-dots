@@ -3,7 +3,7 @@
 # официальные из packages.txt и AUR из aur.packages.txt (через paru или yay).
 #
 # Запуск из любого места:  config/hypr/bootstrap.sh
-# Затем разложить конфиги:  cd ~/dotfiles && stow -v --no-folding config
+# Затем разложить конфиги:  cd ~/dotfiles && ./install.sh --no-packages
 
 set -euo pipefail
 
@@ -39,4 +39,4 @@ else
     echo "==> aur.packages.txt пуст, пропускаю"
 fi
 
-echo "==> Готово. Разложи конфиги: cd ~/dotfiles && stow -v --no-folding config"
+echo "==> Готово. Разложи конфиги: cd ~/dotfiles && ./install.sh --no-packages"

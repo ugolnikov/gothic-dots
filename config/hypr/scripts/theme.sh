@@ -9,7 +9,20 @@
 set -euo pipefail
 
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
-WALL="${1:-$CONFIG/hypr/wallpaper.png}"
+
+# Обои: явный аргумент, иначе — сохранённые, или случайные из коллекции, если
+# включён маркер ~/.config/hypr/random-wallpaper.
+WALL="${1:-}"
+if [ -z "$WALL" ]; then
+    WALL="$CONFIG/hypr/wallpaper.png"
+    if [ -e "$CONFIG/hypr/random-wallpaper" ]; then
+        _pick="$(find "$HOME/Wallpapers" "$HOME/Pictures" "$CONFIG/hypr/wallpapers" \
+            -maxdepth 2 -type f \
+            \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) \
+            2>/dev/null | shuf -n1)"
+        [ -n "$_pick" ] && WALL="$_pick"
+    fi
+fi
 
 # 1. Обои (статика, GIF или видео).
 "$CONFIG/hypr/scripts/wallpaper.sh" "$WALL"

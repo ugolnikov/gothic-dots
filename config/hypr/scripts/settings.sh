@@ -42,6 +42,29 @@ toggle_theme() {
     "$SCRIPTS/theme.sh" >/dev/null 2>&1 || true
 }
 
+light_state() {
+    if [ -e "$STATE/light-theme" ]; then echo "вкл"; else echo "выкл"; fi
+}
+
+toggle_light() {
+    "$SCRIPTS/theme-mode.sh" toggle >/dev/null 2>&1 || true
+    note "Светлая тема: $(light_state)"
+}
+
+random_state() {
+    if [ -e "$STATE/random-wallpaper" ]; then echo "вкл"; else echo "выкл"; fi
+}
+
+toggle_random() {
+    if [ -e "$STATE/random-wallpaper" ]; then
+        rm -f "$STATE/random-wallpaper"
+        note "Случайные обои: выкл"
+    else
+        touch "$STATE/random-wallpaper"
+        note "Случайные обои: вкл (со следующего входа)"
+    fi
+}
+
 choose_wallpaper() {
     local c
     c="$(printf '%s\n' "Статичные обои" "Анимированные (GIF/видео)" "Градиент" | pick "Обои")" || return 0
@@ -157,6 +180,8 @@ main() {
         "Уведомления: $(cur notifications mako)" \
         "Раскладка: $(cur layout dwindle)" \
         "Анимации: $(anim_state)" \
+        "Светлая тема: $(light_state)" \
+        "Случайные обои: $(random_state)" \
         "Панель — перезапуск" \
         "Мониторы" \
         "Клавиши" \
@@ -173,6 +198,8 @@ main() {
         Уведомления:*) choose_notifications ;;
         Раскладка:*) choose_layout ;;
         Анимации:*) toggle_animations ;;
+        "Светлая тема:"*) toggle_light ;;
+        "Случайные обои:"*) toggle_random ;;
         "Панель — перезапуск") restart_bar ;;
         "Мониторы") show_monitors ;;
         "Клавиши") show_binds ;;

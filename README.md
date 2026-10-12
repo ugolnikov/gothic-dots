@@ -15,6 +15,11 @@
 Personal dotfiles, tuned for performance and low input latency, on a lightweight
 stack (foot, Waybar, rofi, mako).
 
+## Screenshots
+
+Add your own images to `docs/screenshots/` and reference them here — see
+`docs/screenshots/README.md` for how the rice is captured.
+
 ## Layout
 
 ```
@@ -39,12 +44,14 @@ stack (foot, Waybar, rofi, mako).
 ├── bash/                      # Bash (fallback shell)
 │   ├── .bashrc                # → ~/.bashrc
 │   └── .profile               # → ~/.profile
-├── scripts/                   # syscheck and other utilities
-│   ├── clean_ubuntu.sh
+├── scripts/
+│   ├── doctor.sh              # desktop health check (packages, links, fonts)
 │   ├── dotfiles-backup.sh     # auto-snapshot and push to origin
 │   ├── gen-keybinds.sh        # regenerate the README keybind table
 │   ├── scan-secrets.sh        # block commits/pushes that look like secrets
-│   └── syscheck.sh
+│   └── server/                # server-only helpers (Ubuntu: apt, fail2ban, postgres)
+│       ├── clean-ubuntu.sh
+│       └── syscheck.sh
 ├── .githooks/
 │   └── pre-commit             # secret scan + syntax check before a commit
 ├── systemd/                   # auto-backup units (installed to /etc/systemd/system)
@@ -72,7 +79,6 @@ stack (foot, Waybar, rofi, mako).
 │   ├── starship.toml          #   Starship prompt (fish)
 │   ├── fastfetch/             #   config.jsonc, sigil.txt (logo), logo.txt, logo_2.txt
 │   ├── btop/                  #   btop.conf
-│   ├── bottom/                #   bottom.toml
 │   ├── browsh/                #   config.toml
 │   ├── git/                   #   ignore (global gitignore)
 │   ├── htop/                  #   htoprc
@@ -106,6 +112,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + Shift + Q` | exit session |
 | `SUPER + Shift + E` | power menu |
 | `SUPER + V` | toggle floating |
+| `SUPER + Shift + V` | clipboard history (rofi) |
 | `SUPER + P` | pseudo tile |
 | `SUPER + G` | toggle split |
 | `SUPER + F` | fullscreen (maximize) |
@@ -127,6 +134,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + Shift + grave` | move window to scratchpad |
 | `SUPER + drag` (LMB / RMB) | move / resize window |
 | `Print` / `SUPER + Print` / `SUPER + Shift + Print` | screenshot: full / region / window |
+| `SUPER + Shift + S` | screenshot: region → annotate (swappy) |
 | `SUPER + Alt + Shift` | switch keyboard layout (us / ru) |
 | `Caps Lock` | Escape |
 | `XF86 Audio*` / `XF86 Brightness*` | volume / media / brightness |
@@ -145,13 +153,18 @@ cd ~/dotfiles
 ./install.sh --system        # also install system configs (zram/oomd/ananicy/irqbalance)
 ./install.sh --force         # overwrite existing targets without a backup
 ./install.sh --dry-run       # print the steps, change nothing
+./install.sh --uninstall     # remove this repo's symlinks (inverse of install)
 ```
 
 Existing configs are never destroyed. Anything that would be replaced is moved
 to `~/.dotfiles-backup/<timestamp>/` first, keeping its relative path, and the
 target becomes a symlink into this repo. Re-running is idempotent: this repo's
 own symlinks are refreshed, not backed up. Use `--dry-run` to preview conflicts
-and `--force` to skip the backup.
+and `--force` to skip the backup. `--uninstall` reverses the links safely
+(only symlinks pointing into this repo are removed).
+
+Run `scripts/doctor.sh` afterwards to check packages, symlinks, fonts and the
+Hyprland config in one pass.
 
 ### Manual
 
@@ -164,7 +177,7 @@ ln -sf $PWD/.editorconfig ~/.editorconfig
 
 # ~/.config apps (Hyprland rice + the rest)
 mkdir -p ~/.config
-for d in hypr waybar rofi foot fontconfig gtk-3.0 gtk-4.0 qt6ct qt5ct kitty mako swaync wallust fastfetch btop bottom browsh git htop lazygit micro nvim; do
+for d in hypr waybar rofi foot fontconfig gtk-3.0 gtk-4.0 qt6ct qt5ct kitty mako swaync wallust fastfetch btop browsh git htop lazygit micro nvim; do
   ln -sfn "$PWD/config/$d" "$HOME/.config/$d"
 done
 
