@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -74,9 +75,18 @@ if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
   fi
   unset _dc
-  [ -r "$HOME/.config/dircolors/eza" ] && export EZA_COLORS="$(cat "$HOME/.config/dircolors/eza")"
-  [ -r "$HOME/.config/dircolors/fzf" ] && export FZF_DEFAULT_OPTS="$(cat "$HOME/.config/dircolors/fzf")"
-  [ -r "$HOME/.config/dircolors/grep" ] && export GREP_COLORS="$(cat "$HOME/.config/dircolors/grep")"
+  if [ -r "$HOME/.config/dircolors/eza" ]; then
+    EZA_COLORS="$(cat "$HOME/.config/dircolors/eza")"
+    export EZA_COLORS
+  fi
+  if [ -r "$HOME/.config/dircolors/fzf" ]; then
+    FZF_DEFAULT_OPTS="$(cat "$HOME/.config/dircolors/fzf")"
+    export FZF_DEFAULT_OPTS
+  fi
+  if [ -r "$HOME/.config/dircolors/grep" ]; then
+    GREP_COLORS="$(cat "$HOME/.config/dircolors/grep")"
+    export GREP_COLORS
+  fi
   export BAT_THEME="gothic"
   alias ls='eza --group-directories-first'
   #alias dir='dir --color=auto'
@@ -136,6 +146,7 @@ fi
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
 if [ -f ~/.bash_aliases ]; then
+  # shellcheck source=/dev/null
   . ~/.bash_aliases
 fi
 
@@ -146,6 +157,7 @@ fi
 #    . /etc/bash_completion
 #fi
 
+# shellcheck source=/dev/null
 [ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -164,6 +176,7 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # secrets (API keys, tokens) для bash-фолбэка
+# shellcheck source=/dev/null
 [ -f ~/.secrets.sh ] && . ~/.secrets.sh
 
 # prompt & tools — только если установлены

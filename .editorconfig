@@ -8,5 +8,23 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+# Shell and fish are formatted with `shfmt -i 4` and `fish_indent` (4 spaces),
+# and that style is enforced in CI — keep editors in step.
+[*.{sh,bash,fish}]
+indent_size = 4
+
+[.githooks/*]
+indent_size = 4
+
+[bin/*]
+indent_size = 4
+
+# Data / generated configs stay at two spaces.
+[*.{yml,yaml,json,jsonc,toml}]
+indent_size = 2
+
+[Makefile]
+indent_style = tab
+
 [*.md]
 trim_trailing_whitespace = false
