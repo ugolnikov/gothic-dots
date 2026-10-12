@@ -73,3 +73,6 @@ jobs:
 
       - name: install.sh dry-run
         run: ./install.sh --no-packages --dry-run
+
+      - name: install.sh covers every tracked config
+        run: ./scripts/check-coverage.sh

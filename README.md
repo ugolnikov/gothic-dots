@@ -55,6 +55,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── dotfiles-backup.sh     # auto-snapshot and push to origin
 │   ├── gen-keybinds.sh        # regenerate the README keybind table
 │   ├── check-binds.sh         # binds.conf ↔ keybinds.tsv/scripts drift check
+│   ├── check-coverage.sh      # every tracked config is linked by install.sh
 │   ├── scan-secrets.sh        # block commits/pushes that look like secrets
 │   └── server/                # server-only helpers (Ubuntu: apt, fail2ban, postgres)
 │       ├── clean-ubuntu.sh
@@ -184,17 +185,26 @@ ln -sf $PWD/gitconfig ~/.gitconfig
 ln -sf $PWD/tmux.conf ~/.tmux.conf
 ln -sf $PWD/.editorconfig ~/.editorconfig
 
-# ~/.config apps (Hyprland rice + the rest)
+# ~/.config apps (Hyprland rice + the rest). The glob mirrors install.sh, so
+# the list can never drift from config/ again.
 mkdir -p ~/.config
-for d in hypr waybar rofi foot fontconfig gtk-3.0 gtk-4.0 qt6ct qt5ct kitty mako swaync wallust fastfetch btop browsh git htop lazygit micro nvim; do
-  ln -sfn "$PWD/config/$d" "$HOME/.config/$d"
+for d in "$PWD"/config/*/; do
+  ln -sfn "${d%/}" "$HOME/.config/$(basename "$d")"
 done
+# config/starship.toml is a file, not a directory
+ln -sfn "$PWD/config/starship.toml" "$HOME/.config/starship.toml"
 
 # Claude
 mkdir -p ~/.claude && ln -sf $PWD/claude/settings.json ~/.claude/settings.json
 
 # Fish
 ln -sf $PWD/fish ~/.config/fish
+
+# bin → ~/.local/bin (must be on PATH; install.sh adds please here)
+mkdir -p ~/.local/bin
+for b in "$PWD"/bin/*; do
+  ln -sf "$b" "$HOME/.local/bin/$(basename "$b")"
+done
 
 # Bash (fallback)
 ln -sf $PWD/bash/.bashrc ~/.bashrc
@@ -249,6 +259,9 @@ As defense in depth the repository ships a pre-commit hook and a secret scanner:
 * `scripts/check-binds.sh` — fails when a bind uses an undefined `$variable`, a
   missing script, an unknown dispatcher, or a key that is not listed in
   `config/hypr/keybinds.tsv`. Runs in CI.
+* `scripts/check-coverage.sh` — fails when a tracked config is not installed by
+  `install.sh` (it reads the installer's own `--dry-run`, so the two can't
+  drift). Runs in CI.
 * `.githooks/pre-commit` — blocks the commit on a suspected secret or a bash
   syntax error; shellcheck and fish checks are advisory. `install.sh` enables it
   with `git config core.hooksPath .githooks`.

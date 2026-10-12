@@ -158,9 +158,12 @@ if [ ! -e "$_hypr_local" ] && [ -e "$_hypr_local.EXAMPLE" ]; then
     run cp "$_hypr_local.EXAMPLE" "$_hypr_local"
 fi
 
-# 3. Home dotfiles
-for f in .vimrc .tmux.conf .gitconfig .editorconfig; do
-    [ -e "$DIR/$f" ] && link "$DIR/$f" "$HOME/$f"
+# 3. Home dotfiles. The repo keeps the tmux/git configs un-dotted (tmux.conf,
+#    gitconfig) while the targets are dotfiles, so map src -> dst explicitly.
+for pair in ".vimrc:.vimrc" ".editorconfig:.editorconfig" \
+    "tmux.conf:.tmux.conf" "gitconfig:.gitconfig"; do
+    src="${pair%%:*}" dst="${pair##*:}"
+    [ -e "$DIR/$src" ] && link "$DIR/$src" "$HOME/$dst"
 done
 for f in .bashrc .profile; do
     link "$DIR/bash/$f" "$HOME/$f"
