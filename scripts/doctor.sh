@@ -19,7 +19,7 @@ sec() { printf '\n%b%s%b\n' "$DIM" "$*" "$NC"; }
 missing=0
 
 sec "Команды"
-for c in hyprland hyprctl hypridle hyprlock swww waybar foot footclient \
+for c in hyprland hyprctl hypridle hyprlock awww waybar foot footclient \
     grim slurp wl-copy wl-paste cliphist jq brightnessctl playerctl notify-send; do
     command -v "$c" >/dev/null 2>&1 || {
         bad "нет: $c"

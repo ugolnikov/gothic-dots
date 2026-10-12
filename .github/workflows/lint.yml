@@ -42,7 +42,8 @@ jobs:
         run: |
           set -e
           mapfile -t files < <(git ls-files | grep -E '(\.sh$|^bin/)')
-          files+=(".githooks/pre-commit" ".githooks/pre-push")
+          # Dotfiles with no shebang need the shell directive to be linted.
+          files+=(".githooks/pre-commit" ".githooks/pre-push" "bash/.bashrc")
           shellcheck --severity=warning -x "${files[@]}"
 
       - name: shfmt

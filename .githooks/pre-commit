@@ -33,7 +33,7 @@ done <<<"$staged"
 
 # 3. Advisory linters.
 if command -v shellcheck >/dev/null 2>&1; then
-    mapfile -t sh < <(printf '%s\n' "$staged" | grep -E '(\.sh$|^bin/|^\.githooks/)' || true)
+    mapfile -t sh < <(printf '%s\n' "$staged" | grep -E '(\.sh$|^bin/|^\.githooks/|^bash/\.bashrc$)' || true)
     if [ "${#sh[@]}" -gt 0 ]; then
         shellcheck --severity=warning -x "${sh[@]}" ||
             echo "pre-commit: shellcheck reported issues (advisory)" >&2

@@ -58,6 +58,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── gen-keybinds.sh        # regenerate the README keybind table
 │   ├── check-binds.sh         # binds.conf ↔ keybinds.tsv/scripts drift check
 │   ├── check-coverage.sh      # every tracked config is linked by install.sh
+│   ├── check-packages.sh      # packages.txt/aur.packages.txt vs Arch repos + AUR
 │   ├── scan-secrets.sh        # block commits/pushes that look like secrets
 │   └── server/                # server-only helpers (Ubuntu: apt, fail2ban, postgres)
 │       ├── clean-ubuntu.sh
@@ -67,7 +68,11 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   └── pre-push               # advisory check-binds / check-coverage before a push
 ├── .github/
 │   ├── workflows/lint.yml     # CI: syntax, linters, guards, bats tests
-│   └── dependabot.yml         # keeps the pinned Action SHAs current
+│   ├── dependabot.yml         # keeps the pinned Action SHAs current
+│   ├── ISSUE_TEMPLATE/        # issue forms
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── CODEOWNERS
+├── SECURITY.md                # no secrets in-tree; report privately
 ├── tests/
 │   └── dotfiles.bats          # smoke/regression tests for the tooling
 ├── systemd/                   # auto-backup units (installed to /etc/systemd/system)
@@ -109,6 +114,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── systemd/oomd.conf
 │   ├── ananicy.d/00-gothic.rules
 │   └── keyd/default.conf      # ru-latin shortcuts while a modifier is held
+├── Makefile                   # make install / test / lint / fmt / doctor / backup
 └── install.sh                 # Auto-install (packages + symlinks; --only, --dry-run, …)
 ```
 
@@ -154,7 +160,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + drag` (LMB / RMB) | move / resize window |
 | `Print` / `SUPER + Print` / `SUPER + Shift + Print` | screenshot: full / region / window |
 | `SUPER + Shift + S` | screenshot: region → annotate (swappy) |
-| `SUPER + Alt + Shift` | switch keyboard layout (us / ru) |
+| `Alt + Shift` | switch keyboard layout (us / ru) |
 | `Caps Lock` | Escape |
 | `XF86 Audio*` / `XF86 Brightness*` | volume / media / brightness |
 <!-- keybinds:end -->
@@ -173,7 +179,7 @@ cd ~/dotfiles
 ./install.sh --force         # overwrite existing targets without a backup
 ./install.sh --dry-run       # print the steps, change nothing
 ./install.sh --uninstall     # remove this repo's symlinks (inverse of install)
-./install.sh --only hypr,waybar  # link only the named config apps
+./install.sh --only hypr,waybar  # link only the named apps (implies --no-packages)
 ```
 
 Existing configs are never destroyed. Anything that would be replaced is moved
@@ -235,6 +241,20 @@ The prompt (fish) is **Starship**, themed gothic. It reads
 wallpaper-derived palette is enabled. Install: `starship` (already in
 `config/hypr/packages.txt`).
 
+## Tasks
+
+A thin `Makefile` wraps the common jobs (`make` or `make help` lists them):
+
+```bash
+make install         # link configs (no packages)
+make test            # bats test suite
+make lint            # secrets, binds, coverage, keybind table
+make fmt             # shfmt + fish_indent
+make doctor          # desktop health check
+make backup          # snapshot local edits to the snapshots branch
+make check-packages  # validate package names against Arch repos + AUR
+```
+
 ## Auto-backup
 
 The repository is the source of truth; local edits reach GitHub on their own.
@@ -288,6 +308,9 @@ CI (`.github/workflows/lint.yml`) runs the same gates plus `shfmt` and
 `markdownlint-cli2` (rules in `.markdownlint.jsonc`) and the `bats` tests in
 `tests/`. The GitHub Actions are pinned to commit SHAs, kept current by
 Dependabot (`.github/dependabot.yml`).
+
+The security policy is in [`SECURITY.md`](SECURITY.md): keep secrets in
+`~/.secrets.fish` / `~/.secrets.sh`, and report problems privately.
 
 ```bash
 # scan everything by hand

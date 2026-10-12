@@ -2,7 +2,7 @@
 # theme.sh — поставить обои и перекрасить рабочий стол под них.
 #   theme.sh [путь-к-обоям]
 #
-# Делает три вещи: ставит обои (swww/mpvpaper), вытаскивает палитру из картинки
+# Делает три вещи: ставит обои (awww/mpvpaper), вытаскивает палитру из картинки
 # через wallust (файлы colors.dynamic.*), перезагружает потребителей цвета.
 # Запускается при логине (autostart.conf), так что тема сама встаёт из обоев.
 
@@ -48,6 +48,7 @@ for f in \
     "$CONFIG/hypr/conf.d/colors.dynamic.conf" \
     "$CONFIG/waybar/colors.dynamic.css" \
     "$CONFIG/rofi/colors.dynamic.rasi" \
+    "$CONFIG/kitty/colors.dynamic.conf" \
     "$CONFIG/swaync/colors.dynamic.css"; do
     [ -e "$f" ] || : >"$f"
 done
