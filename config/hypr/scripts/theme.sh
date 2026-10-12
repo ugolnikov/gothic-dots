@@ -48,6 +48,7 @@ for f in \
     "$CONFIG/hypr/conf.d/colors.dynamic.conf" \
     "$CONFIG/waybar/colors.dynamic.css" \
     "$CONFIG/rofi/colors.dynamic.rasi" \
+    "$CONFIG/kitty/colors.dynamic.conf" \
     "$CONFIG/swaync/colors.dynamic.css"; do
     [ -e "$f" ] || : >"$f"
 done
