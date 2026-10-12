@@ -1,7 +1,7 @@
 # Hyprland rice
 
 A full Hyprland desktop: compositor, bar (Waybar), launcher (tofi), terminal
-(**foot**), notifications (mako), wallpaper/lock (swww, hypridle, hyprlock).
+(**foot**), notifications (mako), wallpaper/lock (awww, hypridle, hyprlock).
 The system font is a gothic serif via fontconfig. Target: **Arch / CachyOS**
 (everything from the official repositories).
 
@@ -107,8 +107,8 @@ layout and `Caps Lock` acts as Escape (both from `conf.d/input.conf`).
 
 `scripts/wallpaper.sh <file>` handles three kinds:
 
-* **static** (png/jpg/...) — via **swww**, with a smooth transition;
-* **GIF** — via swww, animated;
+* **static** (png/jpg/...) — via **awww**, with a smooth transition;
+* **GIF** — via awww, animated;
 * **video** (mp4/webm/mkv/mov) — via **mpvpaper** (AUR package).
 
 `scripts/theme.sh` calls `wallpaper.sh` and, if wallpaper-derived theming is on,

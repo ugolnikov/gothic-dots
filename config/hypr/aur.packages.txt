@@ -4,9 +4,13 @@
 # --- Launcher (lighter than rofi) ---
 tofi
 
+# --- Wallpaper-derived palette (companion to awww, from packages.txt) ---
+wallust
+
 # --- Font ---
-ttf-cormorant
-ttf-cinzel
+# ttf-cormorant moved to the official extra repo (see packages.txt).
+# ttf-cinzel is not currently packaged anywhere; install it from upstream or
+# via texlive-fontsextra if you want the Cinzel headings.
 
 # --- Optional ---
 # fnm-bin

@@ -12,12 +12,12 @@ hypridle
 hyprlock
 hyprpicker
 hyprpolkitagent
-swww
+awww
 xdg-desktop-portal-hyprland
 xdg-utils
 
 # --- Wallpaper-derived theme (off by default) ---
-wallust
+# wallust is AUR-only (see aur.packages.txt).
 imagemagick
 
 # --- Bar, launcher, notifications, terminal ---
@@ -59,6 +59,7 @@ keyd
 
 # --- Fonts ---
 gnu-free-fonts            # FreeSerif, always-available serif fallback
+ttf-cormorant             # Cormorant Garamond headings (now in extra, not AUR)
 ttf-jetbrains-mono-nerd
 ttf-firacode-nerd
 noto-fonts
