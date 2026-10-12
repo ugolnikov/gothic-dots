@@ -179,7 +179,7 @@ cd ~/dotfiles
 ./install.sh --force         # overwrite existing targets without a backup
 ./install.sh --dry-run       # print the steps, change nothing
 ./install.sh --uninstall     # remove this repo's symlinks (inverse of install)
-./install.sh --only hypr,waybar  # link only the named config apps
+./install.sh --only hypr,waybar  # link only the named apps (implies --no-packages)
 ```
 
 Existing configs are never destroyed. Anything that would be replaced is moved

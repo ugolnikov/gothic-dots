@@ -7,7 +7,7 @@
 #   ./install.sh --force         overwrite existing targets without a backup
 #   ./install.sh --dry-run       print the steps, change nothing
 #   ./install.sh --uninstall     remove this repo's symlinks (inverse of install)
-#   ./install.sh --only a,b      link only the named config apps (comma-separated)
+#   ./install.sh --only a,b      link only the named config apps (implies --no-packages)
 #
 # Safety: never destroys your existing configs. Anything that would be replaced
 # is moved to ~/.dotfiles-backup/<timestamp>/ first, keeping its relative path.
@@ -52,6 +52,9 @@ while [ $# -gt 0 ]; do
     esac
     shift
 done
+
+# --only is a config-linking operation: never pull in the whole package set.
+[ -n "$ONLY" ] && PKGS=0
 
 # only_selected <name> — true when no --only was given, or <name> is listed.
 only_selected() {
