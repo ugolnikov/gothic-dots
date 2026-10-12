@@ -41,7 +41,10 @@ is_linked() {
 
 status=0
 info() { printf 'check-coverage: %s\n' "$*"; }
-err() { printf 'check-coverage: %s\n' "$*" >&2; status=1; }
+err() {
+    printf 'check-coverage: %s\n' "$*" >&2
+    status=1
+}
 
 while IFS= read -r f; do
     [ -n "$f" ] || continue

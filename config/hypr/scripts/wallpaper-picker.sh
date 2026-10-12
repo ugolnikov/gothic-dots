@@ -29,7 +29,7 @@ case "${PICKER_FILTER:-all}" in
         EXTS=(-iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.bmp')
         ;;
     *)
-        EXTS=(-iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif' \
+        EXTS=(-iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif'
             -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.mp4' -o -iname '*.webm')
         ;;
 esac

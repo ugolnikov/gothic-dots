@@ -117,8 +117,8 @@ restart_bar() {
 
 show_monitors() {
     local out
-    out="$(hyprctl monitors -j 2>/dev/null \
-        | jq -r '.[] | "\(.name)  \(.width)x\(.height)@\(.refreshRate | floor)  scale \(.scale)"' 2>/dev/null)" || out=""
+    out="$(hyprctl monitors -j 2>/dev/null |
+        jq -r '.[] | "\(.name)  \(.width)x\(.height)@\(.refreshRate | floor)  scale \(.scale)"' 2>/dev/null)" || out=""
     [ -n "$out" ] || out="hyprctl недоступен"
     printf '%s\n' "$out" | rofi -dmenu -i -p "Мониторы" -theme "$ROFI_THEME" >/dev/null || true
 }
@@ -129,14 +129,14 @@ show_binds() {
         return 0
     }
     # shellcheck disable=SC2016  # sed must see the literal $mod, not a shell expansion
-    grep -E '^[[:space:]]*bind' "$BINDS" \
-        | sed -E 's/^[[:space:]]*bind[a-z]*[[:space:]]*=[[:space:]]*//; s/\$mod/SUPER/g; s/[[:space:]]*,[[:space:]]*/ | /g' \
-        | rofi -dmenu -i -p "Клавиши" -theme "$ROFI_THEME" >/dev/null || true
+    grep -E '^[[:space:]]*bind' "$BINDS" |
+        sed -E 's/^[[:space:]]*bind[a-z]*[[:space:]]*=[[:space:]]*//; s/\$mod/SUPER/g; s/[[:space:]]*,[[:space:]]*/ | /g' |
+        rofi -dmenu -i -p "Клавиши" -theme "$ROFI_THEME" >/dev/null || true
 }
 
 anim_state() {
-    if [ -f "$CONFIG/hypr/conf.d/animations.dynamic.conf" ] \
-        && grep -q 'true' "$CONFIG/hypr/conf.d/animations.dynamic.conf"; then
+    if [ -f "$CONFIG/hypr/conf.d/animations.dynamic.conf" ] &&
+        grep -q 'true' "$CONFIG/hypr/conf.d/animations.dynamic.conf"; then
         echo "вкл"
     else
         echo "выкл"
@@ -164,7 +164,8 @@ toggle_animations() {
 }
 
 open_qt() {
-    if command -v qt6ct >/dev/null 2>&1; then qt6ct
+    if command -v qt6ct >/dev/null 2>&1; then
+        qt6ct
     else note "qt6ct не установлен"; fi
 }
 
@@ -190,8 +191,8 @@ main() {
         "Клавиши" \
         "Qt-тема (qt6ct)" \
         "Перезагрузить конфиг" \
-        "Питание" \
-        | pick "Настройки")" || exit 0
+        "Питание" |
+        pick "Настройки")" || exit 0
 
     case "$choice" in
         "Обои") choose_wallpaper ;;

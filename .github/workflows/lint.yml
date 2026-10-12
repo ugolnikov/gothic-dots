@@ -10,13 +10,23 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # Pinned to a commit SHA; Dependabot (.github/dependabot.yml) bumps them.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install tools
         run: |
           sudo apt-get update
           sudo apt-get install -y shellcheck fish
           python3 -m pip install --quiet pyyaml
+          # Pinned linters, installed outside the package manager for stability.
+          sudo curl -fsSL -o /tmp/actionlint.tgz \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          sudo tar -xzf /tmp/actionlint.tgz -C /usr/local/bin actionlint
+          sudo curl -fsSL -o /usr/local/bin/shfmt \
+            https://github.com/mvdan/sh/releases/download/v3.14.1/shfmt_v3.14.1_linux_amd64
+          sudo chmod +x /usr/local/bin/shfmt
+          git clone --depth 1 --branch v1.13.0 https://github.com/bats-core/bats-core.git /tmp/bats
+          sudo /tmp/bats/install.sh /usr/local
 
       - name: Bash syntax
         run: |
@@ -32,8 +42,17 @@ jobs:
         run: |
           set -e
           mapfile -t files < <(git ls-files | grep -E '(\.sh$|^bin/)')
-          files+=(".githooks/pre-commit")
+          files+=(".githooks/pre-commit" ".githooks/pre-push")
           shellcheck --severity=warning -x "${files[@]}"
+
+      - name: shfmt
+        run: |
+          set -e
+          mapfile -t files < <(git ls-files '*.sh'; printf '%s\n' bin/please .githooks/pre-commit .githooks/pre-push)
+          shfmt -i 4 -ci -d "${files[@]}"
+
+      - name: actionlint
+        run: actionlint -color
 
       - name: Fish syntax
         run: |
@@ -41,27 +60,69 @@ jobs:
           while IFS= read -r f; do
             echo "fish -n $f"
             fish -n "$f"
+            fish_indent --check "$f"
           done < <(git ls-files '*.fish')
 
-      - name: Config files (JSON / TOML / YAML)
+      - name: Config files (JSON / JSONC / TOML / YAML)
         run: |
           python3 - <<'PY'
-          import glob, json, tomllib, yaml
-          for p in glob.glob('**/*.json', recursive=True):
-              json.load(open(p)); print('json ok', p)
-          for p in glob.glob('**/*.toml', recursive=True):
-              with open(p, 'rb') as fh:
+          import glob, json, re, tomllib, yaml
+
+
+          def strip_jsonc(s: str) -> str:
+              out, i, n, instr, esc = [], 0, len(s), False, False
+              while i < n:
+                  c = s[i]
+                  if instr:
+                      out.append(c)
+                      if esc:
+                          esc = False
+                      elif c == "\\":
+                          esc = True
+                      elif c == '"':
+                          instr = False
+                      i += 1
+                      continue
+                  if c == '"':
+                      instr = True
+                      out.append(c)
+                      i += 1
+                      continue
+                  if c == "/" and i + 1 < n and s[i + 1] == "/":
+                      while i < n and s[i] != "\n":
+                          i += 1
+                      continue
+                  if c == "/" and i + 1 < n and s[i + 1] == "*":
+                      i += 2
+                      while i + 1 < n and not (s[i] == "*" and s[i + 1] == "/"):
+                          i += 1
+                      i += 2
+                      continue
+                  out.append(c)
+                  i += 1
+              return re.sub(r",(\s*[}\]])", r"\1", "".join(out))
+
+
+          for p in glob.glob("**/*.json", recursive=True):
+              json.load(open(p))
+              print("json ok", p)
+          for p in glob.glob("**/*.jsonc", recursive=True):
+              json.loads(strip_jsonc(open(p, encoding="utf-8").read()))
+              print("jsonc ok", p)
+          for p in glob.glob("**/*.toml", recursive=True):
+              with open(p, "rb") as fh:
                   tomllib.load(fh)
-              print('toml ok', p)
-          for p in glob.glob('**/*.yml', recursive=True) + glob.glob('**/*.yaml', recursive=True):
-              yaml.safe_load(open(p)); print('yaml ok', p)
+              print("toml ok", p)
+          for p in glob.glob("**/*.yml", recursive=True) + glob.glob("**/*.yaml", recursive=True):
+              yaml.safe_load(open(p))
+              print("yaml ok", p)
           PY
 
       - name: Secret scan
         run: ./scripts/scan-secrets.sh --all
 
       - name: Markdown lint
-        uses: DavidAnson/markdownlint-cli2-action@v24
+        uses: DavidAnson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff # v24
         with:
           globs: "**/*.md"
 
@@ -76,3 +137,6 @@ jobs:
 
       - name: install.sh covers every tracked config
         run: ./scripts/check-coverage.sh
+
+      - name: Tests (bats)
+        run: bats --print-output-on-failure tests/

@@ -33,4 +33,3 @@ function my --description 'Красивый вывод всех алиасов'
 
     echo ""
 end
-

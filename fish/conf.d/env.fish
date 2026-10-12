@@ -21,11 +21,8 @@ fish_add_path "$BUN_INSTALL/bin"
 
 # Go
 
-
 # opencode
 fish_add_path "$HOME/.opencode/bin"
-
-
 
 # Цвета ls (готик, без синего) — fish не умеет eval dircolors, выдёргиваем значение
 if command -q dircolors

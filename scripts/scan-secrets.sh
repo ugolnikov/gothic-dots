@@ -26,9 +26,15 @@ fi
 shapes='AKIA[0-9A-Z]{16}'
 shapes="$shapes|-----BEGIN [A-Z ]*PRIVATE KEY-----"
 shapes="$shapes|sk-[A-Za-z0-9_-]{20,}"
+shapes="$shapes|sk_live_[A-Za-z0-9]{24,}"
 shapes="$shapes|gh[pousr]_[A-Za-z0-9]{36,}"
 shapes="$shapes|github_pat_[A-Za-z0-9_]{60,}"
+shapes="$shapes|glpat-[A-Za-z0-9_-]{20,}"
+shapes="$shapes|npm_[A-Za-z0-9]{36,}"
 shapes="$shapes|xox[baprs]-[A-Za-z0-9-]{10,}"
+shapes="$shapes|hooks\.slack\.com/services/[A-Za-z0-9_/]{40,}"
+shapes="$shapes|discord(app)?\.com/api/webhooks/[0-9]{15,}/[A-Za-z0-9_-]{60,}"
+shapes="$shapes|SG\.[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{43}"
 shapes="$shapes|AIza[0-9A-Za-z_-]{35}"
 
 # Generic "key = <long value>" assignments for named credentials.

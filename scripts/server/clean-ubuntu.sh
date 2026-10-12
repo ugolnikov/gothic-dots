@@ -2,17 +2,17 @@
 
 # Проверка прав суперпользователя
 if [ "$EUID" -ne 0 ]; then
-  echo "Пожалуйста, запустите скрипт с помощью sudo!"
-  exit 1
+    echo "Пожалуйста, запустите скрипт с помощью sudo!"
+    exit 1
 fi
 
 echo "=== Старт очистки Ubuntu ==="
 
 # 1. Очистка кэша менеджера пакетов APT
 echo "-> Очистка кэша APT..."
-apt-get autoremove -y       # Удаление неиспользуемых зависимостей
-apt-get autoclean -y        # Удаление старых версий пакетов
-apt-get clean -y            # Полная очистка кэша загруженных .deb файлов
+apt-get autoremove -y # Удаление неиспользуемых зависимостей
+apt-get autoclean -y  # Удаление старых версий пакетов
+apt-get clean -y      # Полная очистка кэша загруженных .deb файлов
 
 # 2. Удаление старых конфигурационных файлов (остатков удаленных программ)
 echo "-> Удаление остаточных конфигов..."
@@ -22,12 +22,12 @@ if [ "${#REMOVED_CONFIGS[@]}" -gt 0 ]; then
 fi
 
 # 3. Очистка кэша пакетов Snap (сохраняет только последнюю версию)
-if command -v snap &> /dev/null; then
+if command -v snap &>/dev/null; then
     echo "-> Очистка старых версий Snap пакетов..."
     snap list --all | awk '/disabled/{print $1, $3}' | while read -r snapname revision; do
-    if [ -n "$snapname" ]; then
-        snap remove "$snapname" --revision="$revision"
-    fi
+        if [ -n "$snapname" ]; then
+            snap remove "$snapname" --revision="$revision"
+        fi
     done
 fi
 
@@ -40,7 +40,7 @@ echo "-> Очистка кэша эскизов..."
 rm -rf /home/*/.cache/thumbnails/*
 
 # 6. Очистка кэша Flatpak (если используется)
-if command -v flatpak &> /dev/null; then
+if command -v flatpak &>/dev/null; then
     echo "-> Очистка неиспользуемых данных Flatpak..."
     flatpak uninstall --unused -y
 fi
@@ -56,7 +56,7 @@ find /tmp -type f -atime +2 -delete
 
 # 9. Очистка кэша шрифтов и обновлений
 echo "-> Очистка кэша шрифтов и X11..."
-fc-cache -f -v &> /dev/null
+fc-cache -f -v &>/dev/null
 rm -rf /var/lib/ubuntu-advantage/boot-configs/*
 
 # 10. Очистка пользовательского кэша приложений (.cache)
@@ -71,7 +71,8 @@ rm -rf /var/cache/man/*
 # 12. Безопасный сброс кэша оперативной памяти (PageCache, dentries и inodes)
 # Освобождает занятую под кэш оперативную память, не влияя на стабильность
 echo "-> Сброс системного кэша оперативной памяти..."
-sync; echo 3 > /proc/sys/vm/drop_caches
+sync
+echo 3 >/proc/sys/vm/drop_caches
 
 echo "=== Очистка успешно завершена! ==="
-df -h / | grep -v Filesystem  # Показывает свободное место на диске
+df -h / | grep -v Filesystem # Показывает свободное место на диске

@@ -20,11 +20,20 @@ BINDS="$ROOT/config/hypr/conf.d/binds.conf"
 TSV="$ROOT/config/hypr/keybinds.tsv"
 SCRIPTS_DIR="$ROOT/config/hypr/scripts"
 
-[ -f "$BINDS" ] || { echo "check-binds: missing $BINDS" >&2; exit 1; }
-[ -f "$TSV" ] || { echo "check-binds: missing $TSV" >&2; exit 1; }
+[ -f "$BINDS" ] || {
+    echo "check-binds: missing $BINDS" >&2
+    exit 1
+}
+[ -f "$TSV" ] || {
+    echo "check-binds: missing $TSV" >&2
+    exit 1
+}
 
 status=0
-err() { echo "check-binds: $*" >&2; status=1; }
+err() {
+    echo "check-binds: $*" >&2
+    status=1
+}
 
 trim() {
     local s="$1"

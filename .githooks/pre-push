@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# pre-push — advisory guards before a push. It never blocks (always exits 0);
+# it just runs the fast repo checks so drift is caught locally instead of in CI.
+#
+# Enabled by install.sh (git config core.hooksPath .githooks).
+set -uo pipefail
+
+repo="$(git rev-parse --show-toplevel)"
+cd "$repo" || exit 0
+
+run_guard() {
+    local script="$1" label="$2"
+    [ -x "$script" ] || return 0
+    if ! "$script"; then
+        echo "pre-push: $label reported issues (advisory — CI is authoritative)" >&2
+    fi
+}
+
+run_guard scripts/check-coverage.sh "check-coverage"
+run_guard scripts/check-binds.sh "check-binds"
+run_guard scripts/scan-secrets.sh "secret scan"
+
+exit 0
