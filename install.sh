@@ -109,6 +109,13 @@ done
 # config/starship.toml is a file, not a directory
 link "$DIR/config/starship.toml" "$HOME/.config/starship.toml"
 
+# 2b. Per-machine Hyprland monitor overrides: seed an ignored copy from the
+# tracked example so the source in monitors.conf never dangles.
+_hypr_local="$HOME/.config/hypr/conf.d/monitors.local.conf"
+if [ ! -e "$_hypr_local" ] && [ -e "$_hypr_local.EXAMPLE" ]; then
+    run cp "$_hypr_local.EXAMPLE" "$_hypr_local"
+fi
+
 # 3. Home dotfiles
 for f in .vimrc .tmux.conf .gitconfig .editorconfig; do
     [ -e "$DIR/$f" ] && link "$DIR/$f" "$HOME/$f"
@@ -128,7 +135,8 @@ for b in "$DIR"/bin/*; do
 done
 
 # 6. Executable bits
-run chmod +x "$DIR"/config/hypr/scripts/*.sh "$DIR"/config/hypr/bootstrap.sh "$DIR"/scripts/*.sh 2>/dev/null || true
+run chmod +x "$DIR"/config/hypr/scripts/*.sh "$DIR"/config/hypr/bootstrap.sh \
+    "$DIR"/scripts/*.sh "$DIR"/.githooks/pre-commit 2>/dev/null || true
 
 # 7. Font cache + bat theme cache
 if command -v fc-cache >/dev/null 2>&1; then run fc-cache -f; fi
@@ -165,6 +173,11 @@ fi
 if [ "$SYSTEM" = 1 ]; then
     echo "==> system configs (zram/oomd/ananicy/irqbalance)"
     run "$DIR/config/hypr/scripts/system-setup.sh"
+fi
+
+# 11. Git hooks: enable the repo's pre-commit guard (secret scan + syntax).
+if [ -d "$DIR/.git" ] && command -v git >/dev/null 2>&1; then
+    run git -C "$DIR" config core.hooksPath .githooks
 fi
 
 echo "==> done: $LINKED linked, $BACKED backed up"

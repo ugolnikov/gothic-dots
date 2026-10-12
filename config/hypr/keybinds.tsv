@@ -1,0 +1,35 @@
+# Keybind table for README.md — tab-separated: key cell <TAB> action.
+# Rendered by scripts/gen-keybinds.sh ("--check" runs in CI).
+# Lines starting with # are ignored. Actual binds: conf.d/binds.conf.
+`SUPER + Return`	terminal (foot)
+`SUPER + D` / `SUPER + Space`	app launcher (tofi)
+`SUPER + E`	file manager
+`SUPER + B`	browser
+`SUPER + Q`	close window
+`SUPER + Shift + Q`	exit session
+`SUPER + Shift + E`	power menu
+`SUPER + V`	toggle floating
+`SUPER + P`	pseudo tile
+`SUPER + G`	toggle split
+`SUPER + F`	fullscreen (maximize)
+`SUPER + Shift + F`	true fullscreen
+`SUPER + ,`	settings
+`SUPER + W`	wallpaper picker
+`SUPER + R` / `SUPER + Shift + R`	reload Hyprland / restart Waybar
+`SUPER + N`	dismiss notifications
+`SUPER + C`	color picker
+`SUPER + X`	lock screen
+`SUPER + H J K L` / arrows	move focus
+`SUPER + Shift + H J K L` / arrows	move window
+`SUPER + Ctrl + H J K L`	resize window
+`SUPER + 1..0`	switch workspace
+`SUPER + Shift + 1..0`	move window to workspace
+`SUPER + Tab`	previous workspace
+`SUPER + scroll`	next / previous workspace
+`SUPER + grave`	scratchpad (special workspace)
+`SUPER + Shift + grave`	move window to scratchpad
+`SUPER + drag` (LMB / RMB)	move / resize window
+`Print` / `SUPER + Print` / `SUPER + Shift + Print`	screenshot: full / region / window
+`SUPER + Alt + Shift`	switch keyboard layout (us / ru)
+`Caps Lock`	Escape
+`XF86 Audio*` / `XF86 Brightness*`	volume / media / brightness

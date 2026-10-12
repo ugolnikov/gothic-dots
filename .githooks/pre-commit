@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# pre-commit — fast local checks before a commit is created.
+#
+# Blocking: the secret scan and bash syntax errors.
+# Advisory: shellcheck and fish syntax (warn only, so day-to-day edits are not
+# blocked; CI is authoritative for linters).
+#
+# Enabled by install.sh (git config core.hooksPath .githooks).
+set -uo pipefail
+
+repo="$(git rev-parse --show-toplevel)"
+cd "$repo" || exit 1
+
+fail=0
+staged="$(git diff --cached --name-only --diff-filter=ACM)"
+
+# 1. Secrets (blocking).
+if [ -x scripts/scan-secrets.sh ]; then
+    scripts/scan-secrets.sh || fail=1
+fi
+
+# 2. Bash syntax (blocking).
+while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    [ -f "$f" ] || continue
+    if head -n1 -- "$f" | grep -qE '^#!.*\b(bash|sh)\b'; then
+        if ! bash -n "$f"; then
+            echo "pre-commit: syntax error in $f" >&2
+            fail=1
+        fi
+    fi
+done <<<"$staged"
+
+# 3. Advisory linters.
+if command -v shellcheck >/dev/null 2>&1; then
+    mapfile -t sh < <(printf '%s\n' "$staged" | grep -E '(\.sh$|^bin/|^\.githooks/)' || true)
+    if [ "${#sh[@]}" -gt 0 ]; then
+        shellcheck --severity=warning -x "${sh[@]}" ||
+            echo "pre-commit: shellcheck reported issues (advisory)" >&2
+    fi
+fi
+if command -v fish >/dev/null 2>&1; then
+    while IFS= read -r f; do
+        [ -n "$f" ] || continue
+        fish -n "$f" || echo "pre-commit: fish syntax issue in $f (advisory)" >&2
+    done < <(printf '%s\n' "$staged" | grep -E '\.fish$' || true)
+fi
+
+exit "$fail"

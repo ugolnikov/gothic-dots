@@ -42,7 +42,11 @@ stack (foot, Waybar, rofi, mako).
 ├── scripts/                   # syscheck and other utilities
 │   ├── clean_ubuntu.sh
 │   ├── dotfiles-backup.sh     # auto-snapshot and push to origin
+│   ├── gen-keybinds.sh        # regenerate the README keybind table
+│   ├── scan-secrets.sh        # block commits/pushes that look like secrets
 │   └── syscheck.sh
+├── .githooks/
+│   └── pre-commit             # secret scan + syntax check before a commit
 ├── systemd/                   # auto-backup units (installed to /etc/systemd/system)
 │   ├── dotfiles-backup.service
 │   └── dotfiles-backup.timer
@@ -88,7 +92,10 @@ stack (foot, Waybar, rofi, mako).
 ## Keybinds
 
 Hyprland, `SUPER` is the modifier. Source: `config/hypr/conf.d/binds.conf`.
+The table below is generated from `config/hypr/keybinds.tsv` by
+`scripts/gen-keybinds.sh` (CI fails if it is out of date).
 
+<!-- keybinds:start -->
 | Key | Action |
 |-----|--------|
 | `SUPER + Return` | terminal (foot) |
@@ -123,6 +130,7 @@ Hyprland, `SUPER` is the modifier. Source: `config/hypr/conf.d/binds.conf`.
 | `SUPER + Alt + Shift` | switch keyboard layout (us / ru) |
 | `Caps Lock` | Escape |
 | `XF86 Audio*` / `XF86 Brightness*` | volume / media / brightness |
+<!-- keybinds:end -->
 
 ## Install
 
@@ -208,6 +216,26 @@ journalctl -u dotfiles-backup.service
 
 Secrets never reach the backup: they live outside the repository
 (`~/.secrets.fish`, `~/.ssh`) and are listed in `.gitignore`.
+
+## Hooks and checks
+
+As defense in depth the repository ships a pre-commit hook and a secret scanner:
+
+* `scripts/scan-secrets.sh` — flags files that look like they carry a
+  credential. `dotfiles-backup.sh` runs it before every automatic push, and the
+  hook runs it before every commit.
+* `.githooks/pre-commit` — blocks the commit on a suspected secret or a bash
+  syntax error; shellcheck and fish checks are advisory. `install.sh` enables it
+  with `git config core.hooksPath .githooks`.
+
+```bash
+# scan everything by hand
+./scripts/scan-secrets.sh --all
+
+# refresh the README keybind table after editing config/hypr/keybinds.tsv
+./scripts/gen-keybinds.sh
+./scripts/gen-keybinds.sh --check   # what CI runs
+```
 
 ## please
 

@@ -18,6 +18,9 @@ config/hypr/layout
 config/hypr/conf.d/layout.dynamic.conf
 config/hypr/conf.d/animations.dynamic.conf
 
+# --- Per-machine Hyprland overrides (seeded from *.EXAMPLE by install.sh) ---
+config/hypr/conf.d/*.local.conf
+
 # --- Generated palette (wallust) and the current wallpaper ---
 config/hypr/conf.d/colors.dynamic.conf
 config/hypr/wallpaper.png

@@ -6,34 +6,62 @@ on:
   pull_request:
 
 jobs:
-  shell:
-    name: shell
+  lint:
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install shellcheck
-        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck fish
+          python3 -m pip install --quiet pyyaml
 
       - name: Bash syntax
         run: |
           set -e
-          while IFS= read -r f; do
+          git ls-files -z | while IFS= read -r -d '' f; do
+            [ -f "$f" ] || continue
+            head -n1 "$f" | grep -qE '^#!.*\b(bash|sh)\b' || continue
             echo "bash -n $f"
             bash -n "$f"
-          done < <(git ls-files | grep -E '\.sh$')
+          done
 
       - name: ShellCheck
         run: |
           set -e
-          mapfile -t files < <(git ls-files | grep -E '\.sh$')
+          mapfile -t files < <(git ls-files | grep -E '(\.sh$|^bin/)')
+          files+=(".githooks/pre-commit")
           shellcheck --severity=warning -x "${files[@]}"
 
-      - name: Validate JSON
+      - name: Fish syntax
+        run: |
+          set -e
+          while IFS= read -r f; do
+            echo "fish -n $f"
+            fish -n "$f"
+          done < <(git ls-files '*.fish')
+
+      - name: Config files (JSON / TOML / YAML)
         run: |
           python3 - <<'PY'
-          import json, glob, sys
-          for p in ["config/swaync/config.json"]:
-              json.load(open(p))
-              print("ok", p)
+          import glob, json, tomllib, yaml
+          for p in glob.glob('**/*.json', recursive=True):
+              json.load(open(p)); print('json ok', p)
+          for p in glob.glob('**/*.toml', recursive=True):
+              with open(p, 'rb') as fh:
+                  tomllib.load(fh)
+              print('toml ok', p)
+          for p in glob.glob('**/*.yml', recursive=True) + glob.glob('**/*.yaml', recursive=True):
+              yaml.safe_load(open(p)); print('yaml ok', p)
           PY
+
+      - name: Secret scan
+        run: ./scripts/scan-secrets.sh --all
+
+      - name: Keybind table is up to date
+        run: ./scripts/gen-keybinds.sh --check
+
+      - name: install.sh dry-run
+        run: ./install.sh --no-packages --dry-run
