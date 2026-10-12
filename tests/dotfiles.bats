@@ -51,3 +51,38 @@ setup() {
     [ "$status" -eq 0 ]
     [[ "$output" == "light" || "$output" == "dark" ]]
 }
+
+@test "install.sh --only links just the named app" {
+    run ./install.sh --no-packages --only hypr --dry-run
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"/config/hypr /"* ]]
+    [[ "$output" != *"/config/waybar"* ]]
+    [[ "$output" != *"/dotfiles/fish"* ]]
+}
+
+# Exercise the real script against a throwaway clone + local bare remote, so it
+# can't touch the actual origin: the snapshot must land on its own branch and
+# leave `main` (and the working tree) alone.
+@test "dotfiles-backup snapshots to a branch without moving main" {
+    command -v git >/dev/null || skip "git not available"
+    git -C "$REPO_ROOT" config user.email >/dev/null 2>&1 || skip "no git identity"
+
+    remote="$BATS_TEST_TMPDIR/remote.git"
+    work="$BATS_TEST_TMPDIR/work"
+    git init -q --bare "$remote"
+    git clone -q "$REPO_ROOT" "$work"
+    git -C "$work" remote set-url origin "$remote"
+    git -C "$work" push -q origin HEAD:refs/heads/main
+    main_before="$(git -C "$work" rev-parse origin/main)"
+
+    echo "# bats snapshot" >>"$work/README.md"
+    export XDG_STATE_HOME="$BATS_TEST_TMPDIR/state"
+    run "$work/scripts/dotfiles-backup.sh"
+    [ "$status" -eq 0 ]
+
+    run git -C "$work" ls-remote --heads origin
+    [[ "$output" == *"refs/heads/snapshots"* ]]
+    [ "$(git -C "$work" rev-parse origin/main)" = "$main_before" ]
+    run git -C "$work" status --porcelain
+    [[ "$output" == *"README.md"* ]]
+}
