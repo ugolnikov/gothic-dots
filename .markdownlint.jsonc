@@ -1,0 +1,9 @@
+{
+  // markdownlint config for the dotfiles docs.
+  // MD013 — long lines: badges, tables and the ascii layout trees.
+  // MD042 — placeholder badge links `(#)` are intentional, not empty links.
+  // MD060 — the keybind table is generated with compact pipes (gen-keybinds.sh).
+  "MD013": false,
+  "MD042": false,
+  "MD060": false
+}

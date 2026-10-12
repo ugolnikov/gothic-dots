@@ -3,7 +3,7 @@
 #   ./install.sh                 install packages (Arch/CachyOS) and link configs
 #   ./install.sh --no-packages   link configs only
 #   ./install.sh --timer         also enable the systemd auto-backup
-#   ./install.sh --system        also install system configs (zram/oomd/ananicy)
+#   ./install.sh --system        also install system configs (zram/oomd/ananicy/irqbalance/keyd)
 #   ./install.sh --force         overwrite existing targets without a backup
 #   ./install.sh --dry-run       print the steps, change nothing
 #   ./install.sh --uninstall     remove this repo's symlinks (inverse of install)
@@ -126,7 +126,10 @@ if [ "$UNINSTALL" = 1 ]; then
         run git -C "$DIR" config --unset core.hooksPath 2>/dev/null || true
     fi
     echo "==> done: $LINKED removed"
-    last="$(ls -1d "$HOME"/.dotfiles-backup/*/ 2>/dev/null | tail -1 || true)"
+    last=""
+    for d in "$HOME"/.dotfiles-backup/*/; do
+        [ -d "$d" ] && last="$d"
+    done
     if [ -n "$last" ]; then
         echo "    earlier configs (if any) are in $last"
     fi

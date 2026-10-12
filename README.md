@@ -22,9 +22,11 @@ Add your own images to `docs/screenshots/` and reference them here — see
 
 ## Layout
 
-```
+```text
 .
 ├── .gitignore                 # Git exclusions
+├── .shellcheckrc              # ShellCheck options (external sources)
+├── .markdownlint.jsonc        # Markdown lint rules for the docs
 ├── bin/
 │   └── please                 # run a command from history through sudo
 ├── fish/                      # Fish shell
@@ -40,7 +42,11 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── completions/
 │   │   └── please.fish
 │   └── functions/
-│       └── fish_greeting.fish
+│       ├── cleanup.fish        # clean package cache and orphans
+│       ├── fish_greeting.fish
+│       ├── my.fish             # list the abbreviations
+│       ├── update.fish         # sync package databases
+│       └── upgrade.fish        # upgrade the system
 ├── bash/                      # Bash (fallback shell)
 │   ├── .bashrc                # → ~/.bashrc
 │   └── .profile               # → ~/.profile
@@ -48,6 +54,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── doctor.sh              # desktop health check (packages, links, fonts)
 │   ├── dotfiles-backup.sh     # auto-snapshot and push to origin
 │   ├── gen-keybinds.sh        # regenerate the README keybind table
+│   ├── check-binds.sh         # binds.conf ↔ keybinds.tsv/scripts drift check
 │   ├── scan-secrets.sh        # block commits/pushes that look like secrets
 │   └── server/                # server-only helpers (Ubuntu: apt, fail2ban, postgres)
 │       ├── clean-ubuntu.sh
@@ -84,14 +91,15 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── htop/                  #   htoprc
 │   ├── lazygit/               #   config.yml
 │   ├── micro/                 #   settings.json, bindings.json
-│   └── nvim/init.vim          #   → ../../.vimrc
+│   └── nvim/                  #   init.vim → ../../.vimrc; gothic airline theme
 ├── claude/                    # → ~/.claude/
 │   ├── settings.json
 │   └── settings.local.json.EXAMPLE
 ├── etc/                       # system configs (install.sh --system)
 │   ├── systemd/zram-generator.conf
 │   ├── systemd/oomd.conf
-│   └── ananicy.d/00-gothic.rules
+│   ├── ananicy.d/00-gothic.rules
+│   └── keyd/default.conf      # ru-latin shortcuts while a modifier is held
 └── install.sh                 # Auto-install (packages + symlinks)
 ```
 
@@ -122,6 +130,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + R` / `SUPER + Shift + R` | reload Hyprland / restart Waybar |
 | `SUPER + N` | dismiss notifications |
 | `SUPER + C` | color picker |
+| `SUPER + M` | network connections (nm-connection-editor) |
 | `SUPER + X` | lock screen |
 | `SUPER + H J K L` / arrows | move focus |
 | `SUPER + Shift + H J K L` / arrows | move window |
@@ -150,7 +159,7 @@ cd ~/dotfiles
 ./install.sh                 # Arch/CachyOS: packages (repo + AUR) and config symlinks
 ./install.sh --no-packages   # symlink configs only
 ./install.sh --timer         # also enable the systemd auto-backup
-./install.sh --system        # also install system configs (zram/oomd/ananicy/irqbalance)
+./install.sh --system        # also install system configs (zram/oomd/ananicy/irqbalance/keyd)
 ./install.sh --force         # overwrite existing targets without a backup
 ./install.sh --dry-run       # print the steps, change nothing
 ./install.sh --uninstall     # remove this repo's symlinks (inverse of install)
@@ -237,9 +246,15 @@ As defense in depth the repository ships a pre-commit hook and a secret scanner:
 * `scripts/scan-secrets.sh` — flags files that look like they carry a
   credential. `dotfiles-backup.sh` runs it before every automatic push, and the
   hook runs it before every commit.
+* `scripts/check-binds.sh` — fails when a bind uses an undefined `$variable`, a
+  missing script, an unknown dispatcher, or a key that is not listed in
+  `config/hypr/keybinds.tsv`. Runs in CI.
 * `.githooks/pre-commit` — blocks the commit on a suspected secret or a bash
   syntax error; shellcheck and fish checks are advisory. `install.sh` enables it
   with `git config core.hooksPath .githooks`.
+
+CI additionally lints the Markdown (`markdownlint-cli2`, rules in
+`.markdownlint.jsonc`).
 
 ```bash
 # scan everything by hand
@@ -254,7 +269,7 @@ As defense in depth the repository ships a pre-commit hook and a secret scanner:
 
 A utility to run commands from history through `sudo`. Works in fish and bash.
 
-```
+```text
 please             # the last command, with sudo
 please <TAB>       # pick a command from history (completion)
 please apt update  # sudo apt update without digging through history

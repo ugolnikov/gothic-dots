@@ -36,6 +36,8 @@ toggle_theme() {
         rm -f "$DYNAMIC"
         note "Готик-палитра"
     else
+        # Палитра из обоев и светлая тема делят одни файлы — включаем одну.
+        rm -f "$STATE/light-theme"
         touch "$DYNAMIC"
         note "Палитра из обоев"
     fi
@@ -126,6 +128,7 @@ show_binds() {
         note "binds.conf не найден"
         return 0
     }
+    # shellcheck disable=SC2016  # sed must see the literal $mod, not a shell expansion
     grep -E '^[[:space:]]*bind' "$BINDS" \
         | sed -E 's/^[[:space:]]*bind[a-z]*[[:space:]]*=[[:space:]]*//; s/\$mod/SUPER/g; s/[[:space:]]*,[[:space:]]*/ | /g' \
         | rofi -dmenu -i -p "Клавиши" -theme "$ROFI_THEME" >/dev/null || true

@@ -16,15 +16,15 @@ apt-get clean -y            # Полная очистка кэша загруж�
 
 # 2. Удаление старых конфигурационных файлов (остатков удаленных программ)
 echo "-> Удаление остаточных конфигов..."
-REMOVED_CONFIGS=$(dpkg -l | grep "^rc" | awk '{print $2}')
-if [ -n "$REMOVED_CONFIGS" ]; then
-    apt-get purge -y $REMOVED_CONFIGS
+mapfile -t REMOVED_CONFIGS < <(dpkg -l | awk '/^rc/ {print $2}')
+if [ "${#REMOVED_CONFIGS[@]}" -gt 0 ]; then
+    apt-get purge -y "${REMOVED_CONFIGS[@]}"
 fi
 
 # 3. Очистка кэша пакетов Snap (сохраняет только последнюю версию)
 if command -v snap &> /dev/null; then
     echo "-> Очистка старых версий Snap пакетов..."
-    snap list --all | awk '/disabled/{print $1, $3}' | while read snapname revision; do
+    snap list --all | awk '/disabled/{print $1, $3}' | while read -r snapname revision; do
     if [ -n "$snapname" ]; then
         snap remove "$snapname" --revision="$revision"
     fi

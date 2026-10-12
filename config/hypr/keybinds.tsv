@@ -1,6 +1,7 @@
 # Keybind table for README.md — tab-separated: key cell <TAB> action.
 # Rendered by scripts/gen-keybinds.sh ("--check" runs in CI).
-# Lines starting with # are ignored. Actual binds: conf.d/binds.conf.
+# Lines starting with # are ignored. Actual binds: conf.d/binds.conf
+# (plus the layout switch / Caps Lock from conf.d/input.conf).
 `SUPER + Return`	terminal (foot)
 `SUPER + D` / `SUPER + Space`	app launcher (tofi)
 `SUPER + E`	file manager
@@ -19,6 +20,7 @@
 `SUPER + R` / `SUPER + Shift + R`	reload Hyprland / restart Waybar
 `SUPER + N`	dismiss notifications
 `SUPER + C`	color picker
+`SUPER + M`	network connections (nm-connection-editor)
 `SUPER + X`	lock screen
 `SUPER + H J K L` / arrows	move focus
 `SUPER + Shift + H J K L` / arrows	move window

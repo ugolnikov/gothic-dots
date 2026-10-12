@@ -60,8 +60,16 @@ jobs:
       - name: Secret scan
         run: ./scripts/scan-secrets.sh --all
 
+      - name: Markdown lint
+        uses: DavidAnson/markdownlint-cli2-action@v24
+        with:
+          globs: "**/*.md"
+
       - name: Keybind table is up to date
         run: ./scripts/gen-keybinds.sh --check
+
+      - name: Binds match their docs
+        run: ./scripts/check-binds.sh
 
       - name: install.sh dry-run
         run: ./install.sh --no-packages --dry-run

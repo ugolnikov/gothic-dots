@@ -12,8 +12,12 @@ abbr c     'clear'
 abbr cls   'clear; and eza --group-directories-first'
 abbr v     'vim'
 abbr m     'micro'
-abbr fd    'fdfind'
-abbr f     'fdfind'
+# fd: на Arch/CachyOS бинарь называется fd, на Debian/Ubuntu — fdfind.
+# Подсказываем только там, где нужного имени нет, чтобы не затенять рабочую команду.
+if command -q fdfind; and not command -q fd
+    abbr fd 'fdfind'
+    abbr f  'fdfind'
+end
 abbr ff    'fastfetch'
 abbr b     'bat'
 

@@ -35,7 +35,10 @@ fi
 # 3. Палитра из обоев — ТОЛЬКО если включено маркером. По умолчанию выключено:
 #    рабочий стол использует фиксированную готик-палитру (conf.d/colors.conf).
 #    Включить генерацию из обоев:  touch ~/.config/hypr/dynamic-theme
-if [ -e "$CONFIG/hypr/dynamic-theme" ] && command -v wallust >/dev/null 2>&1; then
+#    Светлая тема (light-theme) приоритетнее: она пишет те же файлы, поэтому
+#    при ней wallust не запускаем.
+if [ -e "$CONFIG/hypr/dynamic-theme" ] && [ ! -e "$CONFIG/hypr/light-theme" ] \
+    && command -v wallust >/dev/null 2>&1; then
     wallust run "$WALL" || wallust run "$CONFIG/hypr/wallpaper.png" || true
 fi
 

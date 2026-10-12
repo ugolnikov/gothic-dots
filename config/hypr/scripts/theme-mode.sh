@@ -4,7 +4,8 @@
 #
 # Палитра пишется в те же файлы *.dynamic.*, что и wallust, — приложения уже
 # их импортируют. «dark» просто очищает их, возвращая фиксированную готику.
-# Поэтому light-режим и палитра из обоев (dynamic-theme) взаимоисключающие.
+# Поэтому light-режим и палитра из обоев (dynamic-theme) взаимоисключающие:
+# включение light снимает маркер dynamic-theme.
 #
 # Покрыто: Hyprland, Waybar, rofi, kitty, swaync. foot/mako/tofi/hyprlock и GTK
 # остаются на своей фиксированной палитре (см. README).
@@ -150,6 +151,10 @@ status() {
 current() { status; }
 
 apply_light() {
+    # Светлая палитра и палитра из обоев (wallust) делят одни файлы, поэтому
+    # включая light, снимаем маркер dynamic-theme — иначе theme.sh при следующем
+    # логине снова прогонит wallust и перетрёт светлую палитру.
+    rm -f "$CONFIG/hypr/dynamic-theme"
     write_light
     : >"$MARKER"
     reload

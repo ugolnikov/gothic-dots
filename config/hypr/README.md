@@ -32,7 +32,7 @@ The same links are created by `install.sh` at the repository root.
 
 ## Layout
 
-```
+```text
 config/hypr/
 ├── hyprland.conf          # entry point, sources conf.d/*
 ├── conf.d/
@@ -49,8 +49,8 @@ config/hypr/
 ├── hypridle.conf          # idle / lock by timeout
 ├── hyprlock.conf          # lock screen
 ├── scripts/               # settings, theme(-mode), wallpaper(-picker), screenshot,
-│                          #   clipboard, launcher, run-in-terminal, notifications,
-│                          #   system-setup
+│                          #   clipboard, dismiss, filemanager, launcher,
+│                          #   run-in-terminal, notifications, system-setup
 ├── packages.txt           # repository packages
 ├── aur.packages.txt       # AUR packages (paru/yay)
 └── bootstrap.sh           # install packages, then symlink the configs
@@ -92,38 +92,16 @@ same `*.dynamic.*` files:
 ```
 
 It recolors Hyprland, Waybar, rofi, kitty and swaync. Because it and wallust
-share the same files they are mutually exclusive. foot, mako, tofi, hyprlock
-and GTK keep the fixed palette. Toggle it from the settings center
-(**Light theme**).
+share the same files they are mutually exclusive — enabling one disables the
+other. foot, mako, tofi, hyprlock and GTK keep the fixed palette. Toggle it from
+the settings center (**Light theme**).
 
 ## Keybinds
 
-| Key | Action |
-|-----|--------|
-| `SUPER + Return` | terminal (foot) |
-| `SUPER + D` / `SUPER + Space` | app launcher (tofi) |
-| `SUPER + E` | file manager |
-| `SUPER + B` | browser |
-| `SUPER + Q` | close window |
-| `SUPER + V` | toggle floating |
-| `SUPER + F` | fullscreen (maximize) |
-| `SUPER + Shift + F` | true fullscreen |
-| `SUPER + 1..0` | switch workspace |
-| `SUPER + Shift + 1..0` | move window to workspace |
-| `SUPER + H/J/K/L` | move focus |
-| `SUPER + Ctrl + H/J/K/L` | resize window |
-| `SUPER + Shift + E` | power menu |
-| `SUPER + X` | lock screen |
-| `SUPER + C` | color picker |
-| `SUPER + W` | wallpaper picker |
-| `SUPER + ,` | settings |
-| `Print` / `SUPER + Print` | screenshot: full / region |
-| `SUPER + Shift + S` | screenshot → annotate (swappy) |
-| `SUPER + Shift + V` | clipboard history (cliphist) |
-| `SUPER + R` | reload Hyprland config |
-
-`SUPER + Alt + Shift` switches the us/ru layout, `Caps Lock` acts as Escape. The
-full list lives in `conf.d/binds.conf`.
+The full, generated table lives in the top-level `README.md` — single source:
+`config/hypr/keybinds.tsv` rendered by `scripts/gen-keybinds.sh`. The actual
+binds are in `conf.d/binds.conf`; `SUPER + Alt + Shift` switches the us/ru
+layout and `Caps Lock` acts as Escape (both from `conf.d/input.conf`).
 
 ## Wallpaper and animation
 
