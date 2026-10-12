@@ -1,0 +1,9 @@
+# Per-machine monitor overrides. install.sh copies this to
+# monitors.local.conf (which is git-ignored) on first run.
+# Sourced after the generated monitors.conf so a pinned layout or forced mode
+# wins. Put your own lines here:
+#
+#   monitor = eDP-1, 1920x1200@60, 0x0, 1
+#   monitor = DP-1, 2560x1440@144, 1920x0, 1
+#
+# It exists so the source in monitors.conf never points at a missing file.

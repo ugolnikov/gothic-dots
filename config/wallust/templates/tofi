@@ -1,0 +1,23 @@
+# wallust — обои → tofi. Генерируется, не редактируй.
+font = "JetBrainsMono Nerd Font"
+font-size = 13
+background-color = #{{background}}
+text-color = #{{foreground}}
+prompt-color = #{{color1}}
+selection-color = #{{background}}
+selection-background = #{{color1}}
+border-width = 1
+border-color = #{{color1}}
+border-radius = 2
+prompt-text = "> "
+padding-top = 8
+padding-bottom = 8
+padding-left = 14
+padding-right = 14
+result-spacing = 12
+width = 520
+height = 360
+horizontal = false
+num-results = 8
+anchor = top
+margin-top = 80

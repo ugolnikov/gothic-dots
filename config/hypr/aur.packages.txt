@@ -1,0 +1,18 @@
+# AUR packages for the rice. Installed via paru/yay (see bootstrap.sh).
+# One package per line, lines starting with # are ignored.
+
+# --- Launcher (lighter than rofi) ---
+tofi
+
+# --- Font ---
+ttf-cormorant
+ttf-cinzel
+
+# --- Optional ---
+# fnm-bin
+# ttf-eb-garamond
+# ttf-victor-mono
+# bibata-cursor-theme
+# mpvpaper
+# bluetui
+# hyprpanel

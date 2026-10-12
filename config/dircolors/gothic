@@ -1,0 +1,44 @@
+# Gothic LS_COLORS — no blue. Blood directories, gold executables/archives,
+# violet links and images, bone documents.
+# Sourced by bash/fish (see bash/.bashrc, fish/conf.d/env.fish).
+
+DIR            38;2;163;22;33
+LINK           38;2;108;79;143
+MULTIHARDLINK  38;2;139;90;99
+FIFO           38;2;74;74;82
+SOCK           38;2;108;79;143
+DOOR           38;2;163;22;33
+BLK            38;2;143;122;74
+CHR            38;2;143;122;74
+ORPHAN         38;2;163;22;33
+MISSING        38;2;163;22;33
+EXEC           38;2;143;122;74
+SETUID         38;2;200;30;58
+SETGID         38;2;108;79;143
+STICKY         38;2;143;122;74
+OTHER_WRITABLE 38;2;200;30;58
+STICKY_OTHER_WRITABLE 38;2;163;22;33
+CAPABILITY     38;2;143;122;74
+
+# Archives — gold
+.tar   38;2;143;122;74
+.tgz   38;2;143;122;74
+.zip   38;2;143;122;74
+.7z    38;2;143;122;74
+.rar   38;2;143;122;74
+.gz    38;2;143;122;74
+.zst   38;2;143;122;74
+.xz    38;2;143;122;74
+
+# Images — violet
+.png   38;2;108;79;143
+.jpg   38;2;108;79;143
+.jpeg  38;2;108;79;143
+.gif   38;2;108;79;143
+.webp  38;2;108;79;143
+.svg   38;2;108;79;143
+
+# Documents — bone
+.md    38;2;214;209;201
+.txt   38;2;214;209;201
+.pdf   38;2;139;90;99

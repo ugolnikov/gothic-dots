@@ -1,0 +1,21 @@
+# Normalize line endings for text; keep scripts LF everywhere so they stay runnable.
+* text=auto eol=lf
+
+# Binary assets — never touch their bytes.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+
+# Generated palette / runtime state is noise in diffs and language stats.
+config/hypr/conf.d/*.dynamic.conf linguist-generated=true
+config/waybar/colors.dynamic.css linguist-generated=true
+config/rofi/colors.dynamic.rasi linguist-generated=true
+config/kitty/colors.dynamic.conf linguist-generated=true
+config/swaync/colors.dynamic.css linguist-generated=true

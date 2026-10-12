@@ -1,0 +1,13 @@
+/* wallust — обои → swaync. Генерируется, не редактируй. */
+@define-color base     #{{background}};
+@define-color mantle   #{{color0}};
+@define-color surface0 #{{color8}};
+@define-color overlay0 #{{color8}};
+@define-color text     #{{foreground}};
+@define-color subtext  #{{color7}};
+@define-color blue     #{{color4}};
+@define-color mauve    #{{color5}};
+@define-color green    #{{color2}};
+@define-color yellow   #{{color3}};
+@define-color peach    #{{color6}};
+@define-color red      #{{color1}};

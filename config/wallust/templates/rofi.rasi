@@ -1,0 +1,21 @@
+/* wallust — обои → rofi. Генерируется, не редактируй.
+   Импортируется после colors.rasi и перекрывает его. */
+* {
+    base:      #{{background}};
+    mantle:    #{{color0}};
+    crust:     #{{color0}};
+    surface0:  #{{color8}};
+    surface1:  #{{color8}};
+    overlay0:  #{{color8}};
+    text:      #{{foreground}};
+    subtext:   #{{color7}};
+    blue:      #{{color4}};
+    lavender:  #{{color5}};
+    sapphire:  #{{color4}};
+    green:     #{{color2}};
+    yellow:    #{{color3}};
+    peach:     #{{color6}};
+    red:       #{{color1}};
+    mauve:     #{{color5}};
+    pink:      #{{color5}};
+}

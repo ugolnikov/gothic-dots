@@ -1,0 +1,6 @@
+# ShellCheck configuration for this repository.
+# Severity is not an rc option here: CI and the pre-commit hook pass
+# --severity=warning explicitly, so a bare `shellcheck` stays more chatty.
+# Follow `source`d files and resolve relative sources from each script's dir.
+external-sources=true
+source-path=SCRIPTDIR

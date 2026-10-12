@@ -1,0 +1,64 @@
+/* rofi — сетка выбора обоев (scripts/wallpaper-picker.sh). Готик-минимализм. */
+
+@import "colors.rasi"
+@import "colors.dynamic.rasi"
+
+window {
+    width: 62%;
+    padding: 12px;
+    border-radius: 2px;
+    background-color: @base;
+    border: 1px;
+    border-color: @red;
+}
+
+mainbox {
+    padding: 6px;
+    spacing: 10px;
+}
+
+inputbar {
+    children: [ prompt, entry ];
+    padding: 10px;
+    spacing: 8px;
+    border-radius: 2px;
+    background-color: @surface0;
+}
+
+prompt {
+    text-color: @red;
+}
+
+entry {
+    placeholder: "Поиск обоев…";
+    placeholder-color: @subtext;
+    text-color: @text;
+}
+
+listview {
+    lines: 5;
+    columns: 3;
+    spacing: 10px;
+    scrollbar: false;
+    dynamic: true;
+}
+
+element {
+    padding: 6px;
+    border-radius: 2px;
+    background-color: transparent;
+}
+
+element-icon {
+    size: 220px;
+    border-radius: 1px;
+    background-color: transparent;
+}
+
+element-text {
+    enabled: false;
+}
+
+element selected {
+    background-color: @surface0;
+}

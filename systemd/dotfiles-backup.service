@@ -1,0 +1,12 @@
+[Unit]
+Description=Snapshot dotfiles changes to the snapshots branch on GitHub
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# The dotted tokens in this unit are filled in by install.sh --timer, so it
+# works from any clone path and runs as the repo owner (not root).
+User=@USER@
+Environment=HOME=@HOME@
+ExecStart=@DOTFILES@/scripts/dotfiles-backup.sh

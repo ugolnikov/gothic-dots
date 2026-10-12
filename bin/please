@@ -1,0 +1,43 @@
+#!/bin/bash
+# please — запуск команд из истории через sudo
+#   please         → последняя команда с sudo
+#   please <cmd>   → указанная команда с sudo (пробел-TAB для выбора из истории)
+
+set -euo pipefail
+
+# --- если команда передана аргументом — сразу sudo ---
+if [[ $# -gt 0 ]]; then
+    exec sudo "$SHELL" -c "$*"
+fi
+
+parent="$(ps -o comm= -p $PPID 2>/dev/null || echo bash)"
+
+# --- читаем историю родительской оболочки ---
+case "$parent" in
+    fish)
+        histfile="${XDG_DATA_HOME:-$HOME/.local/share}/fish/fish_history"
+        if [[ -r "$histfile" ]]; then
+            # fish yaml:  - cmd: <command>
+            history="$(sed -n 's/^  - cmd: //p' "$histfile" | grep -a -v '^$' || true)"
+        fi
+        ;;
+    bash | sh)
+        histfile="${HISTFILE:-$HOME/.bash_history}"
+        if [[ -r "$histfile" ]]; then
+            history="$(grep -a -v '^$' "$histfile" || true)"
+        fi
+        ;;
+esac
+
+if [[ -z "${history:-}" ]]; then
+    echo "please: не удалось прочитать историю ($parent)" >&2
+    exit 1
+fi
+
+cmd="$(echo "$history" | grep -a -v '^please' | grep -a -v '^sudo ' | tail -1)"
+
+if [[ -z "$cmd" ]]; then
+    exit 0
+fi
+
+exec sudo "$SHELL" -c "$cmd"

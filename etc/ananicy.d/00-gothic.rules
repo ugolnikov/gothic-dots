@@ -1,0 +1,8 @@
+# ananicy-cpp — правила приоритетов процессов. Интерактивные приложения выше.
+# Ставится system-setup.sh. Формат: по одному JSON-объекту на строку.
+
+{ "name": "foot", "nice": -2 }
+{ "name": "footclient", "nice": -2 }
+{ "name": "yazi", "nice": -2 }
+{ "name": "wiremix", "nice": -2 }
+{ "name": "mpvpaper", "nice": 5 }

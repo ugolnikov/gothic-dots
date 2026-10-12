@@ -1,0 +1,42 @@
+# --- Secrets: never commit (see README) ---
+# The *.EXAMPLE templates in fish/ ARE tracked on purpose.
+fish/secrets.fish
+.secrets.fish
+.secrets.sh
+claude/settings.local.json
+
+# --- Runtime state written into tracked config dirs ---
+config/micro/backups/
+config/micro/buffers/
+fish/fish_variables
+
+# --- Runtime choices written by the settings app (scripts/settings.sh) ---
+config/hypr/dynamic-theme
+config/hypr/light-theme
+config/hypr/random-wallpaper
+config/hypr/terminal
+config/hypr/notifications
+config/hypr/layout
+config/hypr/conf.d/layout.dynamic.conf
+config/hypr/conf.d/animations.dynamic.conf
+
+# --- Per-machine Hyprland overrides (seeded from *.EXAMPLE by install.sh) ---
+config/hypr/conf.d/*.local.conf
+
+# --- Generated palette (wallust) and the current wallpaper ---
+config/hypr/conf.d/colors.dynamic.conf
+config/hypr/wallpaper.png
+config/waybar/colors.dynamic.css
+config/rofi/colors.dynamic.rasi
+config/kitty/colors.dynamic.conf
+config/swaync/colors.dynamic.css
+
+# --- Editor / OS junk ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.netrwhist
+.idea/
+.vscode/
