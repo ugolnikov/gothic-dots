@@ -75,5 +75,5 @@ qt6ct
 # network-manager-applet   # network GUI if nmtui is not enough
 # blueman                  # Bluetooth GUI
 
-# AUR packages (tofi, fonts) live in aur.packages.txt and are installed by
-# bootstrap.sh via paru or yay.
+# AUR-only packages (tofi, the decorative fonts) live in aur.packages.txt and
+# are installed by bootstrap.sh via paru or yay.

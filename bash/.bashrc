@@ -93,13 +93,42 @@ alias la='eza -a --group-directories-first'
 alias l='eza -l --group-directories-first'
 alias lt='eza --tree --level=2 --group-directories-first'
 alias v='nvim'
-alias fd='fdfind'
+# fd: на Arch/CachyOS бинарь называется fd, на Debian/Ubuntu — fdfind. Подсказываем
+# alias только там, где нужного имени нет, чтобы не затенять рабочую команду.
+if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
+  alias fd='fdfind'
+fi
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias home='cd ~'
-alias remove='sudo apt autoremove'
-alias clean='sudo apt autoclean'
+
+# Пакетные помощники — pacman/apt aware, зеркалят fish-функции update/upgrade/cleanup.
+if command -v pacman >/dev/null 2>&1; then
+  update() { sudo pacman -Sy; }
+  upgrade() {
+    if command -v paru >/dev/null 2>&1; then paru -Syu
+    elif command -v yay >/dev/null 2>&1; then yay -Syu
+    else sudo pacman -Syu; fi
+  }
+  cleanup() {
+    local orphans
+    orphans="$(pacman -Qtdq 2>/dev/null)"
+    # shellcheck disable=SC2086  # word list of package names, intentional
+    [ -n "$orphans" ] && sudo pacman -Rns $orphans
+    if command -v paccache >/dev/null 2>&1; then sudo paccache -rk1; sudo paccache -ruk0; fi
+    if command -v paru >/dev/null 2>&1; then paru -Sc --noconfirm
+    elif command -v yay >/dev/null 2>&1; then yay -Sc --noconfirm; fi
+  }
+  alias remove='cleanup'
+  alias clean='cleanup'
+else
+  update() { sudo apt update; }
+  upgrade() { sudo apt update && sudo apt upgrade; }
+  cleanup() { sudo apt autoremove -y && sudo apt autoclean && sudo apt clean; }
+  alias remove='sudo apt autoremove'
+  alias clean='sudo apt autoclean'
+fi
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
@@ -117,7 +146,7 @@ fi
 #    . /etc/bash_completion
 #fi
 
-. "$HOME/.local/bin/env"
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 export PATH="$HOME/.local/bin:$PATH"
 
 # opencode
@@ -125,7 +154,7 @@ export PATH="$HOME/.opencode/bin:$PATH"
 
 # fnm
 FNM_PATH="$HOME/.local/share/fnm"
-if [ -d "$FNM_PATH" ]; then
+if command -v fnm >/dev/null 2>&1; then
   export PATH="$FNM_PATH:$PATH"
   eval "$(fnm env --shell bash)"
 fi
@@ -136,8 +165,11 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # secrets (API keys, tokens) для bash-фолбэка
 [ -f ~/.secrets.sh ] && . ~/.secrets.sh
-eval "$(fzf --bash)"
-eval "$(zoxide init bash)"
+
+# prompt & tools — только если установлены
+command -v starship >/dev/null 2>&1 && eval "$(starship init bash)"
+command -v fzf >/dev/null 2>&1 && eval "$(fzf --bash)"
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
 
 # Added by jcode installer
 export PATH="$HOME/.local/bin:$PATH"
