@@ -21,6 +21,7 @@
 `SUPER + N`	dismiss notifications
 `SUPER + C`	color picker
 `SUPER + M`	network connections (nm-connection-editor)
+`SUPER + Shift + T`	toggle light / dark theme
 `SUPER + X`	lock screen
 `SUPER + H J K L` / arrows	move focus
 `SUPER + Shift + H J K L` / arrows	move window

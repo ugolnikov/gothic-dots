@@ -35,7 +35,9 @@ done
 
 sec "Симлинки"
 for p in "$HOME/.gitconfig" "$HOME/.tmux.conf" "$HOME/.vimrc" "$HOME/.bashrc" \
-    "$HOME/.config/hypr" "$HOME/.config/fish" "$HOME/.config/waybar"; do
+    "$HOME/.profile" "$HOME/.editorconfig" "$HOME/.config/starship.toml" \
+    "$HOME/.local/bin/please" "$HOME/.config/hypr" "$HOME/.config/fish" \
+    "$HOME/.config/waybar"; do
     t="$(readlink -f "$p" 2>/dev/null || true)"
     case "$t" in
         "$ROOT"/*) ok "$p" ;;

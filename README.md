@@ -27,6 +27,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 ├── .gitignore                 # Git exclusions
 ├── .shellcheckrc              # ShellCheck options (external sources)
 ├── .markdownlint.jsonc        # Markdown lint rules for the docs
+├── .gitattributes             # LF normalisation, binary/generated rules
 ├── bin/
 │   └── please                 # run a command from history through sudo
 ├── fish/                      # Fish shell
@@ -61,7 +62,13 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │       ├── clean-ubuntu.sh
 │       └── syscheck.sh
 ├── .githooks/
-│   └── pre-commit             # secret scan + syntax check before a commit
+│   ├── pre-commit             # secret scan + syntax check before a commit
+│   └── pre-push               # advisory check-binds / check-coverage before a push
+├── .github/
+│   ├── workflows/lint.yml     # CI: syntax, linters, guards, bats tests
+│   └── dependabot.yml         # keeps the pinned Action SHAs current
+├── tests/
+│   └── dotfiles.bats          # smoke/regression tests for the tooling
 ├── systemd/                   # auto-backup units (installed to /etc/systemd/system)
 │   ├── dotfiles-backup.service
 │   └── dotfiles-backup.timer
@@ -101,7 +108,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── systemd/oomd.conf
 │   ├── ananicy.d/00-gothic.rules
 │   └── keyd/default.conf      # ru-latin shortcuts while a modifier is held
-└── install.sh                 # Auto-install (packages + symlinks)
+└── install.sh                 # Auto-install (packages + symlinks; --only, --dry-run, …)
 ```
 
 ## Keybinds
@@ -132,6 +139,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + N` | dismiss notifications |
 | `SUPER + C` | color picker |
 | `SUPER + M` | network connections (nm-connection-editor) |
+| `SUPER + Shift + T` | toggle light / dark theme |
 | `SUPER + X` | lock screen |
 | `SUPER + H J K L` / arrows | move focus |
 | `SUPER + Shift + H J K L` / arrows | move window |
@@ -164,6 +172,7 @@ cd ~/dotfiles
 ./install.sh --force         # overwrite existing targets without a backup
 ./install.sh --dry-run       # print the steps, change nothing
 ./install.sh --uninstall     # remove this repo's symlinks (inverse of install)
+./install.sh --only hypr,waybar  # link only the named config apps
 ```
 
 Existing configs are never destroyed. Anything that would be replaced is moved
@@ -265,9 +274,14 @@ As defense in depth the repository ships a pre-commit hook and a secret scanner:
 * `.githooks/pre-commit` — blocks the commit on a suspected secret or a bash
   syntax error; shellcheck and fish checks are advisory. `install.sh` enables it
   with `git config core.hooksPath .githooks`.
+* `.githooks/pre-push` — advisory `check-binds` / `check-coverage` / secret scan
+  before a push, so drift is caught locally instead of in CI.
 
-CI additionally lints the Markdown (`markdownlint-cli2`, rules in
-`.markdownlint.jsonc`).
+CI (`.github/workflows/lint.yml`) runs the same gates plus `shfmt` and
+`actionlint`, `fish -n` + `fish_indent`, JSON/JSONC/TOML/YAML parsing,
+`markdownlint-cli2` (rules in `.markdownlint.jsonc`) and the `bats` tests in
+`tests/`. The GitHub Actions are pinned to commit SHAs, kept current by
+Dependabot (`.github/dependabot.yml`).
 
 ```bash
 # scan everything by hand
@@ -276,7 +290,26 @@ CI additionally lints the Markdown (`markdownlint-cli2`, rules in
 # refresh the README keybind table after editing config/hypr/keybinds.tsv
 ./scripts/gen-keybinds.sh
 ./scripts/gen-keybinds.sh --check   # what CI runs
+
+# run the test suite (needs bats)
+bats tests/
 ```
+
+## Troubleshooting
+
+* **Icons or glyphs show as boxes** — install a Nerd Font and rebuild the cache
+  (`fc-cache -f`); the rice expects `JetBrainsMono Nerd Font`.
+* **A config didn't apply after install** — re-run `./install.sh` (idempotent)
+  and `scripts/doctor.sh` to list missing commands, links or fonts.
+* **Hyprland started with errors** — check `hyprctl configerrors`. A missing
+  `~/.config/hypr/conf.d/monitors.local.conf` is seeded by `install.sh` from the
+  tracked `*.EXAMPLE`.
+* **A keybind does nothing** — `./scripts/check-binds.sh` verifies the key is
+  documented and the script it calls exists and is executable.
+* **`fd` vs `fdfind`** — on Arch/CachyOS the binary is `fd`, on Debian/Ubuntu it
+  is `fdfind`; both shells only add the alias when the wanted name is missing.
+* **Secrets** — keep them in `~/.secrets.fish` / `~/.secrets.sh`, never in the
+  repo; `./scripts/scan-secrets.sh --all` scans the tracked files.
 
 ## please
 

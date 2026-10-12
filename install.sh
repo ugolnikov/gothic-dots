@@ -7,6 +7,7 @@
 #   ./install.sh --force         overwrite existing targets without a backup
 #   ./install.sh --dry-run       print the steps, change nothing
 #   ./install.sh --uninstall     remove this repo's symlinks (inverse of install)
+#   ./install.sh --only a,b      link only the named config apps (comma-separated)
 #
 # Safety: never destroys your existing configs. Anything that would be replaced
 # is moved to ~/.dotfiles-backup/<timestamp>/ first, keeping its relative path.
@@ -23,21 +24,40 @@ DRY=0
 FORCE=0
 SYSTEM=0
 UNINSTALL=0
-for a in "$@"; do
-    case "$a" in
+ONLY=""
+while [ $# -gt 0 ]; do
+    case "$1" in
         --no-packages) PKGS=0 ;;
         --timer) TIMER=1 ;;
         --system) SYSTEM=1 ;;
         --dry-run) DRY=1 ;;
         --force) FORCE=1 ;;
         --uninstall) UNINSTALL=1 ;;
-        -h | --help) sed -n '2,13p' "$0"; exit 0 ;;
+        --only)
+            ONLY="${2:-}"
+            if [ -z "$ONLY" ]; then
+                echo "--only needs a comma-separated list of config apps" >&2
+                exit 2
+            fi
+            shift
+            ;;
+        -h | --help)
+            sed -n '2,14p' "$0"
+            exit 0
+            ;;
         *)
-            echo "unknown argument: $a" >&2
+            echo "unknown argument: $1" >&2
             exit 2
             ;;
     esac
+    shift
 done
+
+# only_selected <name> — true when no --only was given, or <name> is listed.
+only_selected() {
+    [ -z "$ONLY" ] && return 0
+    case ",$ONLY," in *",$1,"*) return 0 ;; *) return 1 ;; esac
+}
 
 BACKUP="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 LINKED=0
@@ -143,45 +163,52 @@ else
     echo "==> packages: skipped (not Arch/CachyOS or --no-packages)"
 fi
 
-# 2. ~/.config/<app>
+# 2. ~/.config/<app> (filtered by --only, when given)
 for d in "$DIR"/config/*/; do
     name="$(basename "$d")"
+    only_selected "$name" || continue
     link "${d%/}" "$HOME/.config/$name"
 done
 # config/starship.toml is a file, not a directory
-link "$DIR/config/starship.toml" "$HOME/.config/starship.toml"
+only_selected starship && link "$DIR/config/starship.toml" "$HOME/.config/starship.toml"
 
 # 2b. Per-machine Hyprland monitor overrides: seed an ignored copy from the
 # tracked example so the source in monitors.conf never dangles.
-_hypr_local="$HOME/.config/hypr/conf.d/monitors.local.conf"
-if [ ! -e "$_hypr_local" ] && [ -e "$_hypr_local.EXAMPLE" ]; then
-    run cp "$_hypr_local.EXAMPLE" "$_hypr_local"
+if only_selected hypr; then
+    _hypr_local="$HOME/.config/hypr/conf.d/monitors.local.conf"
+    if [ ! -e "$_hypr_local" ] && [ -e "$_hypr_local.EXAMPLE" ]; then
+        run cp "$_hypr_local.EXAMPLE" "$_hypr_local"
+    fi
 fi
 
-# 3. Home dotfiles. The repo keeps the tmux/git configs un-dotted (tmux.conf,
-#    gitconfig) while the targets are dotfiles, so map src -> dst explicitly.
-for pair in ".vimrc:.vimrc" ".editorconfig:.editorconfig" \
-    "tmux.conf:.tmux.conf" "gitconfig:.gitconfig"; do
-    src="${pair%%:*}" dst="${pair##*:}"
-    [ -e "$DIR/$src" ] && link "$DIR/$src" "$HOME/$dst"
-done
-for f in .bashrc .profile; do
-    link "$DIR/bash/$f" "$HOME/$f"
-done
+# Sections 3-5 link the shells, editor and helper tooling; --only skips them.
+if [ -z "$ONLY" ]; then
+    # 3. Home dotfiles. The repo keeps the tmux/git configs un-dotted (tmux.conf,
+    #    gitconfig) while the targets are dotfiles, so map src -> dst explicitly.
+    for pair in ".vimrc:.vimrc" ".editorconfig:.editorconfig" \
+        "tmux.conf:.tmux.conf" "gitconfig:.gitconfig"; do
+        src="${pair%%:*}" dst="${pair##*:}"
+        [ -e "$DIR/$src" ] && link "$DIR/$src" "$HOME/$dst"
+    done
+    for f in .bashrc .profile; do
+        link "$DIR/bash/$f" "$HOME/$f"
+    done
 
-# 4. Package dirs outside ~/.config
-link "$DIR/fish" "$HOME/.config/fish"
-[ -e "$DIR/claude/settings.json" ] && link "$DIR/claude/settings.json" "$HOME/.claude/settings.json"
+    # 4. Package dirs outside ~/.config
+    link "$DIR/fish" "$HOME/.config/fish"
+    [ -e "$DIR/claude/settings.json" ] && link "$DIR/claude/settings.json" "$HOME/.claude/settings.json"
 
-# 5. bin -> ~/.local/bin (already on PATH)
-for b in "$DIR"/bin/*; do
-    [ -e "$b" ] || continue
-    link "$b" "$HOME/.local/bin/$(basename "$b")"
-done
+    # 5. bin -> ~/.local/bin (already on PATH)
+    for b in "$DIR"/bin/*; do
+        [ -e "$b" ] || continue
+        link "$b" "$HOME/.local/bin/$(basename "$b")"
+    done
+fi
 
 # 6. Executable bits
 run chmod +x "$DIR"/config/hypr/scripts/*.sh "$DIR"/config/hypr/bootstrap.sh \
-    "$DIR"/scripts/*.sh "$DIR"/scripts/server/*.sh "$DIR"/.githooks/pre-commit 2>/dev/null || true
+    "$DIR"/scripts/*.sh "$DIR"/scripts/server/*.sh \
+    "$DIR"/.githooks/pre-commit "$DIR"/.githooks/pre-push 2>/dev/null || true
 
 # 7. Font cache + bat theme cache
 if command -v fc-cache >/dev/null 2>&1; then run fc-cache -f; fi

@@ -94,7 +94,7 @@ same `*.dynamic.*` files:
 It recolors Hyprland, Waybar, rofi, kitty and swaync. Because it and wallust
 share the same files they are mutually exclusive — enabling one disables the
 other. foot, mako, tofi, hyprlock and GTK keep the fixed palette. Toggle it from
-the settings center (**Light theme**).
+the settings center (**Light theme**) or with `SUPER + Shift + T`.
 
 ## Keybinds
 
