@@ -1,0 +1,59 @@
+// Waybar — минимальная панель. Слева рабочие столы, в центре часы, справа
+// только необходимое: сеть, звук, батарея, питание. Без трея и метрик.
+
+{
+    "layer": "top",
+    "position": "top",
+    "height": 32,
+    "spacing": 4,
+    "margin-top": 6,
+    "margin-left": 8,
+    "margin-right": 8,
+    "font-family": "JetBrainsMono Nerd Font",
+    "modules-left": ["hyprland/workspaces"],
+    "modules-center": ["clock"],
+    "modules-right": ["network", "pulseaudio", "battery", "custom/power"],
+
+    "hyprland/workspaces": {
+        "format": "{icon}",
+        "on-click": "activate",
+        "format-icons": {
+            "1": "1", "2": "2", "3": "3", "4": "4", "5": "5",
+            "6": "6", "7": "7", "8": "8", "9": "9", "10": "10",
+            "default": "·"
+        }
+    },
+    "clock": {
+        "format": "{:%H:%M}",
+        "format-alt": "{:%a, %d %b}",
+        "tooltip-format": "{:%B %Y}"
+    },
+    "network": {
+        "format-wifi": " {essid}",
+        "format-ethernet": " {ifname}",
+        "format-disconnected": " offline",
+        "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
+        "on-click": "~/.config/hypr/scripts/run-in-terminal.sh nmtui"
+    },
+    "pulseaudio": {
+        "format": " {volume}%",
+        "format-muted": " muted",
+        "on-click": "pavucontrol",
+        "scroll-step": 5
+    },
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": " {capacity}%",
+        "format-charging": " {capacity}%",
+        "format-plugged": " {capacity}%",
+        "interval": 60
+    },
+    "custom/power": {
+        "format": " ",
+        "on-click": "~/.config/hypr/scripts/powermenu.sh",
+        "tooltip": false
+    }
+}

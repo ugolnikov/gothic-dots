@@ -1,0 +1,25 @@
+# tofi — лёгкий Wayland-лаунчер (замена rofi для запуска приложений).
+# Готик-минимализм. Запуск: scripts/launcher.sh (SUPER + D / SUPER + Space).
+
+font = "JetBrainsMono Nerd Font"
+font-size = 13
+background-color = #0a0a0b
+text-color = #d6d1c9
+prompt-color = #a31621
+selection-color = #0a0a0b
+selection-background = #a31621
+border-width = 1
+border-color = #a31621
+border-radius = 2
+prompt-text = "> "
+padding-top = 8
+padding-bottom = 8
+padding-left = 14
+padding-right = 14
+result-spacing = 12
+width = 520
+height = 360
+horizontal = false
+num-results = 8
+anchor = top
+margin-top = 80

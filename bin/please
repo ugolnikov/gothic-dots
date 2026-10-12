@@ -14,13 +14,6 @@ parent="$(ps -o comm= -p $PPID 2>/dev/null || echo bash)"
 
 # --- читаем историю родительской оболочки ---
 case "$parent" in
-  zsh)
-    histfile="${ZDOTDIR:-$HOME}/.zsh_history"
-    if [[ -r "$histfile" ]]; then
-      # zsh:  : <ts>:<elapsed>;<cmd>
-      history="$(sed 's/^:[0-9]*:[0-9]*;//' "$histfile" | grep -a -v '^$' || true)"
-    fi
-    ;;
   fish)
     histfile="${XDG_DATA_HOME:-$HOME/.local/share}/fish/fish_history"
     if [[ -r "$histfile" ]]; then

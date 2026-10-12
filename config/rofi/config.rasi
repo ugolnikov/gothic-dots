@@ -1,0 +1,88 @@
+/* rofi — лаунчер приложений, команд и окон. Готик-минимализм. */
+
+@import "colors.rasi"
+@import "colors.dynamic.rasi"
+
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    icon-theme: "Papirus";
+    font: "JetBrainsMono Nerd Font 12";
+    terminal: "foot";
+    drun-display-format: "{name}";
+    display-drun: " Приложения";
+    display-run: " Команды";
+    display-window: " Окна";
+}
+
+* {
+    background-color: transparent;
+    text-color: @text;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    spacing: 0;
+}
+
+window {
+    width: 40%;
+    padding: 10px;
+    border-radius: 2px;
+    background-color: @base;
+    border: 1px;
+    border-color: @red;
+}
+
+mainbox {
+    padding: 8px;
+    spacing: 8px;
+}
+
+inputbar {
+    children: [ prompt, entry ];
+    spacing: 8px;
+    padding: 8px 10px;
+    border-radius: 2px;
+    background-color: @surface0;
+}
+
+prompt {
+    text-color: @red;
+}
+
+entry {
+    placeholder: "Поиск…";
+    placeholder-color: @subtext;
+    text-color: @text;
+}
+
+listview {
+    lines: 8;
+    columns: 1;
+    spacing: 4px;
+    scrollbar: false;
+}
+
+element {
+    padding: 8px;
+    spacing: 10px;
+    border-radius: 2px;
+    background-color: transparent;
+}
+
+element selected {
+    background-color: @surface0;
+    text-color: @text;
+    border: 1px;
+    border-color: @red;
+}
+
+element-icon {
+    size: 22px;
+    background-color: transparent;
+}
+
+element-text {
+    vertical-align: 0.5;
+    text-color: inherit;
+}

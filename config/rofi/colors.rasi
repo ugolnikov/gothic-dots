@@ -1,0 +1,21 @@
+/* Палитра rofi — готик. Перекрывается colors.dynamic.rasi (wallust), если включено. */
+
+* {
+    base:      #0a0a0b;
+    mantle:    #101013;
+    crust:     #060607;
+    surface0:  #17171a;
+    surface1:  #232327;
+    overlay0:  #4a4a52;
+    text:      #d6d1c9;
+    subtext:   #8b857c;
+    blue:      #6c4f8f;
+    lavender:  #6c4f8f;
+    sapphire:  #6c4f8f;
+    green:     #8f7a4a;
+    yellow:    #8f7a4a;
+    peach:     #8f7a4a;
+    red:       #a31621;
+    mauve:     #a31621;
+    pink:      #8b5a63;
+}

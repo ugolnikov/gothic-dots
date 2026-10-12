@@ -1,0 +1,83 @@
+/* swaync — уведомления и центр управления. Готик-минимализм. */
+
+@import url("colors.css");
+@import url("colors.dynamic.css");
+
+* {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 13px;
+}
+
+.control-center,
+.notification-row .notification-background {
+    background: alpha(@base, 0.98);
+    border-radius: 2px;
+    border: 1px solid @red;
+    color: @text;
+    padding: 4px;
+}
+
+.control-center .widget-title {
+    color: @red;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.control-center .widget-dnd {
+    color: @text;
+}
+
+.notification-row {
+    outline: none;
+    margin: 4px;
+    padding: 0;
+}
+
+.notification-row .notification-background .notification {
+    padding: 8px;
+    border-radius: 2px;
+    background: @surface0;
+    border: 1px solid @overlay0;
+}
+
+.summary {
+    color: @text;
+    font-weight: bold;
+}
+
+.body {
+    color: @subtext;
+}
+
+.time {
+    color: @overlay0;
+}
+
+.close-button {
+    background: transparent;
+    color: @red;
+}
+
+.close-button:hover {
+    background: alpha(@red, 0.25);
+    border-radius: 2px;
+}
+
+.notification-row .notification-background .notification.critical {
+    border: 1px solid @red;
+}
+
+.control-center-list-placeholder {
+    color: @overlay0;
+}
+
+button {
+    border-radius: 2px;
+    border: 1px solid @overlay0;
+    background: @surface0;
+    color: @text;
+}
+
+button:hover {
+    background: alpha(@red, 0.25);
+}

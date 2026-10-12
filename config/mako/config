@@ -1,0 +1,18 @@
+# mako — уведомления. Готик-минимализм.
+
+font=JetBrainsMono Nerd Font 11
+background-color=#0a0a0b
+text-color=#d6d1c9
+border-color=#a31621
+border-size=1
+border-radius=2
+padding=10
+margin=10
+width=360
+height=140
+max-visible=5
+default-timeout=8000
+anchor=top-right
+layer=overlay
+icons=1
+group-by=app-name

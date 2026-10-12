@@ -1,0 +1,17 @@
+# wallust — обои → mako. Генерируется (целиком), не редактируй.
+font=JetBrainsMono Nerd Font 11
+background-color=#{{background}}
+text-color=#{{foreground}}
+border-color=#{{color5}}
+border-size=2
+border-radius=12
+padding=12
+margin=12
+width=360
+height=140
+max-visible=5
+default-timeout=8000
+anchor=top-right
+layer=overlay
+icons=1
+group-by=app-name

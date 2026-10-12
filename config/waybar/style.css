@@ -1,0 +1,111 @@
+/* Waybar — готик-минимализм: тонкая рамка, прямые углы, без свечения.
+   Палитра: colors.css (дефолт) + colors.dynamic.css из обоев (если включено). */
+
+@import url("colors.css");
+@import url("colors.dynamic.css");
+
+* {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 12px;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+}
+
+window#waybar {
+    background: transparent;
+    color: @text;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+    background: alpha(@base, 0.96);
+    border: 1px solid @surface1;
+    border-radius: 3px;
+    padding: 0 6px;
+}
+
+.modules-center {
+    padding: 0 14px;
+}
+
+#workspaces,
+#clock,
+#network,
+#pulseaudio,
+#battery,
+#custom/power {
+    padding: 0 8px;
+    margin: 3px 0;
+    color: @text;
+}
+
+/* Рабочие столы */
+#workspaces button {
+    padding: 0 7px;
+    color: @overlay0;
+    background: transparent;
+}
+
+#workspaces button:hover {
+    color: @text;
+}
+
+#workspaces button.active {
+    color: @base;
+    background: @red;
+}
+
+#workspaces button.urgent {
+    color: @base;
+    background: @red;
+}
+
+/* Часы — костяные, с разрядкой */
+#clock {
+    color: @text;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+#network {
+    color: @text;
+}
+
+#network.disconnected {
+    color: @red;
+}
+
+#pulseaudio {
+    color: @text;
+}
+
+#pulseaudio.muted {
+    color: @overlay0;
+}
+
+#battery {
+    color: @text;
+}
+
+#battery.warning {
+    color: @yellow;
+}
+
+#battery.critical {
+    color: @red;
+}
+
+#battery.charging {
+    color: @teal;
+}
+
+#custom-power {
+    color: @red;
+    padding: 0 10px;
+}
+
+#custom-power:hover {
+    color: #c81e3a;
+}

@@ -1,0 +1,22 @@
+# lazygit — готическая тема.
+gui:
+  theme:
+    activeBorderColor:
+      - "#a31621"
+      - bold
+    inactiveBorderColor:
+      - "#4a4a52"
+    optionsTextColor:
+      - "#8f7a4a"
+    selectedLineBgColor:
+      - "#17171a"
+    selectedRangeBgColor:
+      - "#17171a"
+    cherryPickedCommitBgColor:
+      - "#6c4f8f"
+    cherryPickedCommitFgColor:
+      - "#d6d1c9"
+    unstagedChangesColor:
+      - "#a31621"
+    defaultFgColor:
+      - "#d6d1c9"

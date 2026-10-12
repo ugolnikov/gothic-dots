@@ -1,0 +1,41 @@
+/* rofi — меню питания (scripts/powermenu.sh). Готик-минимализм. */
+
+@import "colors.rasi"
+@import "colors.dynamic.rasi"
+
+window {
+    width: 300px;
+    padding: 8px;
+    border-radius: 2px;
+    background-color: @base;
+    border: 1px;
+    border-color: @red;
+}
+
+mainbox {
+    padding: 8px;
+    spacing: 6px;
+}
+
+inputbar {
+    enabled: false;
+}
+
+listview {
+    lines: 5;
+    spacing: 4px;
+    scrollbar: false;
+}
+
+element {
+    padding: 10px;
+    spacing: 10px;
+    border-radius: 2px;
+    background-color: transparent;
+    text-color: @text;
+}
+
+element selected {
+    background-color: @red;
+    text-color: @base;
+}

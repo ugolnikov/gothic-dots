@@ -23,9 +23,32 @@ fish_add_path "$BUN_INSTALL/bin"
 
 
 # opencode
-fish_add_path /root/.opencode/bin
+fish_add_path "$HOME/.opencode/bin"
 
 
 
-set -gx BAT_THEME Dracula
+# Цвета ls (готик, без синего) — fish не умеет eval dircolors, выдёргиваем значение
+if command -q dircolors
+    set -l _dc "$HOME/.config/dircolors/gothic"
+    if test -r "$_dc"
+        for _line in (dircolors -b "$_dc")
+            if string match -q 'LS_COLORS=*' -- "$_line"
+                set -gx LS_COLORS (string replace -r "^LS_COLORS='(.*)'.*" '$1' -- "$_line")
+            end
+        end
+    end
+end
+
+# Цвета eza / fzf / grep (готик, без синего)
+if test -r "$HOME/.config/dircolors/eza"
+    set -gx EZA_COLORS (cat "$HOME/.config/dircolors/eza")
+end
+if test -r "$HOME/.config/dircolors/fzf"
+    set -gx FZF_DEFAULT_OPTS (cat "$HOME/.config/dircolors/fzf")
+end
+if test -r "$HOME/.config/dircolors/grep"
+    set -gx GREP_COLORS (cat "$HOME/.config/dircolors/grep")
+end
+
+set -gx BAT_THEME gothic
 set -gx LANG en_US.UTF-8

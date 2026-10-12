@@ -1,0 +1,20 @@
+# yazi — быстрый TUI-файлменеджер. Цвета наследует из терминала (foot, готик),
+# поэтому отдельная тема не нужна. Здесь — поведение.
+
+[manager]
+ratio = [1, 3, 4]
+show_hidden = false
+linemode = "size"
+sort_by = "natural"
+sort_dir_first = true
+show_symlink = true
+
+[preview]
+max_width = 1200
+max_height = 1200
+image_filter = "lanczos3"
+image_quality = 80
+
+[opener]
+open = [{ run = 'xdg-open "$@"', desc = "Open", for = "unix" }]
+edit = [{ run = '$EDITOR "$@"', desc = "Edit", block = true, for = "unix" }]

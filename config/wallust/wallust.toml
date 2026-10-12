@@ -1,0 +1,24 @@
+# wallust — палитра из обоев. Читает картинку, вытаскивает цвета и раскладывает
+# по файлам *.dynamic.*, которые подключают конфиги приложений.
+#
+# Запуск:  ~/.config/hypr/scripts/theme.sh <обои>
+# Значения шаблонов: {{background}}, {{foreground}}, {{cursor}}, {{color0}}..{{color15}}.
+
+[general]
+backend = "fastresize"
+color_space = "lab"
+check_contrast = false
+
+# Палитра в духе Catppuccin: 16 цветов, сортировка по яркости.
+[colors]
+# по умолчанию wallust делает всё сам; блок оставлен для наглядности
+
+[templates]
+hyprland = { src = "templates/hyprland.conf", dst = "~/.config/hypr/conf.d/colors.dynamic.conf" }
+waybar   = { src = "templates/waybar.css",    dst = "~/.config/waybar/colors.dynamic.css" }
+rofi     = { src = "templates/rofi.rasi",     dst = "~/.config/rofi/colors.dynamic.rasi" }
+kitty    = { src = "templates/kitty.conf",    dst = "~/.config/kitty/colors.dynamic.conf" }
+swaync   = { src = "templates/swaync.css",    dst = "~/.config/swaync/colors.dynamic.css" }
+mako     = { src = "templates/mako",          dst = "~/.cache/wallust/mako" }
+starship = { src = "templates/starship.toml", dst = "~/.cache/wallust/starship.toml" }
+tofi     = { src = "templates/tofi",          dst = "~/.cache/wallust/tofi" }

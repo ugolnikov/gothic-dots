@@ -1,0 +1,42 @@
+/* rofi — центр настроек (scripts/settings.sh). Готик-минимализм. */
+
+@import "colors.rasi"
+@import "colors.dynamic.rasi"
+
+window {
+    width: 32%;
+    padding: 8px;
+    border-radius: 2px;
+    background-color: @base;
+    border: 1px;
+    border-color: @red;
+}
+
+mainbox {
+    padding: 8px;
+    spacing: 6px;
+}
+
+inputbar {
+    enabled: false;
+}
+
+listview {
+    lines: 14;
+    spacing: 4px;
+    scrollbar: false;
+}
+
+element {
+    padding: 10px 12px;
+    border-radius: 2px;
+    background-color: transparent;
+    text-color: @text;
+}
+
+element selected {
+    background-color: @surface0;
+    text-color: @text;
+    border: 1px;
+    border-color: @red;
+}

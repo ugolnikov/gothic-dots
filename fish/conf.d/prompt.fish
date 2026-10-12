@@ -1,5 +1,10 @@
-# Pure prompt — конфигурация (если установлен через fisher)
-# Раскомментируй нужные опции после установки Pure:
-# set -gx PURE_PROMPT_SYMBOL "❯"
-# set -gx PURE_GIT_DOWN_SYMBOL "⬇"
-# set -gx PURE_GIT_UP_SYMBOL "⬆"
+# prompt.fish — Starship prompt (replaces pure).
+# If the wallpaper-derived palette exists, Starship uses it; else it reads
+# ~/.config/starship.toml (the shipped gothic palette).
+if type -q starship
+    set -l dyn "$HOME/.cache/wallust/starship.toml"
+    if test -f "$dyn"
+        set -gx STARSHIP_CONFIG "$dyn"
+    end
+    starship init fish | source
+end

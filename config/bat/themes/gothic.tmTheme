@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>name</key>
+    <string>gothic</string>
+    <key>settings</key>
+    <array>
+        <dict>
+            <key>settings</key>
+            <dict>
+                <key>background</key><string>#0a0a0b</string>
+                <key>foreground</key><string>#d6d1c9</string>
+                <key>caret</key><string>#a31621</string>
+                <key>selection</key><string>#17171a</string>
+                <key>lineHighlight</key><string>#101013</string>
+                <key>gutter</key><string>#0a0a0b</string>
+                <key>gutterForeground</key><string>#4a4a52</string>
+            </dict>
+        </dict>
+        <dict><key>name</key><string>Comment</string><key>scope</key><string>comment</string><key>settings</key><dict><key>foreground</key><string>#4a4a52</string><key>fontStyle</key><string>italic</string></dict></dict>
+        <dict><key>name</key><string>String</string><key>scope</key><string>string</string><key>settings</key><dict><key>foreground</key><string>#9d8ec7</string></dict></dict>
+        <dict><key>name</key><string>Constant</string><key>scope</key><string>constant</string><key>settings</key><dict><key>foreground</key><string>#8f7a4a</string></dict></dict>
+        <dict><key>name</key><string>Number</string><key>scope</key><string>constant.numeric</string><key>settings</key><dict><key>foreground</key><string>#8f7a4a</string></dict></dict>
+        <dict><key>name</key><string>Keyword</string><key>scope</key><string>keyword, storage</string><key>settings</key><dict><key>foreground</key><string>#a31621</string></dict></dict>
+        <dict><key>name</key><string>Operator</string><key>scope</key><string>keyword.operator</string><key>settings</key><dict><key>foreground</key><string>#8b5a63</string></dict></dict>
+        <dict><key>name</key><string>Function</string><key>scope</key><string>entity.name.function, support.function</string><key>settings</key><dict><key>foreground</key><string>#8f7a4a</string></dict></dict>
+        <dict><key>name</key><string>Type</string><key>scope</key><string>entity.name.type, support.type, support.class</string><key>settings</key><dict><key>foreground</key><string>#8b5a63</string></dict></dict>
+        <dict><key>name</key><string>Variable</string><key>scope</key><string>variable</string><key>settings</key><dict><key>foreground</key><string>#d6d1c9</string></dict></dict>
+        <dict><key>name</key><string>Preprocessor</string><key>scope</key><string>meta.preprocessor, keyword.control.import</string><key>settings</key><dict><key>foreground</key><string>#6c4f8f</string></dict></dict>
+        <dict><key>name</key><string>Tag</string><key>scope</key><string>entity.name.tag</string><key>settings</key><dict><key>foreground</key><string>#a31621</string></dict></dict>
+        <dict><key>name</key><string>Attribute</string><key>scope</key><string>entity.other.attribute-name</string><key>settings</key><dict><key>foreground</key><string>#8f7a4a</string></dict></dict>
+    </array>
+</dict>
+</plist>

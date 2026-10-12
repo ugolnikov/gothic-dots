@@ -1,0 +1,15 @@
+/* swaync — готик-палитра по умолчанию.
+   Перекрывается colors.dynamic.css, если включена генерация из обоев (wallust). */
+
+@define-color base     #0a0a0b;
+@define-color mantle   #101013;
+@define-color surface0 #17171a;
+@define-color overlay0 #4a4a52;
+@define-color text     #d6d1c9;
+@define-color subtext  #8b857c;
+@define-color blue     #6c4f8f;
+@define-color mauve    #a31621;
+@define-color green    #8f7a4a;
+@define-color yellow   #8f7a4a;
+@define-color peach    #8f7a4a;
+@define-color red      #a31621;

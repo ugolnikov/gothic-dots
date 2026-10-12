@@ -1,56 +1,58 @@
 {
-  // fastfetch config — https://github.com/fastfetch-cli/fastfetch
+  // fastfetch — minimalistic gothic. Logo: sigil.txt.
+  // Trim the modules list to taste; keys are blood, separators are ash.
+  // Всё, что fastfetch красит сам (лого, проценты, температуры),
+  // принудительно сведено к готической палитре — без зелёного/оранжевого.
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
 
   "logo": {
     "type": "file",
-    "source": "/root/dotfiles/config/fastfetch/logo.txt",
+    "source": "~/.config/fastfetch/sigil.txt",
+    "color": {
+      "1": "#a31621"
+    },
     "padding": {
-      "left": 2
+      "left": 3,
+      "right": 4
     }
   },
 
   "display": {
-    "separator": "  →  ",
+    "separator": "  ",
+    "brightColor": false,
     "color": {
-      "keys": "default",
-      "separator": "#666666"
+      "keys": "#a31621",
+      "title": "#a31621",
+      "separator": "#4a4a52"
+    },
+    "key": {
+      "width": 6
+    },
+    "percent": {
+      "color": {
+        "green": "#a31621",
+        "yellow": "#a31621",
+        "red": "#a31621"
+      }
+    },
+    "temp": {
+      "color": {
+        "green": "#a31621",
+        "yellow": "#a31621",
+        "red": "#a31621"
+      }
     }
   },
 
   "modules": [
     "title",
-    {
-      "type": "separator",
-      "custom": "───────  system  ───────"
-    },
     "os",
-    "host",
     "kernel",
     "uptime",
-    "packages",
     "shell",
-    {
-      "type": "separator",
-      "custom": "──────  hardware  ──────"
-    },
-    "cpu",
-    "gpu",
-    "memory",
-    "disk",
-    {
-      "type": "separator",
-      "custom": "──────  display  ───────"
-    },
     "wm",
-    "de",
     "terminal",
-    "terminalfont",
-    "localip",
-    {
-      "type": "separator",
-      "custom": "───────  theme  ────────"
-    },
-    "colors",
+    "cpu",
+    "memory"
   ]
 }

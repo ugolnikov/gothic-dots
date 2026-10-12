@@ -1,0 +1,42 @@
+# Starship — промпт для fish (замена pure).
+# Готик-палитра. Если включена тема из обоев, fish берёт
+# ~/.cache/wallust/starship.toml (сгенерирован wallust) вместо этого файла.
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+$directory$git_branch$git_status$cmd_duration$character"""
+
+palette = "gothic"
+
+[palettes.gothic]
+bg = "#0a0a0b"
+fg = "#d6d1c9"
+ash = "#8b857c"
+blood = "#a31621"
+violet = "#6c4f8f"
+gold = "#8f7a4a"
+
+[directory]
+style = "fg:fg"
+format = "[$path]($style) "
+truncation_length = 4
+truncate_to_repo = true
+
+[git_branch]
+style = "fg:blood"
+format = "[$branch]($style) "
+
+[git_status]
+style = "fg:gold"
+format = "[$all_status$ahead_behind]($style) "
+
+[cmd_duration]
+style = "fg:ash"
+min_time = 2000
+format = "[$duration]($style) "
+
+[character]
+success_symbol = "[❯](fg:blood)"
+error_symbol = "[❯](fg:blood)"
+vimcmd_symbol = "[❮](fg:violet)"

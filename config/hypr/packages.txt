@@ -1,0 +1,79 @@
+# Packages for the Hyprland rice (gothic minimal, performance) on Arch / CachyOS.
+# Install (CachyOS already pulls part of this at system install):
+#
+#   sudo pacman -S --needed $(grep -vE '^\s*(#|$)' config/hypr/packages.txt)
+#
+# Lines starting with # are ignored. Everything here is in the official
+# CachyOS/Arch repositories; AUR packages are in aur.packages.txt.
+
+# --- Compositor and companions ---
+hyprland
+hypridle
+hyprlock
+hyprpicker
+hyprpolkitagent
+swww
+xdg-desktop-portal-hyprland
+xdg-utils
+
+# --- Wallpaper-derived theme (off by default) ---
+wallust
+imagemagick
+
+# --- Bar, launcher, notifications, terminal ---
+waybar
+rofi
+mako
+foot
+
+# --- Utilities ---
+wl-clipboard
+cliphist
+wl-clip-persist
+grim
+slurp
+swappy
+brightnessctl
+playerctl
+pavucontrol
+jq
+
+# --- Shell & TUI tools (theme inherited from foot) ---
+eza
+fd
+bat
+fzf
+zoxide
+micro
+btop
+lazygit
+yazi
+wiremix
+starship
+
+# --- System tuning (configs installed by install.sh --system) ---
+zram-generator
+ananicy-cpp
+irqbalance
+keyd
+
+# --- Fonts ---
+gnu-free-fonts            # FreeSerif, always-available serif fallback
+ttf-jetbrains-mono-nerd
+ttf-firacode-nerd
+noto-fonts
+noto-fonts-emoji
+papirus-icon-theme
+
+# --- Qt Wayland backends ---
+qt5-wayland
+qt6-wayland
+qt5ct
+qt6ct
+
+# --- Optional (on demand instead of background applets) ---
+# network-manager-applet   # network GUI if nmtui is not enough
+# blueman                  # Bluetooth GUI
+
+# AUR packages (tofi, fonts) live in aur.packages.txt and are installed by
+# bootstrap.sh via paru or yay.
