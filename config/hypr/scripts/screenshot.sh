@@ -25,8 +25,12 @@ case "${1:-region}" in
         grim -g "$geom" "$file"
         ;;
     window)
-        geom="$(hyprctl activewindow -j |
-            jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')"
+        geom="$(hyprctl activewindow -j 2>/dev/null |
+            jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"' 2>/dev/null)" || geom=""
+        [ -n "$geom" ] || {
+            echo "screenshot.sh: нет активного окна" >&2
+            exit 1
+        }
         grim -g "$geom" "$file"
         ;;
     *)
@@ -41,4 +45,4 @@ if [ "$edit" = 1 ] && command -v swappy >/dev/null 2>&1; then
 fi
 
 wl-copy <"$file"
-notify-send -i "$file" "Скриншот" "$(basename "$file")"
+notify-send -i "$file" "Скриншот" "$(basename "$file")" 2>/dev/null || true
