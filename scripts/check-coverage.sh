@@ -51,6 +51,13 @@ err() {
     status=1
 }
 
+# A failed `git ls-files` (e.g. dubious ownership) must be fatal: an empty list
+# would let every file look "covered" and pass silently.
+if ! files="$(git ls-files)"; then
+    echo "check-coverage: git ls-files failed — cannot verify coverage" >&2
+    exit 1
+fi
+
 while IFS= read -r f; do
     [ -n "$f" ] || continue
     printf '%s' "$f" | grep -Eq "$allow_files" && continue
@@ -58,7 +65,7 @@ while IFS= read -r f; do
     if ! is_linked "$f"; then
         err "$f is tracked but the link plan never links it (add it, or allow-list it here)"
     fi
-done < <(git ls-files)
+done <<<"$files"
 
 if [ "$status" -eq 0 ]; then
     info "all tracked configs are covered by the link plan (${#linked[@]} links)"

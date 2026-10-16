@@ -159,6 +159,11 @@ jobs:
 
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
+      # The container runs as root but the checkout is owned by the runner,
+      # so git refuses with "dubious ownership" until the path is trusted.
+      - name: Trust the workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Tests (bats)
         run: make test
 
