@@ -21,6 +21,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SHELLS_FILE="${SHELLS_FILE:-/etc/shells}"
 OS_RELEASE="${OS_RELEASE:-/etc/os-release}"
 ARCH_RELEASE="${ARCH_RELEASE:-/etc/arch-release}"
+# The package tool the wizard looks for. Tests set it empty to simulate a
+# machine without pacman (on Arch it is always present, so PATH can't hide it).
+PACMAN_BIN="${PACMAN_BIN-$(command -v pacman 2>/dev/null || true)}"
 
 DRY=0
 YES=0
@@ -235,7 +238,7 @@ run_wizard() {
 
     # 2. Packages — the official + AUR list, via bootstrap.sh's sudo pacman.
     stage "Packages (Arch / CachyOS)"
-    if ! command -v pacman >/dev/null 2>&1; then
+    if [ -z "$PACMAN_BIN" ]; then
         note "pacman not found — skipping"
         skip "install the packages from $ROOT/config/hypr/packages.txt"
     elif [ ! -x "$ROOT/config/hypr/bootstrap.sh" ]; then

@@ -118,8 +118,7 @@ EOF
 }
 
 @test "first-run.sh skips the package stage when pacman is absent" {
-    rm -f "$STUB/pacman"
-
+    export PACMAN_BIN=""
     run "$REPO/scripts/first-run.sh" --yes
     [ "$status" -eq 0 ]
 
