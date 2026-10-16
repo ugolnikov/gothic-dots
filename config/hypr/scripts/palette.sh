@@ -31,6 +31,9 @@ MODE_FILE="$CONFIG/hypr/palette-mode"
 LEGACY_LIGHT="$CONFIG/hypr/light-theme"
 LEGACY_DYNAMIC="$CONFIG/hypr/dynamic-theme"
 
+# Сохранённые обои — источник палитры по умолчанию для dynamic.
+WALLPAPER="$CONFIG/hypr/wallpaper.png"
+
 usage() {
     echo "usage: palette.sh status|set <dark|light|dynamic>|toggle|apply [image]|clear" >&2
     exit 2
@@ -193,14 +196,34 @@ EOF
 EOF
 }
 
-# materialise_mode <mode> [image] — наполнить targets под режим. Генерацию
-# dynamic добавляет отдельное изменение модуля; пока она отсутствует, режим
-# отклоняется явно, а не молча ничего не делает.
+# ensure_targets — файлы на месте, чтобы импорт не падал на отсутствующем
+# include, даже если генератор ничего не записал.
+ensure_targets() {
+    local f
+    for f in "${TARGETS[@]}"; do
+        mkdir -p "$(dirname "$f")"
+        [ -e "$f" ] || : >"$f"
+    done
+}
+
+# generate_palette <image> — режим dynamic: палитра из обоев. Генерацию
+# делегируем внешнему генератору (wallust) с его конфигом шаблонов; при сбое
+# пробуем сохранённые обои, но не валим вызывающего — targets остаются
+# пригодными для импорта.
+generate_palette() {
+    local image="$1"
+    if command -v wallust >/dev/null 2>&1; then
+        wallust run "$image" || wallust run "$WALLPAPER" || true
+    fi
+    ensure_targets
+}
+
+# materialise_mode <mode> [image] — наполнить targets под режим.
 materialise_mode() {
     case "$1" in
         dark) clear_targets ;;
         light) write_light ;;
-        dynamic) die "$1 mode is not implemented yet" ;;
+        dynamic) generate_palette "${2:-$WALLPAPER}" ;;
     esac
 }
 
