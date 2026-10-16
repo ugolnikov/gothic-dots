@@ -144,3 +144,23 @@ jobs:
 
       - name: Tests (bats)
         run: bats --print-output-on-failure tests/
+
+  arch:
+    name: arch
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      # The Arch base image ships no git, and checkout needs it: install the
+      # toolchain first. diffutils is not part of base but the guards use diff.
+      - name: Install tools
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm --needed bats shellcheck git make diffutils
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Tests (bats)
+        run: make test
+
+      - name: Local guards (lint)
+        run: make lint
