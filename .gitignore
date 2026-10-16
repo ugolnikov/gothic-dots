@@ -13,6 +13,7 @@ fish/fish_variables
 # --- Runtime choices written by the settings app (scripts/settings.sh) ---
 config/hypr/dynamic-theme
 config/hypr/light-theme
+config/hypr/palette-mode
 config/hypr/random-wallpaper
 config/hypr/terminal
 config/hypr/notifications
