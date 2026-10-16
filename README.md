@@ -53,11 +53,12 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── .bashrc                # → ~/.bashrc
 │   └── .profile               # → ~/.profile
 ├── scripts/
+│   ├── link-plan.sh           # single definition of what is linked where
 │   ├── doctor.sh              # desktop health check (packages, links, fonts)
 │   ├── dotfiles-backup.sh     # auto-snapshot and push to origin
 │   ├── gen-keybinds.sh        # regenerate the README keybind table
 │   ├── check-binds.sh         # binds.conf ↔ keybinds.tsv/scripts drift check
-│   ├── check-coverage.sh      # every tracked config is linked by install.sh
+│   ├── check-coverage.sh      # every tracked config is in the link plan
 │   ├── check-packages.sh      # packages.txt/aur.packages.txt vs Arch repos + AUR
 │   ├── scan-secrets.sh        # block commits/pushes that look like secrets
 │   └── server/                # server-only helpers (Ubuntu: apt, fail2ban, postgres)
@@ -315,9 +316,9 @@ As defense in depth the repository ships a pre-commit hook and a secret scanner:
 * `scripts/check-binds.sh` — fails when a bind uses an undefined `$variable`, a
   missing script, an unknown dispatcher, or a key that is not listed in
   `config/hypr/keybinds.tsv`. Runs in CI.
-* `scripts/check-coverage.sh` — fails when a tracked config is not installed by
-  `install.sh` (it reads the installer's own `--dry-run`, so the two can't
-  drift). Runs in CI.
+* `scripts/check-coverage.sh` — fails when a tracked config is not in the link
+  plan (`scripts/link-plan.sh`), which it reads directly, so the guard cannot
+  drift from what the installer links. Runs in CI.
 * `scripts/check-palette-targets.sh` — fails when the palette module's target
   table drifts from the wallust destinations, `.gitignore` or `.gitattributes`,
   or when its light palette is bound to targets by position instead of by name.

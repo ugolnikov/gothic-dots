@@ -32,6 +32,6 @@ The rules the guards and CI assume. Where tooling enforces a rule, it says so; o
 
 ## Guards and docs
 
-- A new home dotfile or config dir must be linked by `install.sh`, or `check-coverage.sh` fails; allow-list only files deliberately not linked.
+- A new home dotfile or config dir must be in the link plan (`scripts/link-plan.sh`), or `check-coverage.sh` fails; allow-list only files deliberately not linked.
 - A bind needs a `keybinds.tsv` row; the README table is generated, never hand-edited.
 - Use the vocabulary in [GLOSSARY.md](./GLOSSARY.md); record hard-to-reverse decisions as ADRs in `docs/adr/`.
