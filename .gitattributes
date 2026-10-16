@@ -14,6 +14,7 @@
 *.otf binary
 
 # Generated palette / runtime state is noise in diffs and language stats.
+# Keep these in step with palette.sh's TARGETS: scripts/check-palette-targets.sh enforces it.
 config/hypr/conf.d/*.dynamic.conf linguist-generated=true
 config/waybar/colors.dynamic.css linguist-generated=true
 config/rofi/colors.dynamic.rasi linguist-generated=true
