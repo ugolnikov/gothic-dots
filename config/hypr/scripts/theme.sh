@@ -2,8 +2,9 @@
 # theme.sh — поставить обои и перекрасить рабочий стол под них.
 #   theme.sh [путь-к-обоям]
 #
-# Делает три вещи: ставит обои (awww/mpvpaper), вытаскивает палитру из картинки
-# через wallust (файлы colors.dynamic.*), перезагружает потребителей цвета.
+# Ставит обои (awww/mpvpaper) и сохраняет их копию для локскрина. Палитру
+# применяет модуль palette.sh: он владеет режимом (dark/light/dynamic),
+# генерацией из обоев, предсозданием файлов и перезагрузкой потребителей цвета.
 # Запускается при логине (autostart.conf), так что тема сама встаёт из обоев.
 
 set -euo pipefail
@@ -32,29 +33,9 @@ if [ "$(readlink -f "$WALL")" != "$(readlink -f "$CONFIG/hypr/wallpaper.png" 2>/
     cp -f "$WALL" "$CONFIG/hypr/wallpaper.png" 2>/dev/null || true
 fi
 
-# 3. Палитра из обоев — ТОЛЬКО если включено маркером. По умолчанию выключено:
-#    рабочий стол использует фиксированную готик-палитру (conf.d/colors.conf).
-#    Включить генерацию из обоев:  touch ~/.config/hypr/dynamic-theme
-#    Светлая тема (light-theme) приоритетнее: она пишет те же файлы, поэтому
-#    при ней wallust не запускаем.
-if [ -e "$CONFIG/hypr/dynamic-theme" ] && [ ! -e "$CONFIG/hypr/light-theme" ] &&
-    command -v wallust >/dev/null 2>&1; then
-    wallust run "$WALL" || wallust run "$CONFIG/hypr/wallpaper.png" || true
-fi
+# 3. Палитра: режим, генерацию, предсоздание файлов и перезагрузку потребителей
+#    целиком владеет модуль palette.sh. Передаём обои — режим dynamic сгенерирует
+#    палитру из них; в dark/light аргумент игнорируется.
+"$CONFIG/hypr/scripts/palette.sh" apply "$WALL"
 
-# Файлы для импорта должны существовать, иначе rofi ругается на отсутствующий
-# include до первого успешного запуска wallust.
-for f in \
-    "$CONFIG/hypr/conf.d/colors.dynamic.conf" \
-    "$CONFIG/waybar/colors.dynamic.css" \
-    "$CONFIG/rofi/colors.dynamic.rasi" \
-    "$CONFIG/kitty/colors.dynamic.conf" \
-    "$CONFIG/swaync/colors.dynamic.css"; do
-    [ -e "$f" ] || : >"$f"
-done
-
-# 4. Перезагрузить потребителей цвета.
-hyprctl reload >/dev/null 2>&1 || true
-pkill -SIGUSR2 -x waybar 2>/dev/null || true       # Waybar перечитывает CSS на SIGUSR2
-swaync-client --reload-css >/dev/null 2>&1 || true # swaync, если используется
 notify-send "Тема" "Палитра обновлена из обоев" 2>/dev/null || true

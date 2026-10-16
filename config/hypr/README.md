@@ -48,9 +48,9 @@ config/hypr/
 │   └── binds.conf         # keybinds
 ├── hypridle.conf          # idle / lock by timeout
 ├── hyprlock.conf          # lock screen
-├── scripts/               # settings, theme(-mode), wallpaper(-picker), screenshot,
-│                          #   clipboard, dismiss, filemanager, launcher,
-│                          #   run-in-terminal, notifications, system-setup
+├── scripts/               # settings, palette, theme(-mode), wallpaper(-picker),
+│                          #   screenshot, clipboard, dismiss, filemanager,
+│                          #   launcher, run-in-terminal, notifications, system-setup
 ├── packages.txt           # repository packages
 ├── aur.packages.txt       # AUR packages (paru/yay)
 └── bootstrap.sh           # install packages, then symlink the configs
@@ -70,31 +70,37 @@ accent, thin borders, sharp corners, no blur or shadows. The palette is
 * mako — `config/mako/config`
 * swaync — `config/swaync/colors.css`
 
-A wallpaper-derived palette (via
-[wallust](https://codeberg.org/explosion-mental/wallust)) exists but is
-**disabled by default** — it is colorful and fights the gothic look. Enable it:
+One module owns the palette: `scripts/palette.sh`. It keeps a **single**
+persisted mode in `~/.config/hypr/palette-mode` — `dark`, `light` or `dynamic` —
+writes the generated color files, reloads the apps that consume them and keeps
+the two recolor modes mutually exclusive (enabling one disables the other).
+
+* **dark** (default) — the fixed gothic palette above. There is no generated
+  content, so every app falls back to the fixed colors.
+* **light** — the "ivory" variant, recoloring Hyprland, Waybar, rofi, kitty and
+  swaync.
+* **dynamic** — a palette derived from the wallpaper via
+  [wallust](https://codeberg.org/explosion-mental/wallust), recoloring
+  Hyprland, Waybar, rofi, mako, swaync, tofi and Starship through
+  `colors.dynamic.*` / `~/.cache/wallust/*`. It is colorful and fights the gothic
+  look, so it is off by default.
+
+foot, mako, tofi, hyprlock and GTK keep the fixed palette. The mode survives a
+relogin; switch dark ⇄ light from the settings center (**Light theme**) or with
+`SUPER + Shift + T`.
 
 ```bash
-touch ~/.config/hypr/dynamic-theme          # enable wallpaper-derived palette
-~/.config/hypr/scripts/theme.sh ~/Pictures/wall.png
-rm ~/.config/hypr/dynamic-theme             # back to the gothic palette
+~/.config/hypr/scripts/palette.sh status         # dark | light | dynamic
+~/.config/hypr/scripts/palette.sh set dynamic    # wallpaper-derived palette
+~/.config/hypr/scripts/palette.sh set light      # light "ivory" palette
+~/.config/hypr/scripts/palette.sh set dark       # back to the fixed gothic palette
+~/.config/hypr/scripts/palette.sh toggle         # dark ⇄ light
+~/.config/hypr/scripts/palette.sh clear          # drop generated colour, back to dark
 ```
 
-When enabled, wallust recolors Hyprland, Waybar, rofi, mako, swaync, tofi and
-Starship through `colors.dynamic.*` / `~/.cache/wallust/*` files. By default
-those files do not exist, so the fixed gothic colors apply.
-
-A **light ("ivory") variant** of the gothic palette is available too, reusing the
-same `*.dynamic.*` files:
-
-```bash
-~/.config/hypr/scripts/theme-mode.sh light    # dark, toggle, status also work
-```
-
-It recolors Hyprland, Waybar, rofi, kitty and swaync. Because it and wallust
-share the same files they are mutually exclusive — enabling one disables the
-other. foot, mako, tofi, hyprlock and GTK keep the fixed palette. Toggle it from
-the settings center (**Light theme**) or with `SUPER + Shift + T`.
+`scripts/theme-mode.sh dark|light|toggle|status` stays as the thin dark/light
+toggle for the keybind; `scripts/theme.sh [image]` applies the wallpaper and
+re-applies the current mode (the image drives the palette in **dynamic** mode).
 
 ## Keybinds
 
@@ -111,9 +117,10 @@ binds are in `conf.d/binds.conf`; `Alt + Shift` switches the us/ru layout and
 * **GIF** — via awww, animated;
 * **video** (mp4/webm/mkv/mov) — via **mpvpaper** (AUR package).
 
-`scripts/theme.sh` calls `wallpaper.sh` and, if wallpaper-derived theming is on,
-wallust. With no image file the wallpaper is generated as a gradient (needs
-imagemagick).
+`scripts/theme.sh` calls `wallpaper.sh` and then re-applies the current palette
+mode through `scripts/palette.sh`, so a wallpaper set in **dynamic** mode
+recolors the desktop. With no image file the wallpaper is generated as a
+gradient (needs imagemagick).
 
 ```bash
 ~/.config/hypr/scripts/wallpaper.sh ~/Pictures/wall.png
@@ -154,22 +161,23 @@ Tuned for minimal input lag and lightness:
 A lightweight rofi menu (`scripts/settings.sh`). Changes on the fly:
 
 * **Wallpaper** — static, animated (GIF/video) or gradient;
-* **Theme** — gothic ⇄ wallpaper-derived palette;
+* **Theme** — dark gothic ⇄ wallpaper-derived palette (`palette.sh`);
 * **Terminal** — foot / kitty / alacritty (written to `~/.config/hypr/terminal`);
 * **SHELL** — login shell fish / bash (via `chsh`, password in the terminal);
 * **Notifications** — mako / swaync (written to `~/.config/hypr/notifications`);
 * **Layout** — dwindle / master / scrolling (written to `layout.dynamic.conf`);
 * **Animations** — on / off (written to `animations.dynamic.conf`);
-* **Light theme** — dark gothic ⇄ light "ivory" palette (`theme-mode.sh`);
+* **Light theme** — dark gothic ⇄ light "ivory" palette (`palette.sh`);
 * **Random wallpaper** — random image from `~/Wallpapers` etc. at each login;
 * **Bar**, **Monitors**, **Keybinds**, **Qt theme**, **Reload**, **Power**.
 
 Terminal and notification choices go through the wrappers
 `scripts/run-in-terminal.sh` and `scripts/notifications.sh` (called by the
 `SUPER + Return` bind and autostart), so no manual config editing is needed.
-Choice files live in `~/.config/hypr/` (including `conf.d/layout.dynamic.conf`
-and `conf.d/animations.dynamic.conf`) and never reach git; layout and animations
-apply instantly via `hyprctl` and survive a relogin.
+Choice files live in `~/.config/hypr/` (including `palette-mode`,
+`conf.d/layout.dynamic.conf` and `conf.d/animations.dynamic.conf`) and never
+reach git; layout and animations apply instantly via `hyprctl` and survive a
+relogin.
 
 ## Terminal and font
 

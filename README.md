@@ -165,6 +165,27 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `XF86 Audio*` / `XF86 Brightness*` | volume / media / brightness |
 <!-- keybinds:end -->
 
+## Theme
+
+The desktop ships a fixed **gothic** (dark) palette by default. One module,
+`config/hypr/scripts/palette.sh`, owns the palette and keeps a **single**
+persisted mode in `~/.config/hypr/palette-mode` — `dark`, `light` or `dynamic` —
+writes the generated color files and reloads the apps that consume them.
+`light` (the "ivory" variant) and `dynamic` (wallpaper-derived via
+[wallust](https://codeberg.org/explosion-mental/wallust)) are mutually
+exclusive, and `dark` clears all generated color.
+
+```bash
+~/.config/hypr/scripts/palette.sh status         # dark | light | dynamic
+~/.config/hypr/scripts/palette.sh set light      # light "ivory" palette
+~/.config/hypr/scripts/palette.sh set dynamic    # wallpaper-derived palette
+~/.config/hypr/scripts/palette.sh set dark       # back to the fixed gothic palette
+~/.config/hypr/scripts/palette.sh clear          # drop generated colour, back to dark
+```
+
+`SUPER + Shift + T` toggles dark ⇄ light. See
+[`config/hypr/README.md`](config/hypr/README.md) for the full picture.
+
 ## Install
 
 ### Quick (auto-install)
@@ -238,8 +259,8 @@ cp claude/settings.local.json.EXAMPLE ~/.claude/settings.local.json
 
 The prompt (fish) is **Starship**, themed gothic. It reads
 `~/.config/starship.toml`, or `~/.cache/wallust/starship.toml` when the
-wallpaper-derived palette is enabled. Install: `starship` (already in
-`config/hypr/packages.txt`).
+wallpaper-derived palette is active (`palette.sh set dynamic`). Install:
+`starship` (already in `config/hypr/packages.txt`).
 
 ## Tasks
 
@@ -297,11 +318,16 @@ As defense in depth the repository ships a pre-commit hook and a secret scanner:
 * `scripts/check-coverage.sh` — fails when a tracked config is not installed by
   `install.sh` (it reads the installer's own `--dry-run`, so the two can't
   drift). Runs in CI.
+* `scripts/check-palette-targets.sh` — fails when the palette module's target
+  table drifts from the wallust destinations, `.gitignore` or `.gitattributes`,
+  or when its light palette is bound to targets by position instead of by name.
+  Runs in CI.
 * `.githooks/pre-commit` — blocks the commit on a suspected secret or a bash
   syntax error; shellcheck and fish checks are advisory. `install.sh` enables it
   with `git config core.hooksPath .githooks`.
-* `.githooks/pre-push` — advisory `check-binds` / `check-coverage` / secret scan
-  before a push, so drift is caught locally instead of in CI.
+* `.githooks/pre-push` — advisory `check-binds` / `check-coverage` /
+  `check-palette-targets` / secret scan before a push, so drift is caught
+  locally instead of in CI.
 
 CI (`.github/workflows/lint.yml`) runs the same gates plus `shfmt` and
 `actionlint`, `fish -n` + `fish_indent`, JSON/JSONC/TOML/YAML parsing,

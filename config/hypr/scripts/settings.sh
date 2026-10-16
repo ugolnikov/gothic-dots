@@ -3,6 +3,8 @@
 # Клавиша: SUPER + ,
 # Выборы, которые можно менять на лету: тема (готика/обои), обои (статика/
 # анимация/градиент), терминал, SHELL, система уведомлений.
+# Режим палитры (dark|light|dynamic) показывает и меняет модуль palette.sh:
+# маркеры напрямую не читаются и не пишутся.
 
 set -euo pipefail
 
@@ -11,7 +13,8 @@ ROFI_THEME="$CONFIG/rofi/settings.rasi"
 SCRIPTS="$CONFIG/hypr/scripts"
 BINDS="$CONFIG/hypr/conf.d/binds.conf"
 STATE="$CONFIG/hypr"
-DYNAMIC="$STATE/dynamic-theme"
+PALETTE="$SCRIPTS/palette.sh"
+THEME_MODE="$SCRIPTS/theme-mode.sh"
 TERMFILE="$STATE/terminal"
 NOTIFILE="$STATE/notifications"
 
@@ -27,29 +30,40 @@ radio() { # radio <current> <items...>
     done
 }
 
+# palette_mode — текущий режим палитры (dark|light|dynamic) спрашиваем у
+# модуля, а не выводим из маркеров: единственное значение живёт в palette.sh.
+palette_mode() { "$PALETTE" status 2>/dev/null || echo dark; }
+
 theme_label() {
-    if [ -e "$DYNAMIC" ]; then echo "Тема: палитра из обоев"; else echo "Тема: готика (фикс.)"; fi
+    if [ "$(palette_mode)" = dynamic ]; then echo "Тема: палитра из обоев"; else echo "Тема: готика (фикс.)"; fi
 }
 
 toggle_theme() {
-    if [ -e "$DYNAMIC" ]; then
-        rm -f "$DYNAMIC"
+    # Ряд обоев (dynamic) остаётся на palette.sh: ни один вход, кроме самого
+    # модуля, не задаёт режим dynamic.
+    if [ "$(palette_mode)" = dynamic ]; then
+        "$PALETTE" set dark >/dev/null 2>&1 || true
         note "Готик-палитра"
     else
-        # Палитра из обоев и светлая тема делят одни файлы — включаем одну.
-        rm -f "$STATE/light-theme"
-        touch "$DYNAMIC"
+        # Палитру из обоев строит модуль из сохранённых обоев; он же снимает
+        # светлую тему, так что режимы остаются взаимоисключающими.
+        "$PALETTE" set dynamic >/dev/null 2>&1 || true
         note "Палитра из обоев"
     fi
-    "$SCRIPTS/theme.sh" >/dev/null 2>&1 || true
 }
 
 light_state() {
-    if [ -e "$STATE/light-theme" ]; then echo "вкл"; else echo "выкл"; fi
+    if [ "$(palette_mode)" = light ]; then echo "вкл"; else echo "выкл"; fi
 }
 
 toggle_light() {
-    "$SCRIPTS/theme-mode.sh" toggle >/dev/null 2>&1 || true
+    # Светлую/тёмную развилку ведём через вход theme-mode.sh — тот самый шим,
+    # которым пользуется кеймбинд; статус по-прежнему спрашиваем у модуля.
+    if [ "$(palette_mode)" = light ]; then
+        "$THEME_MODE" dark >/dev/null 2>&1 || true
+    else
+        "$THEME_MODE" light >/dev/null 2>&1 || true
+    fi
     note "Светлая тема: $(light_state)"
 }
 
