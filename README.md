@@ -142,6 +142,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + F` | fullscreen (maximize) |
 | `SUPER + Shift + F` | true fullscreen |
 | `SUPER + ,` | settings |
+| `SUPER + /` | keybind cheatsheet |
 | `SUPER + W` | wallpaper picker |
 | `SUPER + R` / `SUPER + Shift + R` | reload Hyprland / restart Waybar |
 | `SUPER + N` | dismiss notifications |

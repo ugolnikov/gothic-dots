@@ -11,7 +11,6 @@ set -euo pipefail
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
 ROFI_THEME="$CONFIG/rofi/settings.rasi"
 SCRIPTS="$CONFIG/hypr/scripts"
-BINDS="$CONFIG/hypr/conf.d/binds.conf"
 STATE="$CONFIG/hypr"
 PALETTE="$SCRIPTS/palette.sh"
 THEME_MODE="$SCRIPTS/theme-mode.sh"
@@ -138,14 +137,8 @@ show_monitors() {
 }
 
 show_binds() {
-    [ -f "$BINDS" ] || {
-        note "binds.conf не найден"
-        return 0
-    }
-    # shellcheck disable=SC2016  # sed must see the literal $mod, not a shell expansion
-    grep -E '^[[:space:]]*bind' "$BINDS" |
-        sed -E 's/^[[:space:]]*bind[a-z]*[[:space:]]*=[[:space:]]*//; s/\$mod/SUPER/g; s/[[:space:]]*,[[:space:]]*/ | /g' |
-        rofi -dmenu -i -p "Клавиши" -theme "$ROFI_THEME" >/dev/null || true
+    # Единственный вид клавиш: делегируем шпаргалке, что читает keybinds.tsv.
+    "$SCRIPTS/keybinds.sh"
 }
 
 anim_state() {

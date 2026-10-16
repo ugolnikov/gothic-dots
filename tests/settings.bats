@@ -74,6 +74,16 @@ EOF
     chmod +x "$XDG_CONFIG_HOME/hypr/scripts/theme-mode.sh"
 }
 
+# record_keybinds — replace the cheatsheet with a recorder, so a test can
+# observe that the keybind row was routed to keybinds.sh.
+record_keybinds() {
+    cat >"$XDG_CONFIG_HOME/hypr/scripts/keybinds.sh" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "keybinds" >>"$CALLS"
+EOF
+    chmod +x "$XDG_CONFIG_HOME/hypr/scripts/keybinds.sh"
+}
+
 # --- the state rows track the module's status query ---
 
 @test "the settings rows report gothic and light off in dark mode" {
@@ -192,4 +202,15 @@ EOF
     run run_menu
     [[ "$output" == *"Светлая тема: вкл"* ]]
     [[ "$output" == *"Тема: готика (фикс.)"* ]]
+}
+
+# The keybind row delegates to keybinds.sh (the tsv cheatsheet) rather than
+# grepping binds.conf: there must be one view of the keybinds.
+@test "the keybind row routes through keybinds.sh" {
+    export ROFI_CHOICE='^Клавиши$'
+    record_keybinds
+
+    run "$SETTINGS"
+    [ "$status" -eq 0 ]
+    grep -qx 'keybinds' "$CALLS"
 }

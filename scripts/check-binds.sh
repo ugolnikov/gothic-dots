@@ -16,8 +16,10 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BINDS="$ROOT/config/hypr/conf.d/binds.conf"
-TSV="$ROOT/config/hypr/keybinds.tsv"
+# The inputs are overridable so the tests can provoke drift on copies and never
+# edit the real config.
+BINDS="${CHECK_BINDS_BINDS:-$ROOT/config/hypr/conf.d/binds.conf}"
+TSV="${CHECK_BINDS_TSV:-$ROOT/config/hypr/keybinds.tsv}"
 SCRIPTS_DIR="$ROOT/config/hypr/scripts"
 
 [ -f "$BINDS" ] || {
@@ -100,6 +102,7 @@ while IFS= read -r line; do
     if [[ ! "$key" =~ $aggregate ]]; then
         v="${key,,}"
         [ "$v" = "comma" ] && v=","
+        [ "$v" = "slash" ] && v="/"
         if [[ "$tsv_keys" != *"$v"* ]]; then
             err "key '$key' (from: $line) is not listed in config/hypr/keybinds.tsv"
         fi
