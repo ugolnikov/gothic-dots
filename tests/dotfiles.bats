@@ -43,6 +43,38 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "check-palette-targets: the module table agrees with the wallust config" {
+    run ./scripts/check-palette-targets.sh
+    [ "$status" -eq 0 ]
+}
+
+# Drift provocation: the guard must fail when a target is removed from one side
+# but not the other. The input paths are overridable so the test provokes drift
+# on copies and never edits the real table.
+@test "check-palette-targets fails when the module table drops a target" {
+    palette="$BATS_TEST_TMPDIR/palette.sh"
+    grep -v 'swaync/colors.dynamic.css' config/hypr/scripts/palette.sh >"$palette"
+    run env CHECK_PALETTE_SH="$palette" ./scripts/check-palette-targets.sh
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"swaync/colors.dynamic.css"* ]]
+}
+
+@test "check-palette-targets fails when the generator drops a destination" {
+    wallust="$BATS_TEST_TMPDIR/wallust.toml"
+    grep -v 'swaync/colors.dynamic.css' config/wallust/wallust.toml >"$wallust"
+    run env CHECK_WALLUST_TOML="$wallust" ./scripts/check-palette-targets.sh
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"swaync/colors.dynamic.css"* ]]
+}
+
+@test "check-palette-targets fails when a target loses its ignore entry" {
+    ignore="$BATS_TEST_TMPDIR/gitignore"
+    grep -v '^config/kitty/colors.dynamic.conf$' .gitignore >"$ignore"
+    run env CHECK_GITIGNORE="$ignore" ./scripts/check-palette-targets.sh
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"kitty/colors.dynamic.conf"* ]]
+}
+
 @test "scan-secrets --all: the repository is clean" {
     run ./scripts/scan-secrets.sh --all
     [ "$status" -eq 0 ]
