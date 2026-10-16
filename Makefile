@@ -4,7 +4,7 @@
 SHELL_SH := $(shell git ls-files '*.sh') bin/please .githooks/pre-commit .githooks/pre-push
 SHELL_FISH := $(shell git ls-files '*.fish')
 
-.PHONY: help install test lint fmt doctor backup check-packages
+.PHONY: help install test lint fmt doctor backup check-packages tools
 
 help: ## show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -26,6 +26,9 @@ lint: ## run the fast local guards (secrets, binds, coverage, palette, keybinds)
 fmt: ## format shell (shfmt) and fish (fish_indent)
 	shfmt -i 4 -ci -w $(SHELL_SH)
 	fish_indent -w $(SHELL_FISH)
+
+tools: ## install the pinned local linters (shfmt, markdownlint-cli2)
+	./scripts/dev-tools.sh
 
 doctor: ## desktop health check (commands, links, fonts, Hyprland)
 	./scripts/doctor.sh

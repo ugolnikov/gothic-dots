@@ -5,7 +5,7 @@ This repo is a gothic-minimal Hyprland desktop: the configs, the scripts that sw
 ## Requirements
 
 - **Arch / CachyOS** for the package lists (`packages.txt`, `aur.packages.txt`).
-- `git`, and for the checks: `bats`, `shellcheck`. `shfmt` and `markdownlint` run in CI; install them locally if you want the same gates before pushing.
+- `git`, and for the checks: `bats`, `shellcheck`. `make tools` installs the same pinned `shfmt` and `markdownlint-cli2` CI runs, so you can pass those gates before pushing.
 
 ## Getting started
 
