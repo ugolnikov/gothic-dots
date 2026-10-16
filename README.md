@@ -44,7 +44,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── completions/
 │   │   └── please.fish
 │   └── functions/
-│       ├── cleanup.fish        # clean package cache and orphans
+│       ├── cleanup.fish        # aggressive disk cleanup (caches, logs, trash)
 │       ├── fish_greeting.fish
 │       ├── my.fish             # list the abbreviations
 │       ├── update.fish         # sync package databases
