@@ -133,6 +133,9 @@ jobs:
       - name: Binds match their docs
         run: ./scripts/check-binds.sh
 
+      - name: Palette targets match the generator and vcs metadata
+        run: ./scripts/check-palette-targets.sh
+
       - name: install.sh dry-run
         run: ./install.sh --no-packages --dry-run
 

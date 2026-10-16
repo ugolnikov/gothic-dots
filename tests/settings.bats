@@ -8,6 +8,8 @@
 # inspects the marker files itself. These tests drive it against a throwaway
 # config tree with rofi and the reload consumers stubbed on PATH.
 
+load helpers
+
 setup() {
     REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/.." && pwd)"
     SETTINGS="$REPO_ROOT/config/hypr/scripts/settings.sh"
@@ -17,9 +19,11 @@ setup() {
     export XDG_CACHE_HOME="$BATS_TEST_TMPDIR/cache"
     mkdir -p "$XDG_CONFIG_HOME/hypr/scripts" "$XDG_CACHE_HOME"
 
-    # settings.sh resolves the module through $XDG_CONFIG_HOME/hypr/scripts.
-    # Link the real module there so the run exercises the true delegation seam.
+    # settings.sh resolves the palette module and the theme-mode shim through
+    # $XDG_CONFIG_HOME/hypr/scripts. Link the real ones there so the run
+    # exercises the true delegation seam.
     ln -s "$SCRIPTS/palette.sh" "$XDG_CONFIG_HOME/hypr/scripts/palette.sh"
+    ln -s "$SCRIPTS/theme-mode.sh" "$XDG_CONFIG_HOME/hypr/scripts/theme-mode.sh"
 
     STUB_BIN="$BATS_TEST_TMPDIR/bin"
     mkdir -p "$STUB_BIN"
@@ -52,30 +56,22 @@ EOF
     stub_wallust
 }
 
-# stub_wallust — the external palette generator: writes every target so the
-# dynamic path produces observable files without image processing.
-stub_wallust() {
-    cat >"$STUB_BIN/wallust" <<'EOF'
-#!/usr/bin/env bash
-printf '%s\n' "wallust $*" >>"$CALLS"
-for f in \
-    "$XDG_CONFIG_HOME/hypr/conf.d/colors.dynamic.conf" \
-    "$XDG_CONFIG_HOME/waybar/colors.dynamic.css" \
-    "$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi" \
-    "$XDG_CONFIG_HOME/kitty/colors.dynamic.conf" \
-    "$XDG_CONFIG_HOME/swaync/colors.dynamic.css"; do
-    mkdir -p "$(dirname "$f")"
-    printf 'generated from %s\n' "$*" >"$f"
-done
-EOF
-    chmod +x "$STUB_BIN/wallust"
-}
-
 # run_menu — run the settings center once with no pick (rofi returns nothing)
 # and print the menu rows it offered.
 run_menu() {
     "$SETTINGS" >/dev/null 2>&1 || true
     cat "$ROFI_LOG" 2>/dev/null || true
+}
+
+# record_theme_mode — replace the theme-mode shim with a recorder, so a test can
+# observe that the light/dark row was routed through it.
+record_theme_mode() {
+    rm -f "$XDG_CONFIG_HOME/hypr/scripts/theme-mode.sh"
+    cat >"$XDG_CONFIG_HOME/hypr/scripts/theme-mode.sh" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "theme-mode $*" >>"$CALLS"
+EOF
+    chmod +x "$XDG_CONFIG_HOME/hypr/scripts/theme-mode.sh"
 }
 
 # --- the state rows track the module's status query ---
@@ -160,6 +156,31 @@ run_menu() {
     run "$SETTINGS"
     [ "$status" -eq 0 ]
     [ "$(cat "$XDG_CONFIG_HOME/hypr/palette-mode")" = dark ]
+}
+
+# #10 acceptance: the light/dark row must go through the theme-mode shim, not
+# call the module directly.
+@test "the light row routes through the theme-mode entry point" {
+    printf 'dark\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+    export ROFI_CHOICE='^Светлая тема:'
+    record_theme_mode
+
+    run "$SETTINGS"
+    [ "$status" -eq 0 ]
+    grep -qx 'theme-mode light' "$CALLS"
+}
+
+# The wallpaper (dynamic) row deliberately stays on the module: no entry point
+# sets the dynamic mode.
+@test "the wallpaper row calls the module, not the theme-mode entry point" {
+    printf 'dark\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+    export ROFI_CHOICE='^Тема:'
+    record_theme_mode
+
+    run "$SETTINGS"
+    [ "$status" -eq 0 ]
+    [ "$(cat "$XDG_CONFIG_HOME/hypr/palette-mode")" = dynamic ]
+    ! grep -q '^theme-mode ' "$CALLS"
 }
 
 # The state rows must not read the marker files directly any more: a stray

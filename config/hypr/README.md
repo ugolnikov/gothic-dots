@@ -95,6 +95,7 @@ relogin; switch dark ⇄ light from the settings center (**Light theme**) or wit
 ~/.config/hypr/scripts/palette.sh set light      # light "ivory" palette
 ~/.config/hypr/scripts/palette.sh set dark       # back to the fixed gothic palette
 ~/.config/hypr/scripts/palette.sh toggle         # dark ⇄ light
+~/.config/hypr/scripts/palette.sh clear          # drop generated colour, back to dark
 ```
 
 `scripts/theme-mode.sh dark|light|toggle|status` stays as the thin dark/light

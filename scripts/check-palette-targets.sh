@@ -10,7 +10,9 @@
 #   2. every configured wallust destination under ~/.config is a target (so the
 #      generator never writes a file the module doesn't own);
 #   3. every target is ignored in .gitignore;
-#   4. every target is marked generated (linguist-generated) in .gitattributes.
+#   4. every target is marked generated (linguist-generated) in .gitattributes;
+#   5. palette.sh binds its light palette to targets by name (target_for <key>),
+#      not by position in TARGETS, and the named consumers cover every target.
 #
 # wallust also writes mako/starship/tofi into ~/.cache/wallust/; those are not
 # module targets and are deliberately ignored here. The module owns the
@@ -111,6 +113,42 @@ while IFS= read -r t; do
     gitattributes_marks_generated "$t" ||
         err "target 'config/$t' is not marked linguist-generated in .gitattributes"
 done < <(printf '%s\n' "${module[@]}")
+
+# 5. light content must be bound to consumers by name (target_for <key>), never
+#    by position in TARGETS; each named consumer must select exactly one target
+#    and together they must cover the whole table.
+if grep -qE 'TARGETS\[[0-9]+\]' "$PALETTE_SH"; then
+    err "palette.sh indexes TARGETS by position; bind content to named targets"
+fi
+mapfile -t keys < <(grep -oE 'target_for [A-Za-z0-9_-]+' "$PALETTE_SH" |
+    awk '{print $2}' | sort -u)
+if [ "${#keys[@]}" -eq 0 ]; then
+    err "palette.sh binds no named targets (expected target_for <key> calls)"
+else
+    bound=()
+    for k in "${keys[@]}"; do
+        matches=0
+        match=""
+        for t in "${module[@]}"; do
+            case "/$t/" in
+                */"$k"/*)
+                    matches=$((matches + 1))
+                    match="$t"
+                    ;;
+            esac
+        done
+        if [ "$matches" -eq 1 ]; then
+            bound+=("$match")
+        else
+            err "named target '$k' selects $matches targets (want exactly 1)"
+        fi
+    done
+    if [ "${#bound[@]}" -gt 0 ]; then
+        printf '%s\n' "${bound[@]}" | sort -u >"$tmp/bound"
+        diff -q "$tmp/module" "$tmp/bound" >/dev/null ||
+            err "named targets do not cover exactly the module target table"
+    fi
+fi
 
 if [ "$status" -eq 0 ]; then
     echo "check-palette-targets: module table, wallust config and vcs metadata agree (${#module[@]} targets)"

@@ -180,6 +180,7 @@ exclusive, and `dark` clears all generated color.
 ~/.config/hypr/scripts/palette.sh set light      # light "ivory" palette
 ~/.config/hypr/scripts/palette.sh set dynamic    # wallpaper-derived palette
 ~/.config/hypr/scripts/palette.sh set dark       # back to the fixed gothic palette
+~/.config/hypr/scripts/palette.sh clear          # drop generated colour, back to dark
 ```
 
 `SUPER + Shift + T` toggles dark ⇄ light. See
@@ -317,11 +318,16 @@ As defense in depth the repository ships a pre-commit hook and a secret scanner:
 * `scripts/check-coverage.sh` — fails when a tracked config is not installed by
   `install.sh` (it reads the installer's own `--dry-run`, so the two can't
   drift). Runs in CI.
+* `scripts/check-palette-targets.sh` — fails when the palette module's target
+  table drifts from the wallust destinations, `.gitignore` or `.gitattributes`,
+  or when its light palette is bound to targets by position instead of by name.
+  Runs in CI.
 * `.githooks/pre-commit` — blocks the commit on a suspected secret or a bash
   syntax error; shellcheck and fish checks are advisory. `install.sh` enables it
   with `git config core.hooksPath .githooks`.
-* `.githooks/pre-push` — advisory `check-binds` / `check-coverage` / secret scan
-  before a push, so drift is caught locally instead of in CI.
+* `.githooks/pre-push` — advisory `check-binds` / `check-coverage` /
+  `check-palette-targets` / secret scan before a push, so drift is caught
+  locally instead of in CI.
 
 CI (`.github/workflows/lint.yml`) runs the same gates plus `shfmt` and
 `actionlint`, `fish -n` + `fish_indent`, JSON/JSONC/TOML/YAML parsing,

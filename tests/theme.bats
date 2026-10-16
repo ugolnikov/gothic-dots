@@ -9,6 +9,8 @@
 # consumers) stubbed on PATH, so no compositor is needed and the real ~/.config
 # is never touched.
 
+load helpers
+
 setup() {
     REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/.." && pwd)"
     THEME="$REPO_ROOT/config/hypr/scripts/theme.sh"
@@ -54,49 +56,6 @@ recorder_stub() {
 printf '%s\n' "$name \$*" >>"\$CALLS"
 EOF
     chmod +x "$STUB_BIN/$name"
-}
-
-# stub_wallust — the external palette generator: writes every target so the
-# dynamic path produces observable files without image processing.
-stub_wallust() {
-    cat >"$STUB_BIN/wallust" <<'EOF'
-#!/usr/bin/env bash
-printf '%s\n' "wallust $*" >>"$CALLS"
-for f in \
-    "$XDG_CONFIG_HOME/hypr/conf.d/colors.dynamic.conf" \
-    "$XDG_CONFIG_HOME/waybar/colors.dynamic.css" \
-    "$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi" \
-    "$XDG_CONFIG_HOME/kitty/colors.dynamic.conf" \
-    "$XDG_CONFIG_HOME/swaync/colors.dynamic.css"; do
-    mkdir -p "$(dirname "$f")"
-    printf 'generated from %s\n' "$*" >"$f"
-done
-EOF
-    chmod +x "$STUB_BIN/wallust"
-}
-
-# targets — the five generated files, one per colour consumer.
-targets() {
-    printf '%s\n' \
-        "$XDG_CONFIG_HOME/hypr/conf.d/colors.dynamic.conf" \
-        "$XDG_CONFIG_HOME/waybar/colors.dynamic.css" \
-        "$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi" \
-        "$XDG_CONFIG_HOME/kitty/colors.dynamic.conf" \
-        "$XDG_CONFIG_HOME/swaync/colors.dynamic.css"
-}
-
-assert_targets_exist_empty() {
-    local f
-    while IFS= read -r f; do
-        if [ ! -f "$f" ]; then
-            echo "missing target: $f" >&2
-            return 1
-        fi
-        if [ -s "$f" ]; then
-            echo "target is not empty: $f" >&2
-            return 1
-        fi
-    done < <(targets)
 }
 
 @test "theme.sh sets the wallpaper and saves the lock-screen copy" {
