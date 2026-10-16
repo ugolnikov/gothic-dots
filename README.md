@@ -214,6 +214,19 @@ and `--force` to skip the backup. `--uninstall` reverses the links safely
 Run `scripts/doctor.sh` afterwards to check packages, symlinks, fonts and the
 Hyprland config in one pass.
 
+On a fresh machine, `scripts/first-run.sh` (or `make first-run`) walks the same
+steps one at a time, with a confirmation before each:
+
+```bash
+./scripts/first-run.sh            # interactive: confirm each stage
+./scripts/first-run.sh --yes      # accept every confirmation
+./scripts/first-run.sh --dry-run  # print the commands; change nothing
+```
+
+It installs the packages, links the configs, and offers the optional system
+configs, auto-backup timer and login shell. It never creates secrets — the
+secret stage prints the tracked `*.EXAMPLE` copies you fill in by hand.
+
 ### Manual
 
 ```bash
@@ -269,6 +282,7 @@ A thin `Makefile` wraps the common jobs (`make` or `make help` lists them):
 
 ```bash
 make install         # link configs (no packages)
+make first-run       # walk a fresh clone through the one-time setup
 make test            # bats test suite
 make lint            # secrets, binds, coverage, keybind table
 make fmt             # shfmt + fish_indent

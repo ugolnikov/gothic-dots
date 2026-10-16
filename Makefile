@@ -4,7 +4,7 @@
 SHELL_SH := $(shell git ls-files '*.sh') bin/please .githooks/pre-commit .githooks/pre-push
 SHELL_FISH := $(shell git ls-files '*.fish')
 
-.PHONY: help install test lint fmt doctor backup check-packages tools
+.PHONY: help install first-run test lint fmt doctor backup check-packages tools
 
 help: ## show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -12,6 +12,9 @@ help: ## show this help
 
 install: ## link configs (no packages): ./install.sh --no-packages
 	./install.sh --no-packages
+
+first-run: ## walk a fresh clone through the one-time setup
+	./scripts/first-run.sh
 
 test: ## run the bats test suite
 	bats tests/
