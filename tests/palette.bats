@@ -56,6 +56,46 @@ assert_targets_exist_empty() {
     done < <(targets)
 }
 
+# expect_line <pattern> <file> — assert the file carries a consumer-visible
+# definition. Explicit failure so an early miss does not pass silently.
+expect_line() {
+    if ! grep -q -- "$1" "$2"; then
+        echo "expected '$1' in $2" >&2
+        return 1
+    fi
+}
+
+# assert_light_palette — каждый target несёт светлую «ivory» палитру в своём
+# формате. Проверяем те определения, за которые цепляются потребители, а не
+# весь файл целиком.
+assert_light_palette() {
+    local hypr="$XDG_CONFIG_HOME/hypr/conf.d/colors.dynamic.conf"
+    local waybar="$XDG_CONFIG_HOME/waybar/colors.dynamic.css"
+    local rofi="$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi"
+    local kitty="$XDG_CONFIG_HOME/kitty/colors.dynamic.conf"
+    local swaync="$XDG_CONFIG_HOME/swaync/colors.dynamic.css"
+
+    expect_line 'col.active_border = rgba(8c1220ff)' "$hypr" || return 1
+    expect_line 'background_color = rgba(f2efe7ff)' "$hypr" || return 1
+    expect_line '@define-color base     #f2efe7;' "$waybar" || return 1
+    expect_line '@define-color text     #2a2723;' "$waybar" || return 1
+    expect_line 'base:      #f2efe7;' "$rofi" || return 1
+    expect_line 'text:      #2a2723;' "$rofi" || return 1
+    expect_line 'background              #f2efe7' "$kitty" || return 1
+    expect_line 'foreground              #2a2723' "$kitty" || return 1
+    expect_line '@define-color base     #f2efe7;' "$swaync" || return 1
+    expect_line '@define-color text     #2a2723;' "$swaync" || return 1
+}
+
+@test "palette.sh set light writes the ivory palette and reports light" {
+    run "$PALETTE" set light
+    [ "$status" -eq 0 ]
+    assert_light_palette
+
+    run "$PALETTE" status
+    [ "$output" = "light" ]
+}
+
 @test "palette.sh status reports dark before any mode is chosen" {
     run "$PALETTE" status
     [ "$status" -eq 0 ]
@@ -97,6 +137,47 @@ assert_targets_exist_empty() {
     grep -qx 'hyprctl reload' "$RELOAD_LOG"
     grep -qx 'pkill -SIGUSR2 -x waybar' "$RELOAD_LOG"
     grep -qx 'swaync-client --reload-css' "$RELOAD_LOG"
+}
+
+@test "palette.sh toggle from dark reaches light" {
+    run "$PALETTE" toggle
+    [ "$status" -eq 0 ]
+    assert_light_palette
+
+    run "$PALETTE" status
+    [ "$output" = "light" ]
+}
+
+@test "palette.sh apply refills the ivory palette while in light mode" {
+    "$PALETTE" set light
+    : >"$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi"
+
+    run "$PALETTE" apply
+    [ "$status" -eq 0 ]
+    assert_light_palette
+
+    run "$PALETTE" status
+    [ "$output" = "light" ]
+}
+
+@test "palette.sh reloads the colour consumers after applying light" {
+    run "$PALETTE" set light
+    [ "$status" -eq 0 ]
+
+    grep -qx 'hyprctl reload' "$RELOAD_LOG"
+    grep -qx 'pkill -SIGUSR2 -x waybar' "$RELOAD_LOG"
+    grep -qx 'swaync-client --reload-css' "$RELOAD_LOG"
+}
+
+@test "palette.sh clear after light empties every target and returns to dark" {
+    "$PALETTE" set light
+
+    run "$PALETTE" clear
+    [ "$status" -eq 0 ]
+    assert_targets_exist_empty
+
+    run "$PALETTE" status
+    [ "$output" = "dark" ]
 }
 
 @test "palette.sh ignores a missing consumer without error" {
