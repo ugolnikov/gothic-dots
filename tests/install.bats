@@ -96,10 +96,12 @@ setup_throwaway_home() {
     [ -z "$output" ]
 }
 
-# Uninstall reads the same plan as install, so --only narrows it the same way:
-# only that app's link goes, and its siblings stay.
-@test "install.sh --uninstall --only removes only that app's link" {
+# Deliberate: --uninstall ignores --only. The pre-plan installer always removed
+# the whole link set, and the spec keeps installer usage unchanged — --only
+# narrows what install links, never what uninstall removes.
+@test "install.sh --uninstall ignores --only and removes the whole plan" {
     setup_throwaway_home
+    ./scripts/link-plan.sh >"$BATS_TEST_TMPDIR/plan"
 
     run ./install.sh --no-packages
     [ "$status" -eq 0 ]
@@ -109,6 +111,13 @@ setup_throwaway_home() {
     run ./install.sh --uninstall --only hypr
     [ "$status" -eq 0 ]
 
-    [ ! -e "$HOME/.config/hypr" ]
-    [ -L "$HOME/.config/waybar" ]
+    # --only named hypr, but every planned destination must still be gone.
+    local src dst
+    while IFS=$'\t' read -r src dst; do
+        [ -n "$dst" ] || continue
+        if [ -e "$dst" ] || [ -L "$dst" ]; then
+            echo "uninstall left $dst behind" >&2
+            return 1
+        fi
+    done <"$BATS_TEST_TMPDIR/plan"
 }
