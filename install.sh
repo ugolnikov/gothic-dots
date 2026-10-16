@@ -62,17 +62,6 @@ only_selected() {
     case ",$ONLY," in *",$1,"*) return 0 ;; *) return 1 ;; esac
 }
 
-# link_plan — print the plan's links as src<TAB>dst, honouring --only. This is
-# the single definition of what gets linked where; install and uninstall both
-# read it, so the two can never drift.
-link_plan() {
-    if [ -n "$ONLY" ]; then
-        "$DIR/scripts/link-plan.sh" --only "$ONLY"
-    else
-        "$DIR/scripts/link-plan.sh"
-    fi
-}
-
 BACKUP="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 LINKED=0
 BACKED=0
@@ -141,12 +130,15 @@ fi
 echo "==> dotfiles: $DIR"
 
 # 0. --uninstall: remove only our own symlinks, leave everything else alone.
+#    Uninstall deliberately ignores --only: the pre-plan installer always
+#    removed the whole link set, and the spec keeps installer usage unchanged.
+#    --only narrows what install links, never what uninstall removes.
 if [ "$UNINSTALL" = 1 ]; then
     echo "==> uninstall: removing symlinks into $DIR"
     while IFS=$'\t' read -r _ dst; do
         [ -n "$dst" ] || continue
         unlink "$dst"
-    done < <(link_plan)
+    done < <("$DIR/scripts/link-plan.sh")
     if [ -d "$DIR/.git" ] && command -v git >/dev/null 2>&1; then
         run git -C "$DIR" config --unset core.hooksPath 2>/dev/null || true
     fi
@@ -175,7 +167,7 @@ fi
 while IFS=$'\t' read -r src dst; do
     [ -n "$src" ] || continue
     link "$src" "$dst"
-done < <(link_plan)
+done < <("$DIR/scripts/link-plan.sh" ${ONLY:+--only "$ONLY"})
 
 # 2b. Per-machine Hyprland monitor overrides: seed an ignored copy from the
 # tracked example so the source in monitors.conf never dangles. This is a copy,

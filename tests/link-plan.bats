@@ -91,6 +91,12 @@ plan_line() {
     [ "$status" -eq 2 ]
 }
 
+@test "link-plan.sh rejects an unknown argument with usage on stderr" {
+    run "$PLAN" --nope
+    [ "$status" -eq 2 ]
+    [[ "$output" == *"usage: link-plan.sh [--only a,b]"* ]]
+}
+
 @test "link-plan.sh output order is stable across runs" {
     "$PLAN" >"$BATS_TEST_TMPDIR/plan1"
     "$PLAN" >"$BATS_TEST_TMPDIR/plan2"
@@ -112,9 +118,9 @@ plan_line() {
     [[ "$output" != *"missing"* ]]
 }
 
-# Regression: the plan is the single definition of the link set. Until
-# install.sh consumes it (its own ticket), they must still agree, so the
-# module can never silently drop a link the installer creates.
+# Regression: the plan is the single definition of the link set, and install.sh
+# now consumes it, so the two must agree — the plan can never silently drop a
+# link the installer creates, nor invent one it does not.
 @test "link-plan.sh reproduces exactly the set install.sh links" {
     "$PLAN" | sort >"$BATS_TEST_TMPDIR/plan"
 

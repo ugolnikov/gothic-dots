@@ -32,6 +32,7 @@ while [ $# -gt 0 ]; do
             ;;
         *)
             echo "link-plan.sh: unknown argument: $1" >&2
+            echo "usage: link-plan.sh [--only a,b]" >&2
             exit 2
             ;;
     esac
