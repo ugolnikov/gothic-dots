@@ -9,7 +9,8 @@
 # Модуль владеет набором генерируемых файлов (по одному на потребителя цвета),
 # их предсозданием, перезагрузкой потребителей и режимом. Режим хранится одним
 # маркером ~/.config/hypr/palette-mode; пока его нет, один раз читаются старые
-# маркеры: light-theme → light, dynamic-theme → dynamic, иначе dark.
+# маркеры (light-theme → light, dynamic-theme → dynamic, иначе dark) и
+# мигрируют в него — прежние маркеры удаляются.
 #
 # dark = нет сгенерированного содержимого: файлы остаются, но пустые, и
 # применяется фиксированная готик-палитра.
@@ -52,18 +53,28 @@ reload() {
     swaync-client --reload-css >/dev/null 2>&1 || true
 }
 
-# current_mode — единственное значение режима. Старые маркеры читаются, пока
-# palette-mode ещё не создан (миграция существующей сессии).
+# current_mode — единственное значение режима. Пока palette-mode не создан,
+# старые маркеры читаются один раз и мигрируют в него: light-theme → light
+# (приоритетнее), dynamic-theme → dynamic, иначе dark.
 current_mode() {
     if [ -r "$MODE_FILE" ]; then
         cat "$MODE_FILE"
-    elif [ -e "$LEGACY_LIGHT" ]; then
-        echo light
+        return
+    fi
+
+    local legacy
+    if [ -e "$LEGACY_LIGHT" ]; then
+        legacy=light
     elif [ -e "$LEGACY_DYNAMIC" ]; then
-        echo dynamic
+        legacy=dynamic
     else
         echo dark
+        return
     fi
+
+    # Разовая миграция: единственное значение вместо старых маркеров.
+    persist_mode "$legacy"
+    echo "$legacy"
 }
 
 # clear_targets — режим dark: файлы на месте, но пустые, чтобы фиксированная
@@ -227,9 +238,13 @@ materialise_mode() {
     esac
 }
 
+# persist_mode <mode> — записать единственное значение режима. Запись режима
+# структурно вытесняет прочие представления: старые маркеры удаляются, так что
+# light и dynamic не могут сосуществовать.
 persist_mode() {
     mkdir -p "$(dirname "$MODE_FILE")"
     printf '%s\n' "$1" >"$MODE_FILE"
+    rm -f "$LEGACY_LIGHT" "$LEGACY_DYNAMIC"
 }
 
 set_mode() { # set_mode <dark|light|dynamic> [image]
