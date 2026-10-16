@@ -56,6 +56,38 @@ assert_targets_exist_empty() {
     done < <(targets)
 }
 
+assert_targets_exist_nonempty() {
+    local f
+    while IFS= read -r f; do
+        if [ ! -s "$f" ]; then
+            echo "target missing or empty: $f" >&2
+            return 1
+        fi
+    done < <(targets)
+}
+
+# stub_wallust — substitute the external palette generator with a fake that
+# writes every target, so the dynamic path is testable without image
+# processing. It records the arguments it was handed. Set WALLUST_FAIL=1 to
+# make it fail without writing anything.
+stub_wallust() {
+    cat >"$STUB_BIN/wallust" <<'EOF'
+#!/usr/bin/env bash
+echo "wallust $*" >>"$RELOAD_LOG"
+[ "${WALLUST_FAIL:-}" = 1 ] && exit 1
+for f in \
+    "$XDG_CONFIG_HOME/hypr/conf.d/colors.dynamic.conf" \
+    "$XDG_CONFIG_HOME/waybar/colors.dynamic.css" \
+    "$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi" \
+    "$XDG_CONFIG_HOME/kitty/colors.dynamic.conf" \
+    "$XDG_CONFIG_HOME/swaync/colors.dynamic.css"; do
+    mkdir -p "$(dirname "$f")"
+    printf 'generated from %s\n' "$*" >"$f"
+done
+EOF
+    chmod +x "$STUB_BIN/wallust"
+}
+
 @test "palette.sh status reports dark before any mode is chosen" {
     run "$PALETTE" status
     [ "$status" -eq 0 ]
@@ -129,6 +161,45 @@ assert_targets_exist_empty() {
     mkdir -p "$XDG_CONFIG_HOME/hypr"
     : >"$XDG_CONFIG_HOME/hypr/light-theme"
     printf 'dynamic\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+
+    run "$PALETTE" status
+    [ "$status" -eq 0 ]
+    [ "$output" = "dynamic" ]
+}
+
+@test "palette.sh set dynamic generates the targets through the generator" {
+    stub_wallust
+    image="$BATS_TEST_TMPDIR/wall.png"
+
+    run "$PALETTE" set dynamic "$image"
+    [ "$status" -eq 0 ]
+    assert_targets_exist_nonempty
+    grep -qx "wallust run $image" "$RELOAD_LOG"
+
+    run "$PALETTE" status
+    [ "$status" -eq 0 ]
+    [ "$output" = "dynamic" ]
+}
+
+@test "palette.sh apply in dynamic mode uses the saved wallpaper" {
+    stub_wallust
+    mkdir -p "$XDG_CONFIG_HOME/hypr"
+    printf 'wallpaper\n' >"$XDG_CONFIG_HOME/hypr/wallpaper.png"
+    printf 'dynamic\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+
+    run "$PALETTE" apply
+    [ "$status" -eq 0 ]
+    assert_targets_exist_nonempty
+    grep -qx "wallust run $XDG_CONFIG_HOME/hypr/wallpaper.png" "$RELOAD_LOG"
+}
+
+@test "palette.sh keeps targets importable when generation fails" {
+    stub_wallust
+    export WALLUST_FAIL=1
+
+    run "$PALETTE" set dynamic "$BATS_TEST_TMPDIR/missing.png"
+    [ "$status" -eq 0 ]
+    assert_targets_exist_empty
 
     run "$PALETTE" status
     [ "$status" -eq 0 ]
