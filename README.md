@@ -165,6 +165,26 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `XF86 Audio*` / `XF86 Brightness*` | volume / media / brightness |
 <!-- keybinds:end -->
 
+## Theme
+
+The desktop ships a fixed **gothic** (dark) palette by default. One module,
+`config/hypr/scripts/palette.sh`, owns the palette and keeps a **single**
+persisted mode in `~/.config/hypr/palette-mode` — `dark`, `light` or `dynamic` —
+writes the generated color files and reloads the apps that consume them.
+`light` (the "ivory" variant) and `dynamic` (wallpaper-derived via
+[wallust](https://codeberg.org/explosion-mental/wallust)) are mutually
+exclusive, and `dark` clears all generated color.
+
+```bash
+~/.config/hypr/scripts/palette.sh status         # dark | light | dynamic
+~/.config/hypr/scripts/palette.sh set light      # light "ivory" palette
+~/.config/hypr/scripts/palette.sh set dynamic    # wallpaper-derived palette
+~/.config/hypr/scripts/palette.sh set dark       # back to the fixed gothic palette
+```
+
+`SUPER + Shift + T` toggles dark ⇄ light. See
+[`config/hypr/README.md`](config/hypr/README.md) for the full picture.
+
 ## Install
 
 ### Quick (auto-install)
@@ -238,8 +258,8 @@ cp claude/settings.local.json.EXAMPLE ~/.claude/settings.local.json
 
 The prompt (fish) is **Starship**, themed gothic. It reads
 `~/.config/starship.toml`, or `~/.cache/wallust/starship.toml` when the
-wallpaper-derived palette is enabled. Install: `starship` (already in
-`config/hypr/packages.txt`).
+wallpaper-derived palette is active (`palette.sh set dynamic`). Install:
+`starship` (already in `config/hypr/packages.txt`).
 
 ## Tasks
 
