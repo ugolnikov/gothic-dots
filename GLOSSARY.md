@@ -31,3 +31,7 @@ _Avoid_: client, app, themeable app
 **Wallpaper**:
 The desktop background image, and the source a dynamic palette is derived from. Chosen independently of the mode.
 _Avoid_: background, backdrop
+
+**Link plan**:
+The single list of what this repository links where; each link pairs a repo path with the home path it is symlinked to. The install, uninstall, doctor and coverage paths all read it, so adding or removing a link is one edit.
+_Avoid_: link map, symlink list
