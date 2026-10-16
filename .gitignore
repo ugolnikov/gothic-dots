@@ -25,6 +25,7 @@ config/hypr/conf.d/animations.dynamic.conf
 config/hypr/conf.d/*.local.conf
 
 # --- Generated palette (wallust) and the current wallpaper ---
+# Keep this list in step with palette.sh's TARGETS: scripts/check-palette-targets.sh enforces it.
 config/hypr/conf.d/colors.dynamic.conf
 config/hypr/wallpaper.png
 config/waybar/colors.dynamic.css

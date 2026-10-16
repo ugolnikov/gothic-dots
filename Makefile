@@ -16,10 +16,11 @@ install: ## link configs (no packages): ./install.sh --no-packages
 test: ## run the bats test suite
 	bats tests/
 
-lint: ## run the fast local guards (secrets, binds, coverage, keybinds)
+lint: ## run the fast local guards (secrets, binds, coverage, palette, keybinds)
 	./scripts/scan-secrets.sh --all
 	./scripts/check-binds.sh
 	./scripts/check-coverage.sh
+	./scripts/check-palette-targets.sh
 	./scripts/gen-keybinds.sh --check
 
 fmt: ## format shell (shfmt) and fish (fish_indent)

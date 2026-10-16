@@ -18,6 +18,7 @@ run_guard() {
 
 run_guard scripts/check-coverage.sh "check-coverage"
 run_guard scripts/check-binds.sh "check-binds"
+run_guard scripts/check-palette-targets.sh "check-palette-targets"
 run_guard scripts/scan-secrets.sh "secret scan"
 
 exit 0
