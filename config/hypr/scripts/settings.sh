@@ -14,6 +14,7 @@ SCRIPTS="$CONFIG/hypr/scripts"
 BINDS="$CONFIG/hypr/conf.d/binds.conf"
 STATE="$CONFIG/hypr"
 PALETTE="$SCRIPTS/palette.sh"
+THEME_MODE="$SCRIPTS/theme-mode.sh"
 TERMFILE="$STATE/terminal"
 NOTIFILE="$STATE/notifications"
 
@@ -38,6 +39,8 @@ theme_label() {
 }
 
 toggle_theme() {
+    # Ряд обоев (dynamic) остаётся на palette.sh: ни один вход, кроме самого
+    # модуля, не задаёт режим dynamic.
     if [ "$(palette_mode)" = dynamic ]; then
         "$PALETTE" set dark >/dev/null 2>&1 || true
         note "Готик-палитра"
@@ -54,10 +57,12 @@ light_state() {
 }
 
 toggle_light() {
+    # Светлую/тёмную развилку ведём через вход theme-mode.sh — тот самый шим,
+    # которым пользуется кеймбинд; статус по-прежнему спрашиваем у модуля.
     if [ "$(palette_mode)" = light ]; then
-        "$PALETTE" set dark >/dev/null 2>&1 || true
+        "$THEME_MODE" dark >/dev/null 2>&1 || true
     else
-        "$PALETTE" set light >/dev/null 2>&1 || true
+        "$THEME_MODE" light >/dev/null 2>&1 || true
     fi
     note "Светлая тема: $(light_state)"
 }

@@ -8,6 +8,8 @@
 # reload consumers stubbed on PATH. No compositor is needed, and the real
 # ~/.config is never touched.
 
+load helpers
+
 setup() {
     REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/.." && pwd)"
     PALETTE="$REPO_ROOT/config/hypr/scripts/palette.sh"
@@ -32,61 +34,6 @@ EOF
     export PATH="$STUB_BIN:$PATH"
 }
 
-# targets — the five generated files, one per colour consumer.
-targets() {
-    printf '%s\n' \
-        "$XDG_CONFIG_HOME/hypr/conf.d/colors.dynamic.conf" \
-        "$XDG_CONFIG_HOME/waybar/colors.dynamic.css" \
-        "$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi" \
-        "$XDG_CONFIG_HOME/kitty/colors.dynamic.conf" \
-        "$XDG_CONFIG_HOME/swaync/colors.dynamic.css"
-}
-
-assert_targets_exist_empty() {
-    local f
-    while IFS= read -r f; do
-        if [ ! -f "$f" ]; then
-            echo "missing target: $f" >&2
-            return 1
-        fi
-        if [ -s "$f" ]; then
-            echo "target is not empty: $f" >&2
-            return 1
-        fi
-    done < <(targets)
-}
-
-# expect_line <pattern> <file> — assert the file carries a consumer-visible
-# definition. Explicit failure so an early miss does not pass silently.
-expect_line() {
-    if ! grep -q -- "$1" "$2"; then
-        echo "expected '$1' in $2" >&2
-        return 1
-    fi
-}
-
-# assert_light_palette — каждый target несёт светлую «ivory» палитру в своём
-# формате. Проверяем те определения, за которые цепляются потребители, а не
-# весь файл целиком.
-assert_light_palette() {
-    local hypr="$XDG_CONFIG_HOME/hypr/conf.d/colors.dynamic.conf"
-    local waybar="$XDG_CONFIG_HOME/waybar/colors.dynamic.css"
-    local rofi="$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi"
-    local kitty="$XDG_CONFIG_HOME/kitty/colors.dynamic.conf"
-    local swaync="$XDG_CONFIG_HOME/swaync/colors.dynamic.css"
-
-    expect_line 'col.active_border = rgba(8c1220ff)' "$hypr" || return 1
-    expect_line 'background_color = rgba(f2efe7ff)' "$hypr" || return 1
-    expect_line '@define-color base     #f2efe7;' "$waybar" || return 1
-    expect_line '@define-color text     #2a2723;' "$waybar" || return 1
-    expect_line 'base:      #f2efe7;' "$rofi" || return 1
-    expect_line 'text:      #2a2723;' "$rofi" || return 1
-    expect_line 'background              #f2efe7' "$kitty" || return 1
-    expect_line 'foreground              #2a2723' "$kitty" || return 1
-    expect_line '@define-color base     #f2efe7;' "$swaync" || return 1
-    expect_line '@define-color text     #2a2723;' "$swaync" || return 1
-}
-
 @test "palette.sh set light writes the ivory palette and reports light" {
     run "$PALETTE" set light
     [ "$status" -eq 0 ]
@@ -94,38 +41,6 @@ assert_light_palette() {
 
     run "$PALETTE" status
     [ "$output" = "light" ]
-}
-
-assert_targets_exist_nonempty() {
-    local f
-    while IFS= read -r f; do
-        if [ ! -s "$f" ]; then
-            echo "target missing or empty: $f" >&2
-            return 1
-        fi
-    done < <(targets)
-}
-
-# stub_wallust — substitute the external palette generator with a fake that
-# writes every target, so the dynamic path is testable without image
-# processing. It records the arguments it was handed. Set WALLUST_FAIL=1 to
-# make it fail without writing anything.
-stub_wallust() {
-    cat >"$STUB_BIN/wallust" <<'EOF'
-#!/usr/bin/env bash
-echo "wallust $*" >>"$RELOAD_LOG"
-[ "${WALLUST_FAIL:-}" = 1 ] && exit 1
-for f in \
-    "$XDG_CONFIG_HOME/hypr/conf.d/colors.dynamic.conf" \
-    "$XDG_CONFIG_HOME/waybar/colors.dynamic.css" \
-    "$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi" \
-    "$XDG_CONFIG_HOME/kitty/colors.dynamic.conf" \
-    "$XDG_CONFIG_HOME/swaync/colors.dynamic.css"; do
-    mkdir -p "$(dirname "$f")"
-    printf 'generated from %s\n' "$*" >"$f"
-done
-EOF
-    chmod +x "$STUB_BIN/wallust"
 }
 
 @test "palette.sh status reports dark before any mode is chosen" {
@@ -336,4 +251,38 @@ EOF
     run "$PALETTE" status
     [ "$status" -eq 0 ]
     [ "$output" = "dynamic" ]
+}
+
+# A dynamic apply must never leave the previous mode's content behind: if the
+# generator fails while light was applied, the ivory palette would linger while
+# status says dynamic — the two modes would co-exist. Clearing the targets before
+# generating keeps them present but empty, so dark/light/dynamic stay exclusive.
+@test "palette.sh dynamic failure clears a previous light palette, not leaves it" {
+    "$PALETTE" set light
+    grep -q '#f2efe7' "$XDG_CONFIG_HOME/waybar/colors.dynamic.css"
+
+    stub_wallust
+    export WALLUST_FAIL=1
+
+    run "$PALETTE" set dynamic
+    [ "$status" -eq 0 ]
+    assert_targets_exist_empty
+
+    run "$PALETTE" status
+    [ "$status" -eq 0 ]
+    [ "$output" = "dynamic" ]
+}
+
+# The saved wallpaper is the default image for dynamic; the fallback to it must
+# not fire a second generator run when it is already the image being applied.
+@test "palette.sh runs the generator once when the image is the saved wallpaper" {
+    stub_wallust
+    export WALLUST_FAIL=1
+    mkdir -p "$XDG_CONFIG_HOME/hypr"
+    printf 'wallpaper\n' >"$XDG_CONFIG_HOME/hypr/wallpaper.png"
+
+    run "$PALETTE" set dynamic
+    [ "$status" -eq 0 ]
+
+    [ "$(grep -c '^wallust run ' "$RELOAD_LOG")" -eq 1 ]
 }
