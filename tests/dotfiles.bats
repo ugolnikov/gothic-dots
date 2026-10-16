@@ -22,8 +22,10 @@ setup() {
 @test "install.sh links gitconfig and tmux.conf to their dotfile targets" {
     run ./install.sh --no-packages --dry-run
     [ "$status" -eq 0 ]
-    [[ "$output" == *"dotfiles/gitconfig $HOME/.gitconfig"* ]]
-    [[ "$output" == *"dotfiles/tmux.conf $HOME/.tmux.conf"* ]]
+    # Assert the source basename and destination, not the checkout directory
+    # name: the suite must pass in a git worktree too, not only in ~/dotfiles.
+    [[ "$output" == *"/gitconfig $HOME/.gitconfig"* ]]
+    [[ "$output" == *"/tmux.conf $HOME/.tmux.conf"* ]]
 }
 
 @test "check-coverage: every tracked config is installed by install.sh" {
