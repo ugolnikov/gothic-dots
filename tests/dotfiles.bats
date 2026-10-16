@@ -28,9 +28,26 @@ setup() {
     [[ "$output" == *"/tmux.conf $HOME/.tmux.conf"* ]]
 }
 
-@test "check-coverage: every tracked config is installed by install.sh" {
+@test "check-coverage: every tracked config is covered by the link plan" {
     run ./scripts/check-coverage.sh
     [ "$status" -eq 0 ]
+}
+
+# The guard reads its link set from the link plan, not from install.sh's
+# dry-run text. Drift provocation: feed it a plan that drops a tracked config;
+# it must fail and name the file. CHECK_COVERAGE_PLAN is the test seam, so
+# neither the real plan nor the installer is edited.
+@test "check-coverage fails when the link plan drops a tracked config" {
+    plan="$BATS_TEST_TMPDIR/plan.sh"
+    cat >"$plan" <<EOF
+#!/usr/bin/env bash
+"$REPO_ROOT/scripts/link-plan.sh" | grep -vF "$REPO_ROOT/config/hypr"$'\t'
+EOF
+    chmod +x "$plan"
+
+    run env CHECK_COVERAGE_PLAN="$plan" ./scripts/check-coverage.sh
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"config/hypr/"* ]]
 }
 
 @test "check-binds: binds have documented keys, real scripts and known dispatchers" {
