@@ -1,0 +1,174 @@
+#!/usr/bin/env bats
+# Tests for the settings center (config/hypr/scripts/settings.sh). Run with:
+#
+#   bats tests/
+#
+# The settings center reports the palette mode by querying the module
+# (palette.sh status) and drives its theme rows through the module, so it never
+# inspects the marker files itself. These tests drive it against a throwaway
+# config tree with rofi and the reload consumers stubbed on PATH.
+
+setup() {
+    REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/.." && pwd)"
+    SETTINGS="$REPO_ROOT/config/hypr/scripts/settings.sh"
+    SCRIPTS="$REPO_ROOT/config/hypr/scripts"
+
+    export XDG_CONFIG_HOME="$BATS_TEST_TMPDIR/config"
+    export XDG_CACHE_HOME="$BATS_TEST_TMPDIR/cache"
+    mkdir -p "$XDG_CONFIG_HOME/hypr/scripts" "$XDG_CACHE_HOME"
+
+    # settings.sh resolves the module through $XDG_CONFIG_HOME/hypr/scripts.
+    # Link the real module there so the run exercises the true delegation seam.
+    ln -s "$SCRIPTS/palette.sh" "$XDG_CONFIG_HOME/hypr/scripts/palette.sh"
+
+    STUB_BIN="$BATS_TEST_TMPDIR/bin"
+    mkdir -p "$STUB_BIN"
+    CALLS="$BATS_TEST_TMPDIR/calls.log"
+    ROFI_LOG="$BATS_TEST_TMPDIR/rofi.log"
+    export CALLS ROFI_LOG
+    export PATH="$STUB_BIN:$PATH"
+
+    # rofi records the menu it was handed and, when ROFI_CHOICE names a row,
+    # returns that row as the pick — so a test can drive a single action. With
+    # no ROFI_CHOICE the pick is empty and the settings center just exits.
+    cat >"$STUB_BIN/rofi" <<'EOF'
+#!/usr/bin/env bash
+input="$(cat)"
+printf '%s\n' "$input" >>"$ROFI_LOG"
+if [ -n "${ROFI_CHOICE:-}" ]; then
+    printf '%s\n' "$input" | grep -m1 -- "$ROFI_CHOICE" || true
+fi
+EOF
+    chmod +x "$STUB_BIN/rofi"
+
+    for tool in hyprctl pkill swaync-client notify-send; do
+        cat >"$STUB_BIN/$tool" <<EOF
+#!/usr/bin/env bash
+printf '%s\n' "$tool \$*" >>"\$CALLS"
+EOF
+        chmod +x "$STUB_BIN/$tool"
+    done
+
+    stub_wallust
+}
+
+# stub_wallust — the external palette generator: writes every target so the
+# dynamic path produces observable files without image processing.
+stub_wallust() {
+    cat >"$STUB_BIN/wallust" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "wallust $*" >>"$CALLS"
+for f in \
+    "$XDG_CONFIG_HOME/hypr/conf.d/colors.dynamic.conf" \
+    "$XDG_CONFIG_HOME/waybar/colors.dynamic.css" \
+    "$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi" \
+    "$XDG_CONFIG_HOME/kitty/colors.dynamic.conf" \
+    "$XDG_CONFIG_HOME/swaync/colors.dynamic.css"; do
+    mkdir -p "$(dirname "$f")"
+    printf 'generated from %s\n' "$*" >"$f"
+done
+EOF
+    chmod +x "$STUB_BIN/wallust"
+}
+
+# run_menu — run the settings center once with no pick (rofi returns nothing)
+# and print the menu rows it offered.
+run_menu() {
+    "$SETTINGS" >/dev/null 2>&1 || true
+    cat "$ROFI_LOG" 2>/dev/null || true
+}
+
+# --- the state rows track the module's status query ---
+
+@test "the settings rows report gothic and light off in dark mode" {
+    printf 'dark\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+
+    run run_menu
+    [[ "$output" == *"Тема: готика (фикс.)"* ]]
+    [[ "$output" == *"Светлая тема: выкл"* ]]
+}
+
+@test "the settings rows report light on when the module is light" {
+    printf 'light\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+
+    run run_menu
+    [[ "$output" == *"Светлая тема: вкл"* ]]
+    [[ "$output" == *"Тема: готика (фикс.)"* ]]
+}
+
+@test "the settings rows report the wallpaper-derived mode when the module is dynamic" {
+    printf 'dynamic\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+
+    run run_menu
+    [[ "$output" == *"Тема: палитра из обоев"* ]]
+    [[ "$output" == *"Светлая тема: выкл"* ]]
+}
+
+# The module's status wins over a stray legacy marker: if the settings center
+# queried that marker itself it would report light on here.
+@test "the settings rows follow the module, not a stray legacy marker" {
+    printf 'dynamic\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+    : >"$XDG_CONFIG_HOME/hypr/light-theme"
+
+    run run_menu
+    [[ "$output" == *"Тема: палитра из обоев"* ]]
+    [[ "$output" == *"Светлая тема: выкл"* ]]
+}
+
+@test "the settings rows follow the module's migration of a legacy marker" {
+    : >"$XDG_CONFIG_HOME/hypr/light-theme"
+
+    run run_menu
+    [[ "$output" == *"Светлая тема: вкл"* ]]
+}
+
+# --- the theme rows act through the module ---
+
+@test "the theme row turns the wallpaper-derived mode on from dark" {
+    printf 'dark\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+    export ROFI_CHOICE='^Тема:'
+
+    run "$SETTINGS"
+    [ "$status" -eq 0 ]
+    [ "$(cat "$XDG_CONFIG_HOME/hypr/palette-mode")" = dynamic ]
+    grep -qx 'hyprctl reload' "$CALLS"
+}
+
+@test "the theme row turns the wallpaper-derived mode off again" {
+    printf 'dynamic\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+    export ROFI_CHOICE='^Тема:'
+
+    run "$SETTINGS"
+    [ "$status" -eq 0 ]
+    [ "$(cat "$XDG_CONFIG_HOME/hypr/palette-mode")" = dark ]
+}
+
+@test "the light row turns light on through the module" {
+    printf 'dark\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+    export ROFI_CHOICE='^Светлая тема:'
+
+    run "$SETTINGS"
+    [ "$status" -eq 0 ]
+    [ "$(cat "$XDG_CONFIG_HOME/hypr/palette-mode")" = light ]
+    grep -q '#f2efe7' "$XDG_CONFIG_HOME/waybar/colors.dynamic.css"
+}
+
+@test "the light row turns light off through the module" {
+    printf 'light\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+    export ROFI_CHOICE='^Светлая тема:'
+
+    run "$SETTINGS"
+    [ "$status" -eq 0 ]
+    [ "$(cat "$XDG_CONFIG_HOME/hypr/palette-mode")" = dark ]
+}
+
+# The state rows must not read the marker files directly any more: a stray
+# marker page must not steer the displayed mode. (Guards the removed reads.)
+@test "the settings center does not read a palette marker file directly" {
+    printf 'light\n' >"$XDG_CONFIG_HOME/hypr/palette-mode"
+    : >"$XDG_CONFIG_HOME/hypr/dynamic-theme"
+
+    run run_menu
+    [[ "$output" == *"Светлая тема: вкл"* ]]
+    [[ "$output" == *"Тема: готика (фикс.)"* ]]
+}
