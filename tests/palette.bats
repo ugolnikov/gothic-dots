@@ -180,6 +180,17 @@ EOF
     [ "$output" = "light" ]
 }
 
+@test "palette.sh toggle from light returns to dark" {
+    "$PALETTE" set light
+
+    run "$PALETTE" toggle
+    [ "$status" -eq 0 ]
+    assert_targets_exist_empty
+
+    run "$PALETTE" status
+    [ "$output" = "dark" ]
+}
+
 @test "palette.sh apply refills the ivory palette while in light mode" {
     "$PALETTE" set light
     : >"$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi"
@@ -246,6 +257,46 @@ EOF
     run "$PALETTE" status
     [ "$status" -eq 0 ]
     [ "$output" = "dynamic" ]
+}
+
+@test "palette.sh migrates both legacy markers to one mode on first read" {
+    mkdir -p "$XDG_CONFIG_HOME/hypr"
+    : >"$XDG_CONFIG_HOME/hypr/light-theme"
+    : >"$XDG_CONFIG_HOME/hypr/dynamic-theme"
+
+    run "$PALETTE" status
+    [ "$status" -eq 0 ]
+    [ "$output" = "light" ]
+
+    # Единственное значение записано, оба старых маркера убраны.
+    [ "$(cat "$XDG_CONFIG_HOME/hypr/palette-mode")" = light ]
+    [ ! -e "$XDG_CONFIG_HOME/hypr/light-theme" ]
+    [ ! -e "$XDG_CONFIG_HOME/hypr/dynamic-theme" ]
+}
+
+@test "palette.sh migrates a legacy dynamic marker to the single mode" {
+    mkdir -p "$XDG_CONFIG_HOME/hypr"
+    : >"$XDG_CONFIG_HOME/hypr/dynamic-theme"
+
+    run "$PALETTE" status
+    [ "$status" -eq 0 ]
+    [ "$output" = "dynamic" ]
+
+    [ "$(cat "$XDG_CONFIG_HOME/hypr/palette-mode")" = dynamic ]
+    [ ! -e "$XDG_CONFIG_HOME/hypr/dynamic-theme" ]
+}
+
+@test "palette.sh setting a mode leaves no trace of the legacy markers" {
+    mkdir -p "$XDG_CONFIG_HOME/hypr"
+    : >"$XDG_CONFIG_HOME/hypr/light-theme"
+    : >"$XDG_CONFIG_HOME/hypr/dynamic-theme"
+
+    run "$PALETTE" set dynamic
+    [ "$status" -eq 0 ]
+
+    [ "$(cat "$XDG_CONFIG_HOME/hypr/palette-mode")" = dynamic ]
+    [ ! -e "$XDG_CONFIG_HOME/hypr/light-theme" ]
+    [ ! -e "$XDG_CONFIG_HOME/hypr/dynamic-theme" ]
 }
 
 @test "palette.sh set dynamic generates the targets through the generator" {
