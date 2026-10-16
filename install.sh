@@ -130,21 +130,15 @@ fi
 echo "==> dotfiles: $DIR"
 
 # 0. --uninstall: remove only our own symlinks, leave everything else alone.
+#    Uninstall deliberately ignores --only: the pre-plan installer always
+#    removed the whole link set, and the spec keeps installer usage unchanged.
+#    --only narrows what install links, never what uninstall removes.
 if [ "$UNINSTALL" = 1 ]; then
     echo "==> uninstall: removing symlinks into $DIR"
-    for d in "$DIR"/config/*/; do
-        unlink "$HOME/.config/$(basename "$d")"
-    done
-    unlink "$HOME/.config/starship.toml"
-    for f in .vimrc .tmux.conf .gitconfig .editorconfig .bashrc .profile; do
-        unlink "$HOME/$f"
-    done
-    unlink "$HOME/.config/fish"
-    unlink "$HOME/.claude/settings.json"
-    for b in "$DIR"/bin/*; do
-        [ -e "$b" ] || continue
-        unlink "$HOME/.local/bin/$(basename "$b")"
-    done
+    while IFS=$'\t' read -r _ dst; do
+        [ -n "$dst" ] || continue
+        unlink "$dst"
+    done < <("$DIR/scripts/link-plan.sh")
     if [ -d "$DIR/.git" ] && command -v git >/dev/null 2>&1; then
         run git -C "$DIR" config --unset core.hooksPath 2>/dev/null || true
     fi
@@ -166,46 +160,23 @@ else
     echo "==> packages: skipped (not Arch/CachyOS or --no-packages)"
 fi
 
-# 2. ~/.config/<app> (filtered by --only, when given)
-for d in "$DIR"/config/*/; do
-    name="$(basename "$d")"
-    only_selected "$name" || continue
-    link "${d%/}" "$HOME/.config/$name"
-done
-# config/starship.toml is a file, not a directory
-only_selected starship && link "$DIR/config/starship.toml" "$HOME/.config/starship.toml"
+# 2. Link exactly the plan's pairs, in the plan's stable order. The plan owns
+#    the set — including the --only filter and the special src -> dst mappings
+#    (un-dotted repo files, a config file, dirs outside ~/.config) — so there is
+#    no second enumeration here to drift. The mechanics stay in link() above.
+while IFS=$'\t' read -r src dst; do
+    [ -n "$src" ] || continue
+    link "$src" "$dst"
+done < <("$DIR/scripts/link-plan.sh" ${ONLY:+--only "$ONLY"})
 
 # 2b. Per-machine Hyprland monitor overrides: seed an ignored copy from the
-# tracked example so the source in monitors.conf never dangles.
+# tracked example so the source in monitors.conf never dangles. This is a copy,
+# not a link, so it stays out of the plan.
 if only_selected hypr; then
     _hypr_local="$HOME/.config/hypr/conf.d/monitors.local.conf"
     if [ ! -e "$_hypr_local" ] && [ -e "$_hypr_local.EXAMPLE" ]; then
         run cp "$_hypr_local.EXAMPLE" "$_hypr_local"
     fi
-fi
-
-# Sections 3-5 link the shells, editor and helper tooling; --only skips them.
-if [ -z "$ONLY" ]; then
-    # 3. Home dotfiles. The repo keeps the tmux/git configs un-dotted (tmux.conf,
-    #    gitconfig) while the targets are dotfiles, so map src -> dst explicitly.
-    for pair in ".vimrc:.vimrc" ".editorconfig:.editorconfig" \
-        "tmux.conf:.tmux.conf" "gitconfig:.gitconfig"; do
-        src="${pair%%:*}" dst="${pair##*:}"
-        [ -e "$DIR/$src" ] && link "$DIR/$src" "$HOME/$dst"
-    done
-    for f in .bashrc .profile; do
-        link "$DIR/bash/$f" "$HOME/$f"
-    done
-
-    # 4. Package dirs outside ~/.config
-    link "$DIR/fish" "$HOME/.config/fish"
-    [ -e "$DIR/claude/settings.json" ] && link "$DIR/claude/settings.json" "$HOME/.claude/settings.json"
-
-    # 5. bin -> ~/.local/bin (already on PATH)
-    for b in "$DIR"/bin/*; do
-        [ -e "$b" ] || continue
-        link "$b" "$HOME/.local/bin/$(basename "$b")"
-    done
 fi
 
 # 6. Executable bits

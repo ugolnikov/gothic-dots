@@ -33,7 +33,7 @@ make lint                      # the fast local guards
 | ----- | -------- |
 | `scan-secrets.sh` | no secrets in tracked files |
 | `check-binds.sh` | binds match their docs, scripts exist, dispatchers are known |
-| `check-coverage.sh` | every tracked config is installed by `install.sh` |
+| `check-coverage.sh` | every tracked config is in the link plan (`scripts/link-plan.sh`) |
 | `check-palette-targets.sh` | the palette target table matches `wallust.toml` |
 | `gen-keybinds.sh --check` | the README keybind table is in sync |
 

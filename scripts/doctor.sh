@@ -34,17 +34,23 @@ for c in tofi tofi-drun wallust magick mpvpaper swappy wl-clip-persist hyprpicke
 done
 
 sec "Симлинки"
-for p in "$HOME/.gitconfig" "$HOME/.tmux.conf" "$HOME/.vimrc" "$HOME/.bashrc" \
-    "$HOME/.profile" "$HOME/.editorconfig" "$HOME/.config/starship.toml" \
-    "$HOME/.local/bin/please" "$HOME/.config/hypr" "$HOME/.config/fish" \
-    "$HOME/.config/waybar"; do
-    t="$(readlink -f "$p" 2>/dev/null || true)"
+# Проверяем ровно те назначения, что перечисляет план ссылок, а не отдельный
+# список, который отстаёт от реального набора. Формат плана: src<TAB>dst.
+while IFS=$'\t' read -r _src dst; do
+    [ -n "$dst" ] || continue
+    # readlink -f сам возвращает путь несуществующего файла, поэтому
+    # отсутствие проверяем отдельно, иначе «нет ссылки» выглядит как «чужая».
+    if [ ! -e "$dst" ]; then
+        bad "$dst — отсутствует"
+        continue
+    fi
+    t="$(readlink -f "$dst" 2>/dev/null || true)"
     case "$t" in
-        "$ROOT"/*) ok "$p" ;;
-        "") bad "$p — отсутствует" ;;
-        *) warn "$p → $t (не из репозитория)" ;;
+        "$ROOT"/*) ok "$dst" ;;
+        "") bad "$dst — отсутствует" ;;
+        *) warn "$dst → $t (не из репозитория)" ;;
     esac
-done
+done < <("$ROOT/scripts/link-plan.sh" 2>/dev/null || true)
 
 if command -v git >/dev/null 2>&1 && [ -d "$ROOT/.git" ]; then
     sec "Git"

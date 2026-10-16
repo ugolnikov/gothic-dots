@@ -12,8 +12,7 @@ The rules the guards and CI assume. Where tooling enforces a rule, it says so; o
 
 ## Comments and language
 
-- `scripts/` and `tests/`: English.
-- `config/hypr/scripts/`: Russian, matching the surrounding files.
+- `scripts/` and `tests/` are English, except the user-facing `scripts/doctor.sh`, which is Russian like `config/hypr/scripts/`.
 
 ## Naming
 
@@ -27,11 +26,11 @@ The rules the guards and CI assume. Where tooling enforces a rule, it says so; o
 ## Tests
 
 - `bats`, one file per area, under `tests/`.
-- Test **external behaviour**, not internals: run the real script against a throwaway `XDG_CONFIG_HOME`/`XDG_CACHE_HOME` and stub external binaries on `PATH`. Never touch the real `~/.config`.
+- Test **external behaviour**, not internals: run the real script against a throwaway `HOME` (these scripts read `$HOME/.config`, and some also `XDG_CONFIG_HOME`/`XDG_CACHE_HOME`) and stub external binaries on `PATH`. Never touch the real `~/.config`.
 - A change that alters observable behaviour comes with a test that fails before it.
 
 ## Guards and docs
 
-- A new home dotfile or config dir must be linked by `install.sh`, or `check-coverage.sh` fails; allow-list only files deliberately not linked.
+- A new home dotfile or config dir must be in the link plan (`scripts/link-plan.sh`), or `check-coverage.sh` fails; allow-list only files deliberately not linked.
 - A bind needs a `keybinds.tsv` row; the README table is generated, never hand-edited.
 - Use the vocabulary in [GLOSSARY.md](./GLOSSARY.md); record hard-to-reverse decisions as ADRs in `docs/adr/`.
