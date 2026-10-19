@@ -21,6 +21,13 @@ config/hypr/layout
 config/hypr/conf.d/layout.dynamic.conf
 config/hypr/conf.d/animations.dynamic.conf
 
+# --- Session toggles (scripts/controls.sh) and saved layouts (scripts/session.sh) ---
+config/hypr/dnd
+config/hypr/night-light
+config/hypr/caffeine
+config/hypr/recording
+config/hypr/sessions/
+
 # --- Per-machine Hyprland overrides (seeded from *.EXAMPLE by install.sh) ---
 config/hypr/conf.d/*.local.conf
 
