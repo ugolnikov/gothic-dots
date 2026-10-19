@@ -66,6 +66,15 @@ toggle_light() {
     note "Светлая тема: $(light_state)"
 }
 
+ambience_state() {
+    if [ -e "$STATE/ambience" ]; then echo "вкл"; else echo "выкл"; fi
+}
+
+toggle_ambience() {
+    "$SCRIPTS/ambience.sh" toggle >/dev/null 2>&1 || true
+    note "Распорядок: $(ambience_state)"
+}
+
 random_state() {
     if [ -e "$STATE/random-wallpaper" ]; then echo "вкл"; else echo "выкл"; fi
 }
@@ -188,6 +197,7 @@ main() {
         "Быстрые переключатели" \
         "Сессия (снимок окон)" \
         "Лаунчер: режимы" \
+        "Распорядок: $(ambience_state)" \
         "$(theme_label)" \
         "Терминал: $(cur terminal foot)" \
         "SHELL: ${SHELL##*/}" \
@@ -209,6 +219,7 @@ main() {
         "Быстрые переключатели") exec "$SCRIPTS/quick.sh" ;;
         "Сессия (снимок окон)") exec "$SCRIPTS/session.sh" menu ;;
         "Лаунчер: режимы") exec "$SCRIPTS/launcher.sh" menu ;;
+        "Распорядок:"*) toggle_ambience ;;
         Тема:*) toggle_theme ;;
         Терминал:*) choose_terminal ;;
         SHELL:*) choose_shell ;;

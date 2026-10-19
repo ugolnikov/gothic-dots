@@ -28,6 +28,13 @@ config/hypr/caffeine
 config/hypr/recording
 config/hypr/sessions/
 
+# --- Ambience schedule (scripts/ambience.sh) ---
+config/hypr/ambience
+config/hypr/ambience.conf
+config/hypr/ambience-slot
+config/hypr/ambience-wall
+config/hypr/ambience-rotated
+
 # --- Per-machine Hyprland overrides (seeded from *.EXAMPLE by install.sh) ---
 config/hypr/conf.d/*.local.conf
 

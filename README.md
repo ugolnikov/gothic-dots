@@ -243,6 +243,35 @@ compositor restart. To make that automatic, add
 `conf.d/autostart.conf` — it is deliberately off by default, since a login
 should not launch apps on its own.
 
+## Ambience
+
+`config/hypr/scripts/ambience.sh` owns *when* the desktop changes, never *what*:
+it drives `palette.sh`, `controls.sh` and `theme.sh` on three daily slots. It is
+off by default — copy the example config and switch it on:
+
+```bash
+cp ~/.config/hypr/ambience.conf.EXAMPLE ~/.config/hypr/ambience.conf
+~/.config/hypr/scripts/ambience.sh on
+```
+
+The defaults put day at 07:30, evening at 19:00 and night at 22:30. Each slot
+sets a palette (`dark`, `light`, `dynamic`, or empty to leave it alone), the
+night light (`auto` = only at night, at `night_temp` kelvin) and DND (`auto` =
+only at night). Wallpapers can rotate from `rotate_dir` every
+`rotate_interval` seconds, in `random` or `sequential` order.
+
+A slot is applied once: the marker means a manual `palette.sh set …` lives until
+the next boundary. The daemon starts from `autostart.conf` and ticks every five
+minutes, so enabling ambience takes effect within that window; while the master
+marker is absent it changes nothing.
+
+```bash
+~/.config/hypr/scripts/ambience.sh status        # slot, next boundary, state
+~/.config/hypr/scripts/ambience.sh tick --dry-run
+~/.config/hypr/scripts/ambience.sh next          # rotate the wallpaper now
+~/.config/hypr/scripts/ambience.sh config        # effective values
+```
+
 ## Command line: `gothic`
 
 One router over the modules, installed as `~/.local/bin/gothic`. It never
@@ -256,6 +285,7 @@ gothic theme light                # dark | light | dynamic | toggle | status
 gothic wall pick                  # or: gothic wall ~/Pictures/wall.png
 gothic session save work          # any session.sh subcommand
 gothic record start region audio  # or: gothic record stop
+gothic ambience toggle             # the day schedule on/off
 gothic keybinds | settings | doctor | logs | menu | version
 ```
 

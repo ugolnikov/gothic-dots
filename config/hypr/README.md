@@ -198,6 +198,25 @@ Snapshots live in `~/.config/hypr/sessions/<name>.json` (600, gitignored) and
 `exec-once = ~/.config/hypr/scripts/session.sh restore last` to
 `conf.d/autostart.conf` if the layout should come back with the session.
 
+## Ambience (time of day)
+
+`scripts/ambience.sh` schedules the desktop: each slot (day / evening / night)
+applies a palette, the night light and DND once, then leaves them alone until the
+next boundary; it can also rotate wallpapers from a directory. It owns only
+*when* — the palette, toggles and wallpaper stay with `palette.sh`,
+`controls.sh` and `theme.sh`.
+
+```bash
+cp config/hypr/ambience.conf.EXAMPLE ~/.config/hypr/ambience.conf
+~/.config/hypr/scripts/ambience.sh on
+~/.config/hypr/scripts/ambience.sh status
+~/.config/hypr/scripts/ambience.sh tick --dry-run
+```
+
+Defaults: day 07:30, evening 19:00, night 22:30; `night_light=auto` and
+`dnd=auto` mean "only at night". The daemon is started from `autostart.conf` and
+no-ops while `~/.config/hypr/ambience` is absent.
+
 ## Launcher and `gothic`
 
 `SUPER + D` opens applications (tofi, rofi fallback). `SUPER + Shift + D` opens
@@ -228,6 +247,7 @@ A lightweight rofi menu (`scripts/settings.sh`). Changes on the fly:
 * **Quick controls** — DND, night light, caffeine, screen recording (opens the panel);
 * **Session** — save / restore the window layout (opens its menu);
 * **Launcher modes** — files / windows / clipboard / ssh / packages / calc hub;
+* **Ambience** — the day schedule on / off;
 * **Theme** — dark gothic ⇄ wallpaper-derived palette (`palette.sh`);
 * **Terminal** — foot / kitty / alacritty (written to `~/.config/hypr/terminal`);
 * **SHELL** — login shell fish / bash (via `chsh`, password in the terminal);

@@ -6,6 +6,7 @@
 #   gothic wall [pick|<файл>]
 #   gothic session <save|restore|list|show|delete|menu> [имя] [--dry-run]
 #   gothic record [start [full|region] [audio]|stop|status]
+#   gothic ambience [status|on|off|toggle|tick|next]
 #   gothic keybinds | settings | doctor | logs | menu | version | help
 #
 # Роутер без собственной логики: каждая подкоманда уходит в модуль, который
@@ -37,6 +38,7 @@ usage: gothic status
        gothic wall [pick|<file>]
        gothic session <save|restore|list|show|delete|menu> [name] [--dry-run]
        gothic record [start [full|region] [audio]|stop|status]
+       gothic ambience [status|on|off|toggle|tick|next]
        gothic keybinds|settings|doctor|logs|menu|version|help
 EOF
     exit 2
@@ -153,7 +155,7 @@ cmd_wall() {
     case "$what" in
         pick | "") exec "$(module wallpaper-picker.sh)" ;;
         next)
-            echo "gothic: ротация обоев появится с ambience (см. issue #20)" >&2
+            echo "gothic: ротация обоев — gothic ambience next (расписание: ambience)" >&2
             exit 1
             ;;
         *)
@@ -211,6 +213,10 @@ main() {
         record)
             shift
             cmd_record "$@"
+            ;;
+        ambience)
+            shift
+            exec "$(module ambience.sh)" "${@:-status}"
             ;;
         keybinds) exec "$(module keybinds.sh)" ;;
         settings) exec "$(module settings.sh)" ;;
