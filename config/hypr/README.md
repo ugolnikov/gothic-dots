@@ -48,10 +48,10 @@ config/hypr/
 │   └── binds.conf         # keybinds
 ├── hypridle.conf          # idle / lock by timeout
 ├── hyprlock.conf          # lock screen
-├── scripts/               # controls, quick, settings, palette, theme(-mode),
-│                          #   wallpaper(-picker), screenshot, clipboard, dismiss,
-│                          #   filemanager, launcher, run-in-terminal,
-│                          #   notifications, system-setup
+├── scripts/               # controls, quick, session, settings, palette,
+│                          #   theme(-mode), wallpaper(-picker), screenshot,
+│                          #   clipboard, dismiss, filemanager, launcher,
+│                          #   run-in-terminal, notifications, system-setup
 ├── packages.txt           # repository packages
 ├── aur.packages.txt       # AUR packages (paru/yay)
 └── bootstrap.sh           # install packages, then symlink the configs
@@ -179,12 +179,32 @@ caffeine come back after a login; recording never restarts by itself.
 state and passes the chosen row back to it. mako gets the DND mode from
 `config/mako/config` (`[mode=do-not-disturb]`), swaync uses its own DND.
 
+## Sessions
+
+`SUPER + Shift + M` opens the session menu (`scripts/session.sh`). A snapshot
+records each window with its workspace, tiled/floating state, geometry, pin and
+fullscreen, together with the argv and cwd read from `/proc`; restore matches
+open windows by class, moves them and launches only what is missing — it never
+closes anything.
+
+```bash
+~/.config/hypr/scripts/session.sh save work       # snapshot
+~/.config/hypr/scripts/session.sh restore work    # put it back
+~/.config/hypr/scripts/session.sh restore work --dry-run
+```
+
+Snapshots live in `~/.config/hypr/sessions/<name>.json` (600, gitignored) and
+`last.json` always mirrors the newest one. Add
+`exec-once = ~/.config/hypr/scripts/session.sh restore last` to
+`conf.d/autostart.conf` if the layout should come back with the session.
+
 ## Settings center (`SUPER + ,`)
 
 A lightweight rofi menu (`scripts/settings.sh`). Changes on the fly:
 
 * **Wallpaper** — static, animated (GIF/video) or gradient;
 * **Quick controls** — DND, night light, caffeine, screen recording (opens the panel);
+* **Session** — save / restore the window layout (opens its menu);
 * **Theme** — dark gothic ⇄ wallpaper-derived palette (`palette.sh`);
 * **Terminal** — foot / kitty / alacritty (written to `~/.config/hypr/terminal`);
 * **SHELL** — login shell fish / bash (via `chsh`, password in the terminal);

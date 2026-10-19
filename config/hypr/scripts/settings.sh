@@ -186,6 +186,7 @@ main() {
     choice="$(printf '%s\n' \
         "Обои" \
         "Быстрые переключатели" \
+        "Сессия (снимок окон)" \
         "$(theme_label)" \
         "Терминал: $(cur terminal foot)" \
         "SHELL: ${SHELL##*/}" \
@@ -205,6 +206,7 @@ main() {
     case "$choice" in
         "Обои") choose_wallpaper ;;
         "Быстрые переключатели") exec "$SCRIPTS/quick.sh" ;;
+        "Сессия (снимок окон)") exec "$SCRIPTS/session.sh" menu ;;
         Тема:*) toggle_theme ;;
         Терминал:*) choose_terminal ;;
         SHELL:*) choose_shell ;;

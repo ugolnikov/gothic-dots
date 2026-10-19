@@ -143,6 +143,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + Shift + F` | true fullscreen |
 | `SUPER + ,` | settings |
 | `SUPER + Shift + C` | quick panel (DND, night light, caffeine, recording) |
+| `SUPER + Shift + M` | session (save / restore window layout) |
 | `SUPER + /` | keybind cheatsheet |
 | `SUPER + W` | wallpaper picker |
 | `SUPER + R` / `SUPER + Shift + R` | reload Hyprland / restart Waybar |
@@ -211,6 +212,34 @@ DND, night light and caffeine survive a relogin. Recording never restarts by
 itself. `controls.sh reset` turns everything off. The panel is only a view —
 `config/hypr/scripts/quick.sh` reads states and hands the chosen row back to the
 module.
+
+## Sessions
+
+`SUPER + Shift + M` opens the session menu: save the current window layout, or
+put a saved one back. One module, `config/hypr/scripts/session.sh`, owns the
+snapshots — JSON files in `~/.config/hypr/sessions/` (mode 600, gitignored).
+
+```bash
+~/.config/hypr/scripts/session.sh save work       # snapshot the layout
+~/.config/hypr/scripts/session.sh list            # what is saved
+~/.config/hypr/scripts/session.sh show work       # windows, workspaces, argv
+~/.config/hypr/scripts/session.sh restore work    # put it back
+~/.config/hypr/scripts/session.sh restore work --dry-run
+~/.config/hypr/scripts/session.sh delete work
+```
+
+A snapshot records, per window: class, title, workspace (including named
+special workspaces), tiled/floating, position and size, pinned and fullscreen,
+plus the argv and working directory read from `/proc`. Restore never closes
+anything: windows that are already open are matched by class and moved to their
+workspace, missing applications are started with exactly the argv they had
+(no `eval`, arguments keep their spaces and quotes) and are given
+`SESSION_WAIT` seconds to appear. `save` also keeps a copy as `last`, so
+`session.sh restore last` brings back the most recent layout after a crash or a
+compositor restart. To make that automatic, add
+`exec-once = ~/.config/hypr/scripts/session.sh restore last` to
+`conf.d/autostart.conf` — it is deliberately off by default, since a login
+should not launch apps on its own.
 
 ## Install
 

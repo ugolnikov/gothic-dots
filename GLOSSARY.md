@@ -36,6 +36,10 @@ _Avoid_: switch, flag, mode
 The rofi menu bound to `SUPER + Shift + C` that shows every toggle and passes the chosen row to `controls.sh`.
 _Avoid_: control center, dashboard
 
+**Session**:
+A saved window layout: per window its workspace, tiled/floating state, geometry and the argv to relaunch it. `session.sh` owns it; restore only moves and launches, never closes.
+_Avoid_: layout, snapshot, workspace profile
+
 **Wallpaper**:
 The desktop background image, and the source a dynamic palette is derived from. Chosen independently of the mode.
 _Avoid_: background, backdrop
