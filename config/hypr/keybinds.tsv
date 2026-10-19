@@ -4,6 +4,7 @@
 # (plus the layout switch / Caps Lock from conf.d/input.conf).
 `SUPER + Return`	terminal (foot)
 `SUPER + D` / `SUPER + Space`	app launcher (tofi)
+`SUPER + Shift + D`	launcher hub (files, windows, clipboard, ssh, packages, calc)
 `SUPER + E`	file manager
 `SUPER + B`	browser
 `SUPER + Q`	close window

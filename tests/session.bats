@@ -132,6 +132,10 @@ EOF
     [[ "$output" == *"work"* ]]
     [[ "$output" != *"last"* ]]
 
+    run "$SESSION" count
+    [ "$status" -eq 0 ]
+    [ "$output" = 1 ]
+
     run "$SESSION" show work
     [ "$status" -eq 0 ]
     [[ "$output" == *"окон 2"* ]]

@@ -3,6 +3,7 @@
 #   session.sh save <name>                  снять текущее расположение окон
 #   session.sh restore <name> [--dry-run]   вернуть окна (только двигает и запускает)
 #   session.sh list                         что сохранено
+#   session.sh count                        сколько снимков (для gothic status)
 #   session.sh show <name>                  что внутри снимка
 #   session.sh delete <name>                удалить снимок
 #   session.sh menu                         rofi-меню (SUPER + Shift + M)
@@ -341,6 +342,14 @@ list_names() {
         sed 's/\.json$//' | sort
 }
 
+count_sessions() {
+    [ -d "$DIR" ] || {
+        echo 0
+        return 0
+    }
+    list_names | grep -c . || true
+}
+
 list_sessions() {
     local name file
     [ -d "$DIR" ] || {
@@ -421,6 +430,7 @@ main() {
             restore_session "${2:-}"
             ;;
         list) list_sessions ;;
+        count) count_sessions ;;
         show) show_session "${2:-}" ;;
         delete) delete_session "${2:-}" ;;
         menu) menu ;;

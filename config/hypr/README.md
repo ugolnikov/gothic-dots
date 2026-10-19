@@ -198,6 +198,28 @@ Snapshots live in `~/.config/hypr/sessions/<name>.json` (600, gitignored) and
 `exec-once = ~/.config/hypr/scripts/session.sh restore last` to
 `conf.d/autostart.conf` if the layout should come back with the session.
 
+## Launcher and `gothic`
+
+`SUPER + D` opens applications (tofi, rofi fallback). `SUPER + Shift + D` opens
+the hub: applications, files (`fd`), open windows (`hyprctl`), clipboard
+history, SSH hosts from `~/.ssh/config`, package search and a calculator. Each
+mode is a row provider plus one dmenu; a typed `:verb` in the hub is handed to
+the CLI.
+
+`bin/gothic` is the single CLI over the modules — it owns no state, only
+routing:
+
+```bash
+gothic status
+gothic toggle dnd on
+gothic theme light
+gothic session save work
+gothic record stop
+gothic doctor | logs | menu
+```
+
+See the top-level README for the full command list.
+
 ## Settings center (`SUPER + ,`)
 
 A lightweight rofi menu (`scripts/settings.sh`). Changes on the fly:
@@ -205,6 +227,7 @@ A lightweight rofi menu (`scripts/settings.sh`). Changes on the fly:
 * **Wallpaper** — static, animated (GIF/video) or gradient;
 * **Quick controls** — DND, night light, caffeine, screen recording (opens the panel);
 * **Session** — save / restore the window layout (opens its menu);
+* **Launcher modes** — files / windows / clipboard / ssh / packages / calc hub;
 * **Theme** — dark gothic ⇄ wallpaper-derived palette (`palette.sh`);
 * **Terminal** — foot / kitty / alacritty (written to `~/.config/hypr/terminal`);
 * **SHELL** — login shell fish / bash (via `chsh`, password in the terminal);

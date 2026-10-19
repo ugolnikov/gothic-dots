@@ -30,6 +30,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 ├── .markdownlint.jsonc        # Markdown lint rules for the docs
 ├── .gitattributes             # LF normalisation, binary/generated rules
 ├── bin/
+│   ├── gothic                 # one CLI over the desktop modules
 │   └── please                 # run a command from history through sudo
 ├── fish/                      # Fish shell
 │   ├── config.fish
@@ -130,6 +131,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 |-----|--------|
 | `SUPER + Return` | terminal (foot) |
 | `SUPER + D` / `SUPER + Space` | app launcher (tofi) |
+| `SUPER + Shift + D` | launcher hub (files, windows, clipboard, ssh, packages, calc) |
 | `SUPER + E` | file manager |
 | `SUPER + B` | browser |
 | `SUPER + Q` | close window |
@@ -240,6 +242,29 @@ compositor restart. To make that automatic, add
 `exec-once = ~/.config/hypr/scripts/session.sh restore last` to
 `conf.d/autostart.conf` — it is deliberately off by default, since a login
 should not launch apps on its own.
+
+## Command line: `gothic`
+
+One router over the modules, installed as `~/.local/bin/gothic`. It never
+re-implements state: every subcommand calls the script that owns it and returns
+its exit code.
+
+```bash
+gothic status                     # palette, toggles, session count, config errors
+gothic toggle dnd on              # dnd | night | caffeine | record
+gothic theme light                # dark | light | dynamic | toggle | status
+gothic wall pick                  # or: gothic wall ~/Pictures/wall.png
+gothic session save work          # any session.sh subcommand
+gothic record start region audio  # or: gothic record stop
+gothic keybinds | settings | doctor | logs | menu | version
+```
+
+`gothic status` is the one-screen answer to "what is my desktop doing"; `gothic
+doctor` runs the full health check. The launcher speaks the same vocabulary:
+`SUPER + D` still opens applications, `SUPER + Shift + D` opens the hub with
+files, open windows, clipboard history, SSH hosts, packages and a calculator.
+Typing a `:verb` in the hub (e.g. `:theme light`) is passed straight to `gothic`,
+so there is one command surface, not two.
 
 ## Install
 

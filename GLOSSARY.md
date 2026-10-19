@@ -40,6 +40,10 @@ _Avoid_: control center, dashboard
 A saved window layout: per window its workspace, tiled/floating state, geometry and the argv to relaunch it. `session.sh` owns it; restore only moves and launches, never closes.
 _Avoid_: layout, snapshot, workspace profile
 
+**Launcher**:
+The dmenu in front of every provider — applications, files, windows, clipboard, SSH hosts, packages, calculator. Its hub also accepts `:verbs` and hands them to `gothic`.
+_Avoid_: menu, search bar
+
 **Wallpaper**:
 The desktop background image, and the source a dynamic palette is derived from. Chosen independently of the mode.
 _Avoid_: background, backdrop

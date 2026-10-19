@@ -98,7 +98,7 @@ done
 [ "$missing" -eq 0 ] && ok "все базовые команды на месте"
 
 sec "Опционально"
-for c in tofi tofi-drun wallust magick mpvpaper swappy wl-clip-persist hyprpicker starship hyprsunset wf-recorder; do
+for c in tofi tofi-drun wallust magick mpvpaper swappy wl-clip-persist hyprpicker starship hyprsunset wf-recorder gothic; do
     if command -v "$c" >/dev/null 2>&1; then ok "$c"; else warn "нет: $c"; fi
 done
 

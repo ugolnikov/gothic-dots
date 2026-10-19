@@ -187,6 +187,7 @@ main() {
         "Обои" \
         "Быстрые переключатели" \
         "Сессия (снимок окон)" \
+        "Лаунчер: режимы" \
         "$(theme_label)" \
         "Терминал: $(cur terminal foot)" \
         "SHELL: ${SHELL##*/}" \
@@ -207,6 +208,7 @@ main() {
         "Обои") choose_wallpaper ;;
         "Быстрые переключатели") exec "$SCRIPTS/quick.sh" ;;
         "Сессия (снимок окон)") exec "$SCRIPTS/session.sh" menu ;;
+        "Лаунчер: режимы") exec "$SCRIPTS/launcher.sh" menu ;;
         Тема:*) toggle_theme ;;
         Терминал:*) choose_terminal ;;
         SHELL:*) choose_shell ;;
