@@ -142,6 +142,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + F` | fullscreen (maximize) |
 | `SUPER + Shift + F` | true fullscreen |
 | `SUPER + ,` | settings |
+| `SUPER + Shift + C` | quick panel (DND, night light, caffeine, recording) |
 | `SUPER + /` | keybind cheatsheet |
 | `SUPER + W` | wallpaper picker |
 | `SUPER + R` / `SUPER + Shift + R` | reload Hyprland / restart Waybar |
@@ -187,6 +188,29 @@ exclusive, and `dark` clears all generated color.
 
 `SUPER + Shift + T` toggles dark ⇄ light. See
 [`config/hypr/README.md`](config/hypr/README.md) for the full picture.
+
+## Quick controls
+
+`SUPER + Shift + C` opens a rofi panel with four session toggles. Active ones
+also appear as a red `DND · NIGHT · CAFFEINE · REC` tag at the right of Waybar;
+the tag is hidden while nothing is on, so the bar stays minimal. One module,
+`config/hypr/scripts/controls.sh`, owns both the state and the actions:
+
+```bash
+~/.config/hypr/scripts/controls.sh status          # every toggle at once
+~/.config/hypr/scripts/controls.sh dnd toggle      # mako / swaync do-not-disturb
+~/.config/hypr/scripts/controls.sh night on 4000   # hyprsunset, 1000..10000K
+~/.config/hypr/scripts/controls.sh caffeine on     # block idle and sleep
+~/.config/hypr/scripts/controls.sh record start full audio
+~/.config/hypr/scripts/controls.sh record stop     # saved to ~/Videos/Recordings
+```
+
+State lives in markers under `~/.config/hypr/` (`dnd`, `night-light`,
+`caffeine`, `recording`); `conf.d/autostart.conf` runs `controls.sh restore`, so
+DND, night light and caffeine survive a relogin. Recording never restarts by
+itself. `controls.sh reset` turns everything off. The panel is only a view —
+`config/hypr/scripts/quick.sh` reads states and hands the chosen row back to the
+module.
 
 ## Install
 

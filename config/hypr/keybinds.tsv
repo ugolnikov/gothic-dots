@@ -16,6 +16,7 @@
 `SUPER + F`	fullscreen (maximize)
 `SUPER + Shift + F`	true fullscreen
 `SUPER + ,`	settings
+`SUPER + Shift + C`	quick panel (DND, night light, caffeine, recording)
 `SUPER + /`	keybind cheatsheet
 `SUPER + W`	wallpaper picker
 `SUPER + R` / `SUPER + Shift + R`	reload Hyprland / restart Waybar

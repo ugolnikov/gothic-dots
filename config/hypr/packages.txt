@@ -11,6 +11,7 @@ hyprland
 hypridle
 hyprlock
 hyprpicker
+hyprsunset
 hyprpolkitagent
 awww
 xdg-desktop-portal-hyprland
@@ -33,6 +34,7 @@ wl-clip-persist
 grim
 slurp
 swappy
+wf-recorder
 brightnessctl
 playerctl
 pavucontrol

@@ -12,7 +12,7 @@
     "font-family": "JetBrainsMono Nerd Font",
     "modules-left": ["hyprland/workspaces"],
     "modules-center": ["clock"],
-    "modules-right": ["network", "pulseaudio", "battery", "custom/power"],
+    "modules-right": ["custom/indicators", "network", "pulseaudio", "battery", "custom/power"],
 
     "hyprland/workspaces": {
         "format": "{icon}",
@@ -27,6 +27,14 @@
         "format": "{:%H:%M}",
         "format-alt": "{:%a, %d %b}",
         "tooltip-format": "{:%B %Y}"
+    },
+    "custom/indicators": {
+        "format": "{text}",
+        "exec": "~/.config/hypr/scripts/controls.sh indicators",
+        "interval": 5,
+        "hide-empty-text": true,
+        "on-click": "~/.config/hypr/scripts/quick.sh",
+        "tooltip": false
     },
     "network": {
         "format-wifi": " {essid}",

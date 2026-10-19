@@ -28,6 +28,14 @@ _Avoid_: flag, sentinel, state file
 An application that reads a target and reloads to pick up the new colours.
 _Avoid_: client, app, themeable app
 
+**Toggle**:
+A session switch whose state outlives a single action — DND, night light, caffeine, recording. A marker records it, `controls.sh` owns it, and the quick panel is only a view.
+_Avoid_: switch, flag, mode
+
+**Quick panel**:
+The rofi menu bound to `SUPER + Shift + C` that shows every toggle and passes the chosen row to `controls.sh`.
+_Avoid_: control center, dashboard
+
 **Wallpaper**:
 The desktop background image, and the source a dynamic palette is derived from. Chosen independently of the mode.
 _Avoid_: background, backdrop

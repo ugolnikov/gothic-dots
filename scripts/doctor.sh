@@ -98,9 +98,16 @@ done
 [ "$missing" -eq 0 ] && ok "все базовые команды на месте"
 
 sec "Опционально"
-for c in tofi tofi-drun wallust magick mpvpaper swappy wl-clip-persist hyprpicker starship; do
+for c in tofi tofi-drun wallust magick mpvpaper swappy wl-clip-persist hyprpicker starship hyprsunset wf-recorder; do
     if command -v "$c" >/dev/null 2>&1; then ok "$c"; else warn "нет: $c"; fi
 done
+
+sec "Переключатели"
+if [ -x "$HOME/.config/hypr/scripts/controls.sh" ]; then
+    "$HOME/.config/hypr/scripts/controls.sh" status 2>/dev/null | sed 's/^/  /'
+else
+    warn "controls.sh не установлен"
+fi
 
 sec "Симлинки"
 # Проверяем ровно те назначения, что перечисляет план ссылок, а не отдельный

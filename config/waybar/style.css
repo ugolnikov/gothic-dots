@@ -32,6 +32,7 @@ window#waybar {
 
 #workspaces,
 #clock,
+#custom-indicators,
 #network,
 #pulseaudio,
 #battery,
@@ -39,6 +40,13 @@ window#waybar {
     padding: 0 8px;
     margin: 3px 0;
     color: @text;
+}
+
+/* Активные переключатели сессии: DND · NIGHT · CAFFEINE · REC */
+#custom-indicators {
+    color: @red;
+    font-size: 11px;
+    letter-spacing: 1px;
 }
 
 /* Рабочие столы */

@@ -48,9 +48,10 @@ config/hypr/
 │   └── binds.conf         # keybinds
 ├── hypridle.conf          # idle / lock by timeout
 ├── hyprlock.conf          # lock screen
-├── scripts/               # settings, palette, theme(-mode), wallpaper(-picker),
-│                          #   screenshot, clipboard, dismiss, filemanager,
-│                          #   launcher, run-in-terminal, notifications, system-setup
+├── scripts/               # controls, quick, settings, palette, theme(-mode),
+│                          #   wallpaper(-picker), screenshot, clipboard, dismiss,
+│                          #   filemanager, launcher, run-in-terminal,
+│                          #   notifications, system-setup
 ├── packages.txt           # repository packages
 ├── aur.packages.txt       # AUR packages (paru/yay)
 └── bootstrap.sh           # install packages, then symlink the configs
@@ -156,11 +157,34 @@ Tuned for minimal input lag and lightness:
   **irqbalance**;
 * TUI tools (**yazi**, **wiremix**) inherit the foot palette — no separate theme.
 
+## Quick controls
+
+`SUPER + Shift + C` opens the rofi quick panel; the active toggles also show as
+a red `DND · NIGHT · CAFFEINE · REC` tag on the Waybar right side (hidden when
+empty). One module owns the state and the actions — `scripts/controls.sh`:
+
+```bash
+~/.config/hypr/scripts/controls.sh status          # all four states
+~/.config/hypr/scripts/controls.sh dnd toggle      # mako / swaync DND
+~/.config/hypr/scripts/controls.sh night on 4000   # hyprsunset (1000..10000K)
+~/.config/hypr/scripts/controls.sh caffeine on     # systemd idle/sleep inhibitor
+~/.config/hypr/scripts/controls.sh record start full audio
+~/.config/hypr/scripts/controls.sh record stop     # ~/Videos/Recordings
+```
+
+Markers live in `~/.config/hypr/` (`dnd`, `night-light`, `caffeine`,
+`recording`). `conf.d/autostart.conf` runs `restore`, so DND, night light and
+caffeine come back after a login; recording never restarts by itself.
+`scripts/quick.sh` is only the panel view — it asks `controls.sh` for each
+state and passes the chosen row back to it. mako gets the DND mode from
+`config/mako/config` (`[mode=do-not-disturb]`), swaync uses its own DND.
+
 ## Settings center (`SUPER + ,`)
 
 A lightweight rofi menu (`scripts/settings.sh`). Changes on the fly:
 
 * **Wallpaper** — static, animated (GIF/video) or gradient;
+* **Quick controls** — DND, night light, caffeine, screen recording (opens the panel);
 * **Theme** — dark gothic ⇄ wallpaper-derived palette (`palette.sh`);
 * **Terminal** — foot / kitty / alacritty (written to `~/.config/hypr/terminal`);
 * **SHELL** — login shell fish / bash (via `chsh`, password in the terminal);
