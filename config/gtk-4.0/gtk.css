@@ -1,4 +1,5 @@
-/* Gothic accent for Adwaita-dark (GTK4 / libadwaita). Loaded from this dir. */
-@define-color accent_color #a31621;
-@define-color accent_bg_color #a31621;
-@define-color accent_fg_color #f2efe7;
+/* Gothic accent for Adwaita-dark (GTK4 / libadwaita). Fixed values first,
+   generated palette second: in dark the generated file is empty and the fixed
+   accent stays; light/dynamic override it. */
+@import url("colors.fixed.css");
+@import url("colors.dynamic.css");

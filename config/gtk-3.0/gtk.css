@@ -1,3 +1,5 @@
-/* Gothic accent for Adwaita-dark (GTK3). Loaded automatically from this dir. */
-@define-color theme_selected_bg_color #a31621;
-@define-color theme_selected_fg_color #f2efe7;
+/* Gothic accent for Adwaita-dark (GTK3). Fixed values first, generated
+   palette second: in dark the generated file is empty and the fixed accent
+   stays; light/dynamic override it. */
+@import url("colors.fixed.css");
+@import url("colors.dynamic.css");

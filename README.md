@@ -179,7 +179,10 @@ persisted mode in `~/.config/hypr/palette-mode` — `dark`, `light` or `dynamic`
 writes the generated color files and reloads the apps that consume them.
 `light` (the "ivory" variant) and `dynamic` (wallpaper-derived via
 [wallust](https://codeberg.org/explosion-mental/wallust)) are mutually
-exclusive, and `dark` clears all generated color.
+exclusive, and `dark` clears all generated color. The generated palette reaches
+Hyprland, Waybar, rofi, kitty, swaync, **foot**, **tmux**, **GTK 3/4** and
+**fish** — each config imports or sources its own `*.dynamic.*` file, so adding
+a consumer is one target plus one template.
 
 ```bash
 ~/.config/hypr/scripts/palette.sh status         # dark | light | dynamic

@@ -14,9 +14,10 @@ setup() {
     REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/.." && pwd)"
     PALETTE="$REPO_ROOT/config/hypr/scripts/palette.sh"
 
+    export HOME="$BATS_TEST_TMPDIR/home"
     export XDG_CONFIG_HOME="$BATS_TEST_TMPDIR/config"
     export XDG_CACHE_HOME="$BATS_TEST_TMPDIR/cache"
-    mkdir -p "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+    mkdir -p "$HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
 
     # Stub the reload consumers; each records the call so we can assert the
     # reload happened without a running bar or window manager.
@@ -24,7 +25,7 @@ setup() {
     mkdir -p "$STUB_BIN"
     RELOAD_LOG="$BATS_TEST_TMPDIR/reload.log"
     export RELOAD_LOG
-    for tool in hyprctl pkill swaync-client; do
+    for tool in hyprctl pkill swaync-client tmux; do
         cat >"$STUB_BIN/$tool" <<EOF
 #!/usr/bin/env bash
 echo "$tool \$*" >>"\$RELOAD_LOG"
@@ -84,6 +85,8 @@ EOF
     grep -qx 'hyprctl reload' "$RELOAD_LOG"
     grep -qx 'pkill -SIGUSR2 -x waybar' "$RELOAD_LOG"
     grep -qx 'swaync-client --reload-css' "$RELOAD_LOG"
+    grep -qx 'pkill -SIGUSR1 -x foot' "$RELOAD_LOG"
+    grep -qx "tmux source-file $HOME/.tmux.conf" "$RELOAD_LOG"
 }
 
 @test "palette.sh toggle from dark reaches light" {
@@ -125,6 +128,8 @@ EOF
     grep -qx 'hyprctl reload' "$RELOAD_LOG"
     grep -qx 'pkill -SIGUSR2 -x waybar' "$RELOAD_LOG"
     grep -qx 'swaync-client --reload-css' "$RELOAD_LOG"
+    grep -qx 'pkill -SIGUSR1 -x foot' "$RELOAD_LOG"
+    grep -qx "tmux source-file $HOME/.tmux.conf" "$RELOAD_LOG"
 }
 
 @test "palette.sh clear after light empties every target and returns to dark" {

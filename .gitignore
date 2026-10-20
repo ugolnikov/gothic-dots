@@ -46,6 +46,11 @@ config/waybar/colors.dynamic.css
 config/rofi/colors.dynamic.rasi
 config/kitty/colors.dynamic.conf
 config/swaync/colors.dynamic.css
+config/foot/colors.dynamic.ini
+config/tmux/colors.dynamic.conf
+config/gtk-3.0/colors.dynamic.css
+config/gtk-4.0/colors.dynamic.css
+config/fish/colors.dynamic.fish
 
 # --- Editor / OS junk ---
 .DS_Store

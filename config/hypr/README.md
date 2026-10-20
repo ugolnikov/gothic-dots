@@ -68,6 +68,9 @@ accent, thin borders, sharp corners, no blur or shadows. The palette is
 * rofi — `config/rofi/colors.rasi`
 * tofi — `config/tofi/config`
 * foot — `config/foot/foot.ini`
+* tmux — `tmux.conf`
+* GTK 3/4 — `config/gtk-3.0/gtk.css`, `config/gtk-4.0/gtk.css`
+* fish — `fish/conf.d/colors.fish`
 * mako — `config/mako/config`
 * swaync — `config/swaync/colors.css`
 
@@ -78,15 +81,17 @@ the two recolor modes mutually exclusive (enabling one disables the other).
 
 * **dark** (default) — the fixed gothic palette above. There is no generated
   content, so every app falls back to the fixed colors.
-* **light** — the "ivory" variant, recoloring Hyprland, Waybar, rofi, kitty and
-  swaync.
+* **light** — the "ivory" variant, recoloring Hyprland, Waybar, rofi, kitty,
+  swaync, foot, tmux, GTK 3/4 and fish.
 * **dynamic** — a palette derived from the wallpaper via
   [wallust](https://codeberg.org/explosion-mental/wallust), recoloring
-  Hyprland, Waybar, rofi, mako, swaync, tofi and Starship through
-  `colors.dynamic.*` / `~/.cache/wallust/*`. It is colorful and fights the gothic
-  look, so it is off by default.
+  Hyprland, Waybar, rofi, mako, swaync, tofi, Starship, foot, tmux, GTK 3/4 and
+  fish through `colors.dynamic.*` / `~/.cache/wallust/*`. It is colorful and
+  fights the gothic look, so it is off by default.
 
-foot, mako, tofi, hyprlock and GTK keep the fixed palette. The mode survives a
+mako, tofi and hyprlock keep the fixed palette, as do the TUIs without an
+include point (btop, micro, lazygit, bat). foot, tmux, GTK and fish import
+their generated file and follow every mode. The mode survives a
 relogin; switch dark ⇄ light from the settings center (**Light theme**) or with
 `SUPER + Shift + T`.
 

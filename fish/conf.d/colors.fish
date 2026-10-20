@@ -42,3 +42,10 @@ set -g fish_pager_color_selected_background --background=a31621
 set -g fish_pager_color_selected_completion 0a0a0b
 set -g fish_pager_color_selected_description 0a0a0b
 set -g fish_pager_color_selected_prefix 0a0a0b --bold
+
+# --- Сгенерированная палитра (light/dynamic) ---
+# palette.sh пишет ~/.config/fish/colors.dynamic.fish; в dark файл пуст, и
+# остаются фиксированные цвета выше. Новые шеллы читают его при старте.
+if test -f ~/.config/fish/colors.dynamic.fish
+    source ~/.config/fish/colors.dynamic.fish
+end
