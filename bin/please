@@ -17,8 +17,10 @@ case "$parent" in
     fish)
         histfile="${XDG_DATA_HOME:-$HOME/.local/share}/fish/fish_history"
         if [[ -r "$histfile" ]]; then
-            # fish yaml:  - cmd: <command>
-            history="$(sed -n 's/^  - cmd: //p' "$histfile" | grep -a -v '^$' || true)"
+            # fish yaml: "- cmd: <command>" — the list marker sits at column 0.
+            # Keep accepting an indented marker so hand-written histories and
+            # older writers still parse.
+            history="$(sed -n 's/^[[:space:]]*- cmd: //p' "$histfile" | grep -a -v '^$' || true)"
         fi
         ;;
     bash | sh)
@@ -34,7 +36,7 @@ if [[ -z "${history:-}" ]]; then
     exit 1
 fi
 
-cmd="$(echo "$history" | grep -a -v '^please' | grep -a -v '^sudo ' | tail -1)"
+cmd="$(echo "$history" | grep -a -v '^please' | grep -a -v '^sudo ' | tail -1 || true)"
 
 if [[ -z "$cmd" ]]; then
     exit 0
