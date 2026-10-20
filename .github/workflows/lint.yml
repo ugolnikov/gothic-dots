@@ -155,7 +155,7 @@ jobs:
       - name: Install tools
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed bats shellcheck git make diffutils
+          pacman -S --noconfirm --needed bats shellcheck git make diffutils jq
 
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
