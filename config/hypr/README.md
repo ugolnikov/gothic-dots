@@ -222,6 +222,24 @@ Defaults: day 07:30, evening 19:00, night 22:30; `night_light=auto` and
 `dnd=auto` mean "only at night". The daemon is started from `autostart.conf` and
 no-ops while `~/.config/hypr/ambience` is absent.
 
+## Presets
+
+`SUPER + Shift + P` (`scripts/preset.sh`) applies a named bundle at once:
+`gaming`, `work`, `present` ship in `presets/`, user files live in
+`~/.config/hypr/presets.local/` and override built-ins by name.
+
+Keys: `palette`, `animations`, `night`, `dnd`, `caffeine`, `bar`, `power`.
+`apply` snapshots only the keys it changes; `off` replays that snapshot; a
+second apply rolls the first back before snapshotting, so `off` always returns
+to the pre-preset state. Animations go through `effects.sh`, the rest through
+`palette.sh`, `controls.sh`, Waybar and `powerprofilesctl`.
+
+```bash
+~/.config/hypr/scripts/preset.sh apply gaming
+~/.config/hypr/scripts/preset.sh off
+~/.config/hypr/scripts/preset.sh list
+```
+
 ## Launcher and `gothic`
 
 `SUPER + D` opens applications (tofi, rofi fallback). `SUPER + Shift + D` opens
@@ -253,6 +271,7 @@ A lightweight rofi menu (`scripts/settings.sh`). Changes on the fly:
 * **Session** — save / restore the window layout (opens its menu);
 * **Launcher modes** — files / windows / clipboard / ssh / packages / calc hub;
 * **Ambience** — the day schedule on / off;
+* **Preset** — apply or drop a named bundle (opens the menu);
 * **Theme** — dark gothic ⇄ wallpaper-derived palette (`palette.sh`);
 * **Terminal** — foot / kitty / alacritty (written to `~/.config/hypr/terminal`);
 * **SHELL** — login shell fish / bash (via `chsh`, password in the terminal);

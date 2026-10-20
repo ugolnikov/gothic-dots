@@ -34,6 +34,9 @@ config/hypr/ambience.conf
 config/hypr/ambience-slot
 config/hypr/ambience-wall
 config/hypr/ambience-rotated
+config/hypr/presets.local/
+config/hypr/preset-active
+config/hypr/preset-previous
 
 # --- Per-machine Hyprland overrides (seeded from *.EXAMPLE by install.sh) ---
 config/hypr/conf.d/*.local.conf

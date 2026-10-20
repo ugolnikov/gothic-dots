@@ -19,6 +19,7 @@
 `SUPER + ,`	settings
 `SUPER + Shift + C`	quick panel (DND, night light, caffeine, recording)
 `SUPER + Shift + M`	session (save / restore window layout)
+`SUPER + Shift + P`	presets (gaming / work / present)
 `SUPER + /`	keybind cheatsheet
 `SUPER + W`	wallpaper picker
 `SUPER + R` / `SUPER + Shift + R`	reload Hyprland / restart Waybar

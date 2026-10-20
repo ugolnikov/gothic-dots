@@ -146,6 +146,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + ,` | settings |
 | `SUPER + Shift + C` | quick panel (DND, night light, caffeine, recording) |
 | `SUPER + Shift + M` | session (save / restore window layout) |
+| `SUPER + Shift + P` | presets (gaming / work / present) |
 | `SUPER + /` | keybind cheatsheet |
 | `SUPER + W` | wallpaper picker |
 | `SUPER + R` / `SUPER + Shift + R` | reload Hyprland / restart Waybar |
@@ -275,6 +276,30 @@ marker is absent it changes nothing.
 ~/.config/hypr/scripts/ambience.sh config        # effective values
 ```
 
+## Presets
+
+`SUPER + Shift + P` opens the preset menu. A preset is a named bundle of
+`KEY=VALUE` settings — `palette`, `animations`, `night`, `dnd`, `caffeine`,
+`bar`, `power` — applied together:
+
+```bash
+~/.config/hypr/scripts/preset.sh apply gaming
+~/.config/hypr/scripts/preset.sh off          # back to the state before apply
+~/.config/hypr/scripts/preset.sh list
+~/.config/hypr/scripts/preset.sh show present
+```
+
+Built-ins are `gaming` (DND, caffeine, no bar, performance), `work` (bar and
+notifications back, caffeine on) and `present` (quiet, no bar). They live in
+`config/hypr/presets/`; put your own in `~/.config/hypr/presets.local/` — the
+file name is the preset name and it overrides a built-in.
+
+`apply` snapshots the current value of **only the keys the preset changes**;
+`off` replays that snapshot. Applying a second preset first rolls the previous
+one back, so the snapshot always means "the state before any preset", never the
+state of the preset you just left. A key the preset does not mention is left
+alone, and it is not restored later either.
+
 ## Command line: `gothic`
 
 One router over the modules, installed as `~/.local/bin/gothic`. It never
@@ -289,6 +314,7 @@ gothic wall pick                  # or: gothic wall ~/Pictures/wall.png
 gothic session save work          # any session.sh subcommand
 gothic record start region audio  # or: gothic record stop
 gothic ambience toggle             # the day schedule on/off
+gothic preset apply gaming         # or: gothic preset off
 gothic keybinds | settings | doctor | logs | menu | version
 ```
 

@@ -245,6 +245,7 @@ SSH
 Тема: из обоев
 Сессия: сохранить
 Сессия: восстановить
+Пресеты
 Переключатели
 Записать экран
 Остановить запись
@@ -264,7 +265,7 @@ run_verb() {
     rest="${rest# }"
     read -r -a args <<<"$rest" || true
     case "$verb" in
-        theme | session | toggle | wall | record | keybinds | settings | doctor)
+        theme | session | toggle | wall | record | keybinds | settings | doctor | preset | ambience)
             "$GOTHIC" "$verb" "${args[@]}"
             ;;
         *)
@@ -297,6 +298,7 @@ hub() {
             fi
             ;;
         "Сессия: восстановить") "$GOTHIC" session menu ;;
+        "Пресеты") "$GOTHIC" preset menu ;;
         "Переключатели") exec "$SCRIPTS/quick.sh" ;;
         "Записать экран") "$GOTHIC" record start full audio ;;
         "Остановить запись") "$GOTHIC" record stop ;;

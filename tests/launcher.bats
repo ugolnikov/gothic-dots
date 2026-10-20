@@ -212,6 +212,14 @@ EOF
     [[ "$output" == *"только цифры"* ]]
 }
 
+@test "the hub opens the preset menu" {
+    export ROFI_CHOICE="Пресеты"
+
+    run "$LAUNCHER" menu
+    [ "$status" -eq 0 ]
+    grep -qx 'gothic preset menu' "$CALLS"
+}
+
 @test "the hub delegates a picked command to gothic" {
     export ROFI_CHOICE="Тема: готика"
 

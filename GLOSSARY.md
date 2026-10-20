@@ -40,6 +40,10 @@ _Avoid_: control center, dashboard
 A saved window layout: per window its workspace, tiled/floating state, geometry and the argv to relaunch it. `session.sh` owns it; restore only moves and launches, never closes.
 _Avoid_: layout, snapshot, workspace profile
 
+**Preset**:
+A named bundle of settings (palette, animations, toggles, bar, power) that is applied together; apply snapshots only the keys it changes and off replays them.
+_Avoid_: profile, mode, scene
+
 **Slot**:
 A named window of the day (day, evening, night) that ambience applies once: palette, night light and DND are set at its start and left alone until the next boundary.
 _Avoid_: period, phase, schedule entry

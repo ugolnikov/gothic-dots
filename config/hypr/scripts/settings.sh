@@ -151,8 +151,8 @@ show_binds() {
 }
 
 anim_state() {
-    if [ -f "$CONFIG/hypr/conf.d/animations.dynamic.conf" ] &&
-        grep -q 'true' "$CONFIG/hypr/conf.d/animations.dynamic.conf"; then
+    # Владелец анимаций — effects.sh; settings только показывает и передаёт.
+    if [ "$("$SCRIPTS/effects.sh" status 2>/dev/null)" = on ]; then
         echo "вкл"
     else
         echo "выкл"
@@ -198,6 +198,7 @@ main() {
         "Сессия (снимок окон)" \
         "Лаунчер: режимы" \
         "Распорядок: $(ambience_state)" \
+        "$(preset_label)" \
         "$(theme_label)" \
         "Терминал: $(cur terminal foot)" \
         "SHELL: ${SHELL##*/}" \
@@ -220,6 +221,7 @@ main() {
         "Сессия (снимок окон)") exec "$SCRIPTS/session.sh" menu ;;
         "Лаунчер: режимы") exec "$SCRIPTS/launcher.sh" menu ;;
         "Распорядок:"*) toggle_ambience ;;
+        "Пресет:"*) exec "$SCRIPTS/preset.sh" menu ;;
         Тема:*) toggle_theme ;;
         Терминал:*) choose_terminal ;;
         SHELL:*) choose_shell ;;
