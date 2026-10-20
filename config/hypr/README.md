@@ -50,8 +50,9 @@ config/hypr/
 ├── hyprlock.conf          # lock screen
 ├── scripts/               # controls, quick, session, settings, palette,
 │                          #   theme(-mode), wallpaper(-picker), screenshot,
-│                          #   clipboard, dismiss, filemanager, launcher,
-│                          #   run-in-terminal, notifications, system-setup
+│                          #   keyboard-memory, scratchpad, power, battery,
+│                          #   eventd, ambience, preset, effects, clipboard,
+│                          #   dismiss, filemanager, launcher, notifications
 ├── packages.txt           # repository packages
 ├── aur.packages.txt       # AUR packages (paru/yay)
 └── bootstrap.sh           # install packages, then symlink the configs
@@ -184,6 +185,23 @@ caffeine come back after a login; recording never restarts by itself.
 state and passes the chosen row back to it. mako gets the DND mode from
 `config/mako/config` (`[mode=do-not-disturb]`), swaync uses its own DND.
 
+## Power and battery
+
+The quick panel's last rows show the `power-profiles-daemon` profile and cycle
+it through `saver → balanced → performance` via `scripts/power.sh`. TLP is not
+supported: it conflicts with PPD.
+
+```bash
+~/.config/hypr/scripts/power.sh status
+~/.config/hypr/scripts/power.sh cycle
+~/.config/hypr/scripts/power.sh menu
+```
+
+`scripts/battery.sh` (started from `autostart.conf`) reads
+`/sys/class/power_supply/BAT*` once a minute and notifies at 20%, 10% and 5%,
+once per threshold per discharge cycle; the 5% notice is critical. Charging
+resets the markers, and a machine without a battery exits immediately.
+
 ## Sessions
 
 `SUPER + Shift + M` opens the session menu (`scripts/session.sh`). A snapshot
@@ -202,6 +220,20 @@ Snapshots live in `~/.config/hypr/sessions/<name>.json` (600, gitignored) and
 `last.json` always mirrors the newest one. Add
 `exec-once = ~/.config/hypr/scripts/session.sh restore last` to
 `conf.d/autostart.conf` if the layout should come back with the session.
+
+## Keyboard memory and scratchpads
+
+`scripts/keyboard-memory.sh` keeps the last xkb layout per window class in
+`~/.config/hypr/keyboard-memory.tsv`; `eventd` restores it on `activewindow`
+and learns it on `activelayout`. Granularity is the class, so all `foot`
+windows share one entry; delete the file to reset. Manage it with `gothic
+keyboard status|list|clear`.
+
+`SUPER + Ctrl + grave` opens the named-scratchpad menu. `scripts/scratchpad.sh`
+reads `~/.config/hypr/scratchpads.tsv` (`name<TAB>class<TAB>command`) and uses
+workspace membership as the only state: it toggles a window already in
+`special:<name>`, moves a window of that class if it is elsewhere, and spawns
+one only if neither exists. `install.sh` seeds `term` and `music`.
 
 ## Ambience (time of day)
 
@@ -225,12 +257,20 @@ no-ops while `~/.config/hypr/ambience` is absent.
 ## Events
 
 `scripts/eventd.sh` listens on Hyprland's `socket2` (started from
-`autostart.conf`) and handles four things: window rules from
+`autostart.conf`) and handles window rules from
 `~/.config/hypr/windowrules.tsv` (`class<TAB>workspace`), the screen-share DND
-round trip (`share_classes` globs in `eventd.conf`), and monitor / fullscreen
-hooks (`eventd.d/monitor-added.sh`, `monitor-removed.sh`, `fullscreen-on.sh`,
-`fullscreen-off.sh`). `eventd.sh handle '<line>'` processes one event, which is
-how the tests and `run --fake` work.
+round trip (`share_classes` globs in `eventd.conf`), monitor / fullscreen hooks
+(`eventd.d/monitor-added.sh`, `monitor-removed.sh`, `fullscreen-on.sh`,
+`fullscreen-off.sh`), and the per-class keyboard memory. `eventd.sh handle
+'<line>'` processes one event, which is how the tests and `run --fake` work.
+
+## Capture
+
+`scripts/screenshot.sh` handles full/region/window shots, annotation and OCR.
+`SUPER + Shift + S` annotates a region with `satty` (falling back to `swappy`);
+`SUPER + Shift + O` runs `tesseract` over a region and copies the text, leaving
+no file behind. Languages come from `~/.config/hypr/ocr.conf` (`rus+eng` by
+default).
 
 ## Maintenance
 

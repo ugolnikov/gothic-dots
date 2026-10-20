@@ -40,6 +40,12 @@ playerctl
 pavucontrol
 jq
 
+# --- OCR and power ---
+tesseract
+tesseract-data-rus
+tesseract-data-eng
+power-profiles-daemon
+
 # --- Shell & TUI tools (theme inherited from foot) ---
 eza
 fd

@@ -37,9 +37,11 @@
 `SUPER + scroll`	next / previous workspace
 `SUPER + grave`	scratchpad (special workspace)
 `SUPER + Shift + grave`	move window to scratchpad
+`SUPER + Ctrl + grave`	scratchpad menu (named dropdowns)
 `SUPER + drag` (LMB / RMB)	move / resize window
 `Print` / `SUPER + Print` / `SUPER + Shift + Print`	screenshot: full / region / window
-`SUPER + Shift + S`	screenshot: region → annotate (swappy)
+`SUPER + Shift + S`	screenshot: region → annotate (satty / swappy)
+`SUPER + Shift + O`	screenshot: region → OCR to clipboard
 `Alt + Shift`	switch keyboard layout (us / ru)
 `Caps Lock`	Escape
 `XF86 Audio*` / `XF86 Brightness*`	volume / media / brightness

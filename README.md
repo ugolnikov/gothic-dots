@@ -165,9 +165,11 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + scroll` | next / previous workspace |
 | `SUPER + grave` | scratchpad (special workspace) |
 | `SUPER + Shift + grave` | move window to scratchpad |
+| `SUPER + Ctrl + grave` | scratchpad menu (named dropdowns) |
 | `SUPER + drag` (LMB / RMB) | move / resize window |
 | `Print` / `SUPER + Print` / `SUPER + Shift + Print` | screenshot: full / region / window |
-| `SUPER + Shift + S` | screenshot: region → annotate (swappy) |
+| `SUPER + Shift + S` | screenshot: region → annotate (satty / swappy) |
+| `SUPER + Shift + O` | screenshot: region → OCR to clipboard |
 | `Alt + Shift` | switch keyboard layout (us / ru) |
 | `Caps Lock` | Escape |
 | `XF86 Audio*` / `XF86 Brightness*` | volume / media / brightness |
@@ -220,6 +222,31 @@ itself. `controls.sh reset` turns everything off. The panel is only a view —
 `config/hypr/scripts/quick.sh` reads states and hands the chosen row back to the
 module.
 
+## Power and battery
+
+`SUPER + Shift + C` also shows the current power profile; choosing the row
+cycles `saver → balanced → performance` through
+`config/hypr/scripts/power.sh` and `power-profiles-daemon`. TLP is deliberately
+not supported — it conflicts with PPD.
+
+```bash
+~/.config/hypr/scripts/power.sh status
+~/.config/hypr/scripts/power.sh performance
+~/.config/hypr/scripts/power.sh cycle
+~/.config/hypr/scripts/power.sh menu
+```
+
+`config/hypr/scripts/battery.sh` runs from `autostart.conf` and reads
+`/sys/class/power_supply/BAT*` once a minute. It notifies at 20%, 10% and 5%
+(once per threshold per discharge cycle, critical at 5%), and clears the
+thresholds when the charger is connected. It needs no root and exits
+immediately on a machine without a battery.
+
+```bash
+~/.config/hypr/scripts/battery.sh status
+~/.config/hypr/scripts/battery.sh check     # one pass, for tests or a timer
+```
+
 ## Sessions
 
 `SUPER + Shift + M` opens the session menu: save the current window layout, or
@@ -247,6 +274,45 @@ compositor restart. To make that automatic, add
 `exec-once = ~/.config/hypr/scripts/session.sh restore last` to
 `conf.d/autostart.conf` — it is deliberately off by default, since a login
 should not launch apps on its own.
+
+## Keyboard memory
+
+`config/hypr/scripts/keyboard-memory.sh` remembers the last xkb layout per
+window class and restores it when a window of that class gains focus. `eventd`
+feeds it two events: `activewindow` asks for a restore, `activelayout` records
+the layout of the focused window. The memory is a single auto-learned file,
+`~/.config/hypr/keyboard-memory.tsv` (`class<TAB>layout`), gitignored and safe
+to delete:
+
+```bash
+~/.config/hypr/scripts/keyboard-memory.sh list
+~/.config/hypr/scripts/keyboard-memory.sh status
+~/.config/hypr/scripts/keyboard-memory.sh clear
+```
+
+Granularity is the class, not the title: every `foot` window shares one entry,
+which is predictable and survives opening a new document. A class with no entry
+keeps the current layout.
+
+## Scratchpads
+
+`SUPER + Ctrl + grave` opens the named-scratchpad menu. A scratchpad is an app
+in `special:<name>` that can be toggled from any workspace; the module
+`config/hypr/scripts/scratchpad.sh` finds a window by workspace membership and
+by class, so it moves an existing window instead of opening a second copy.
+
+The config is `~/.config/hypr/scratchpads.tsv`, one line per scratchpad:
+`name<TAB>class<TAB>command`. The example seeds `term` (`foot`) and `music`
+(`pavucontrol`); `install.sh` copies it on first install.
+
+```bash
+~/.config/hypr/scripts/scratchpad.sh list
+~/.config/hypr/scripts/scratchpad.sh toggle term
+~/.config/hypr/scripts/scratchpad.sh menu
+```
+
+`SUPER + grave` still toggles the original `magic` special workspace; the menu
+is additive, not a replacement.
 
 ## Ambience
 
@@ -325,6 +391,23 @@ alone, and it is not restored later either.
 The daemon is deliberately quiet without configuration: no rules, no
 `share_classes` and no hooks mean the events are simply ignored.
 
+## Capture
+
+`config/hypr/scripts/screenshot.sh` owns every capture. Region shots can be
+annotated with `SUPER + Shift + S`: `satty` is preferred when installed, with
+`swappy` as the fallback. `SUPER + Shift + O` runs OCR over a region and puts
+the text on the clipboard — nothing is written to disk.
+
+```bash
+~/.config/hypr/scripts/screenshot.sh region
+~/.config/hypr/scripts/screenshot.sh region edit
+~/.config/hypr/scripts/screenshot.sh ocr
+```
+
+OCR languages come from `~/.config/hypr/ocr.conf` (`langs=rus+eng` by default);
+the only hard dependency is `tesseract` with the `rus` and `eng` data packages.
+The temporary PNG lives in `$XDG_RUNTIME_DIR` and is removed on exit.
+
 ## Maintenance
 
 `scripts/maintenance.sh` (also `gothic update|snapshot|…`) keeps a local
@@ -362,6 +445,10 @@ gothic session save work          # any session.sh subcommand
 gothic record start region audio  # or: gothic record stop
 gothic ambience toggle             # the day schedule on/off
 gothic preset apply gaming         # or: gothic preset off
+gothic keyboard list              # per-class layout memory
+gothic scratchpad toggle term     # named dropdowns
+gothic power performance          # saver | balanced | performance | cycle
+gothic battery status             # capacity and notified thresholds
 gothic update                      # snapshot, upgrade, doctor, diff
 gothic keybinds | settings | doctor | logs | menu | version
 ```

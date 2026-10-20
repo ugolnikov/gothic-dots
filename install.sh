@@ -177,6 +177,10 @@ if only_selected hypr; then
     if [ ! -e "$_hypr_local" ] && [ -e "$_hypr_local.EXAMPLE" ]; then
         run cp "$_hypr_local.EXAMPLE" "$_hypr_local"
     fi
+    _scratch="$HOME/.config/hypr/scratchpads.tsv"
+    if [ ! -e "$_scratch" ] && [ -e "$_scratch.EXAMPLE" ]; then
+        run cp "$_scratch.EXAMPLE" "$_scratch"
+    fi
 fi
 
 # 6. Executable bits

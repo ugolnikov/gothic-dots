@@ -10,6 +10,10 @@
 #   gothic preset [apply <name>|off|current|list|show <name>|menu]
 #   gothic update|snapshot [name]|snapshots|diff [name]|rollback <name>|clean
 #   gothic eventd [status|run]
+#   gothic keyboard [status|list|clear]
+#   gothic scratchpad [toggle <name>|menu|list|status]
+#   gothic power [status|saver|balanced|performance|cycle|menu]
+#   gothic battery [status|check]
 #   gothic keybinds | settings | doctor | logs | menu | version | help
 #
 # Роутер без собственной логики: каждая подкоманда уходит в модуль, который
@@ -45,6 +49,10 @@ usage: gothic status
        gothic preset [apply <name>|off|current|list|show <name>|menu]
        gothic update|snapshot [name]|snapshots|diff [name]|rollback <name>|clean
        gothic eventd [status|run]
+       gothic keyboard [status|list|clear]
+       gothic scratchpad [toggle <name>|menu|list|status]
+       gothic power [status|saver|balanced|performance|cycle|menu]
+       gothic battery [status|check]
        gothic keybinds|settings|doctor|logs|menu|version|help
 EOF
     exit 2
@@ -231,6 +239,22 @@ main() {
         eventd)
             shift
             exec "$(module eventd.sh)" "${@:-status}"
+            ;;
+        keyboard)
+            shift
+            exec "$(module keyboard-memory.sh)" "${@:-status}"
+            ;;
+        scratchpad)
+            shift
+            exec "$(module scratchpad.sh)" "${@:-menu}"
+            ;;
+        power)
+            shift
+            exec "$(module power.sh)" "${@:-status}"
+            ;;
+        battery)
+            shift
+            exec "$(module battery.sh)" "${@:-status}"
             ;;
         keybinds) exec "$(module keybinds.sh)" ;;
         settings) exec "$(module settings.sh)" ;;
