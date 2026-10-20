@@ -1,0 +1,6 @@
+# Именованные scratchpads: name<TAB>class<TAB>command.
+# Скопируй в ~/.config/hypr/scratchpads.tsv. Комментарии — с #.
+# class — то, что Hyprland показывает в `hyprctl clients`; по нему модуль
+# находит уже запущенное окно и переносит его, а не открывает второе.
+term	foot	foot
+music	pavucontrol	pavucontrol

@@ -41,6 +41,10 @@ config/hypr/eventd.conf
 config/hypr/windowrules.tsv
 config/hypr/eventd.d/
 config/hypr/eventd-share
+config/hypr/keyboard-memory.tsv
+config/hypr/scratchpads.tsv
+config/hypr/ocr.conf
+config/hypr/battery-notified
 
 # --- Per-machine Hyprland overrides (seeded from *.EXAMPLE by install.sh) ---
 config/hypr/conf.d/*.local.conf

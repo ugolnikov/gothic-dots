@@ -19,6 +19,13 @@ setup() {
     export HOME="$BATS_TEST_TMPDIR/home"
     mkdir -p "$STATE_DIR/scripts" "$HOME/Videos"
     ln -s "$CTL" "$STATE_DIR/scripts/controls.sh"
+    cat >"$STATE_DIR/scripts/power.sh" <<'EOF'
+#!/usr/bin/env bash
+printf 'power.sh %s\n' "$*" >>"$CALLS"
+[ "${1:-status}" = status ] && printf 'питание: balanced\n'
+exit 0
+EOF
+    chmod +x "$STATE_DIR/scripts/power.sh"
 
     STUB_BIN="$BATS_TEST_TMPDIR/bin"
     mkdir -p "$STUB_BIN"
@@ -80,7 +87,8 @@ teardown() {
     [[ "$output" == *"Записать экран (полный, со звуком)"* ]]
     [[ "$output" == *"Записать область (со звуком)"* ]]
     [[ "$output" == *"Настройки"* ]]
-    [[ "$output" == *"Питание"* ]]
+    [[ "$output" == *"Профиль питания: balanced"* ]]
+    [[ "$output" == *"Выключение / перезагрузка"* ]]
 }
 
 @test "the list marks the toggles that are on" {
@@ -123,12 +131,20 @@ teardown() {
     wait_for_call '^hyprsunset -t 4000$'
 }
 
+@test "choosing the power profile cycles it through power.sh" {
+    export ROFI_CHOICE="Профиль питания: balanced"
+
+    run "$QUICK"
+    [ "$status" -eq 0 ]
+    grep -qx 'power.sh cycle' "$CALLS"
+}
+
 @test "escape changes nothing" {
     run "$QUICK"
     [ "$status" -eq 0 ]
     [ ! -e "$STATE_DIR/dnd" ]
     [ ! -e "$STATE_DIR/night-light" ]
-    [ ! -s "$CALLS" ]
+    [ -z "$(grep -vx 'power.sh status' "$CALLS" 2>/dev/null || true)" ]
 }
 
 @test "an unknown argument prints usage and exits non-zero" {

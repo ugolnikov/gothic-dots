@@ -89,7 +89,8 @@ fi
 
 sec "Команды"
 for c in hyprland hyprctl hypridle hyprlock awww waybar foot footclient \
-    grim slurp wl-copy wl-paste cliphist jq brightnessctl playerctl notify-send; do
+    grim slurp wl-copy wl-paste cliphist jq brightnessctl playerctl notify-send \
+    tesseract powerprofilesctl; do
     command -v "$c" >/dev/null 2>&1 || {
         bad "нет: $c"
         missing=$((missing + 1))
@@ -98,7 +99,7 @@ done
 [ "$missing" -eq 0 ] && ok "все базовые команды на месте"
 
 sec "Опционально"
-for c in tofi tofi-drun wallust magick mpvpaper swappy wl-clip-persist hyprpicker starship hyprsunset wf-recorder gothic; do
+for c in tofi tofi-drun wallust magick mpvpaper swappy satty swayosd-client wl-clip-persist hyprpicker starship hyprsunset wf-recorder gothic; do
     if command -v "$c" >/dev/null 2>&1; then ok "$c"; else warn "нет: $c"; fi
 done
 

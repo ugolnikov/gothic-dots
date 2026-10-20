@@ -9,6 +9,7 @@ set -euo pipefail
 
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
 CTL="$CONFIG/hypr/scripts/controls.sh"
+POWER="$CONFIG/hypr/scripts/power.sh"
 ROFI_THEME="$CONFIG/rofi/settings.rasi"
 SCRIPTS="$CONFIG/hypr/scripts"
 
@@ -18,6 +19,12 @@ mark() {
     else
         printf '○'
     fi
+}
+
+power_profile() {
+    local line
+    line="$("$POWER" status 2>/dev/null || true)"
+    printf '%s' "${line#питание: }"
 }
 
 panel_rows() {
@@ -34,7 +41,10 @@ panel_rows() {
             "Записать экран (полный, со звуком)" \
             "Записать область (со звуком)"
     fi
-    printf '%s\n' "Настройки" "Питание"
+    printf '%s\n' \
+        "Настройки" \
+        "Профиль питания: $(power_profile)" \
+        "Выключение / перезагрузка"
 }
 
 choose() {
@@ -52,8 +62,9 @@ choose() {
         *"Остановить запись") "$CTL" record stop ;;
         *"Записать экран"*) "$CTL" record start full audio ;;
         *"Записать область"*) "$CTL" record start region audio ;;
+        *"Профиль питания"*) "$POWER" cycle ;;
         "Настройки") exec "$SCRIPTS/settings.sh" ;;
-        "Питание") exec "$SCRIPTS/powermenu.sh" ;;
+        "Выключение / перезагрузка") exec "$SCRIPTS/powermenu.sh" ;;
         *) exit 0 ;;
     esac
 }
