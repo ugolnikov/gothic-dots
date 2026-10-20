@@ -1,0 +1,4 @@
+# Правила окон для eventd.sh: class<TAB>workspace.
+# Скопируй в ~/.config/hypr/windowrules.tsv. Комментарии — с #.
+# firefox	2
+# org.telegram.desktop	5

@@ -40,6 +40,10 @@ _Avoid_: control center, dashboard
 A saved window layout: per window its workspace, tiled/floating state, geometry and the argv to relaunch it. `session.sh` owns it; restore only moves and launches, never closes.
 _Avoid_: layout, snapshot, workspace profile
 
+**Hook**:
+An executable script in `eventd.d/` that eventd runs for a Hyprland event, named after the event (`monitor-added.sh`, `fullscreen-on.sh`, …).
+_Avoid_: callback, handler
+
 **Preset**:
 A named bundle of settings (palette, animations, toggles, bar, power) that is applied together; apply snapshots only the keys it changes and off replays them.
 _Avoid_: profile, mode, scene

@@ -37,6 +37,10 @@ config/hypr/ambience-rotated
 config/hypr/presets.local/
 config/hypr/preset-active
 config/hypr/preset-previous
+config/hypr/eventd.conf
+config/hypr/windowrules.tsv
+config/hypr/eventd.d/
+config/hypr/eventd-share
 
 # --- Per-machine Hyprland overrides (seeded from *.EXAMPLE by install.sh) ---
 config/hypr/conf.d/*.local.conf

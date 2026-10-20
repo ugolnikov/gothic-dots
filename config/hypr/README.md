@@ -222,6 +222,16 @@ Defaults: day 07:30, evening 19:00, night 22:30; `night_light=auto` and
 `dnd=auto` mean "only at night". The daemon is started from `autostart.conf` and
 no-ops while `~/.config/hypr/ambience` is absent.
 
+## Events
+
+`scripts/eventd.sh` listens on Hyprland's `socket2` (started from
+`autostart.conf`) and handles four things: window rules from
+`~/.config/hypr/windowrules.tsv` (`class<TAB>workspace`), the screen-share DND
+round trip (`share_classes` globs in `eventd.conf`), and monitor / fullscreen
+hooks (`eventd.d/monitor-added.sh`, `monitor-removed.sh`, `fullscreen-on.sh`,
+`fullscreen-off.sh`). `eventd.sh handle '<line>'` processes one event, which is
+how the tests and `run --fake` work.
+
 ## Maintenance
 
 `scripts/maintenance.sh` keeps local snapshots of the tracked configs and the

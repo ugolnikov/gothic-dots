@@ -301,6 +301,30 @@ one back, so the snapshot always means "the state before any preset", never the
 state of the preset you just left. A key the preset does not mention is left
 alone, and it is not restored later either.
 
+## Events
+
+`config/hypr/scripts/eventd.sh` reacts to Hyprland's event socket
+(`socket2.sock`), started from `autostart.conf`:
+
+* **window rules** — `~/.config/hypr/windowrules.tsv` (`class<TAB>workspace`)
+  moves a window as it opens;
+* **screen sharing** — when a window whose class matches `share_classes` (a
+  comma-separated glob list in `~/.config/hypr/eventd.conf`) opens, DND turns on
+  and caffeine is dropped; closing that window restores exactly the previous
+  state;
+* **hooks** — executable scripts in `~/.config/hypr/eventd.d/`:
+  `monitor-added.sh`, `monitor-removed.sh`, `fullscreen-on.sh`,
+  `fullscreen-off.sh`, each called with the event argument.
+
+```bash
+~/.config/hypr/scripts/eventd.sh status
+~/.config/hypr/scripts/eventd.sh handle 'openwindow>>0xabc,1,firefox,Title'
+~/.config/hypr/scripts/eventd.sh run --fake events.txt   # replay for tests
+```
+
+The daemon is deliberately quiet without configuration: no rules, no
+`share_classes` and no hooks mean the events are simply ignored.
+
 ## Maintenance
 
 `scripts/maintenance.sh` (also `gothic update|snapshot|…`) keeps a local

@@ -47,7 +47,7 @@ if [ "${1:-}" = list ]; then echo work; fi
 [ "${1:-}" = count ] && { echo 1; exit 0; }
 exit 0
 EOF
-    for m in wallpaper.sh wallpaper-picker.sh keybinds.sh settings.sh launcher.sh quick.sh ambience.sh preset.sh; do
+    for m in wallpaper.sh wallpaper-picker.sh keybinds.sh settings.sh launcher.sh quick.sh ambience.sh preset.sh eventd.sh; do
         cat >"$MODS/$m" <<'EOF'
 #!/usr/bin/env bash
 printf '%s\n' "__NAME__${*:+ $*}" >>"$CALLS"
@@ -166,6 +166,16 @@ EOF
     run "$GOTHIC" record stop
     [ "$status" -eq 0 ]
     grep -qx 'controls.sh record stop' "$CALLS"
+}
+
+@test "eventd is routed to its module" {
+    run "$GOTHIC" eventd
+    [ "$status" -eq 0 ]
+    grep -qx 'eventd.sh status' "$CALLS"
+
+    run "$GOTHIC" eventd run
+    [ "$status" -eq 0 ]
+    grep -qx 'eventd.sh run' "$CALLS"
 }
 
 @test "preset is routed to its module" {
