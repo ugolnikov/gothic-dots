@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
-# eventd.sh — реакции на события Hyprland: правила окон, шаринг, хуки.
+# eventd.sh — реакции на события Hyprland: правила окон, шаринг, хуки,
+# память раскладок по классу окна.
 #   eventd.sh run [--fake FILE]     читать socket2 (или файл событий в тестах)
 #   eventd.sh handle '<event>'      обработать одну строку события
 #   eventd.sh status                что настроено и жив ли демон
 #
 # События приходят строками socket2: `openwindow>>ADDR,WS,CLASS,TITLE`,
-# `closewindow>>ADDR`, `monitoradded>>NAME`, `fullscreen>>ADDR,0|1` и т.п.
-# Демон ничего не хранит, кроме маркера активного шаринга; правила окон и
-# шаринг читаются из конфигов, хуки — исполняемые файлы в eventd.d/.
+# `closewindow>>ADDR`, `activewindow>>CLASS,TITLE`,
+# `activelayout>>KEYBOARD,LAYOUT`, `monitoradded>>NAME`, `fullscreen>>ADDR,0|1`.
+# Демон ничего не хранит сам: состояние шаринга — маркер, память раскладок —
+# файл keyboard-memory.tsv, правила и шаринг читаются из конфигов, хуки —
+# исполняемые файлы в eventd.d/.
 set -euo pipefail
 
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -19,6 +22,7 @@ if [ -z "${EVENTD_SCRIPTS:-}" ] && [ ! -d "$SCRIPTS" ]; then
 fi
 HYPRCTL="${EVENTD_HYPRCTL:-hyprctl}"
 CONTROLS="${EVENTD_CONTROLS:-$SCRIPTS/controls.sh}"
+KEYBOARD_MEMORY="${EVENTD_KEYBOARD_MEMORY:-$SCRIPTS/keyboard-memory.sh}"
 CONF="${EVENTD_CONF:-$STATE/eventd.conf}"
 RULES="${EVENTD_RULES:-$STATE/windowrules.tsv}"
 HOOKS="${EVENTD_HOOKS:-$STATE/eventd.d}"
@@ -140,6 +144,16 @@ run_hook() { # run_hook <name> <argument>
     "$hook" "$2" >/dev/null 2>&1 || true
 }
 
+keyboard_restore() { # keyboard_restore <class>
+    [ -n "$1" ] && [ -x "$KEYBOARD_MEMORY" ] || return 0
+    "$KEYBOARD_MEMORY" restore "$1" >/dev/null 2>&1 || true
+}
+
+keyboard_remember() { # keyboard_remember <layout>
+    [ -n "$1" ] && [ -x "$KEYBOARD_MEMORY" ] || return 0
+    "$KEYBOARD_MEMORY" remember-active "$1" >/dev/null 2>&1 || true
+}
+
 handle_event() {
     local line="$1" name data addr rest class
     case "$line" in
@@ -164,6 +178,14 @@ handle_event() {
             ;;
         monitoradded) run_hook monitor-added "$data" ;;
         monitorremoved) run_hook monitor-removed "$data" ;;
+        activewindow)
+            class="${data%%,*}"
+            keyboard_restore "$class"
+            ;;
+        activelayout)
+            class="${data#*,}"
+            keyboard_remember "$class"
+            ;;
         fullscreen)
             addr="${data%%,*}"
             if [ "${data##*,}" = 1 ]; then
@@ -206,6 +228,9 @@ status() {
     printf 'socket: %s\n' "${SOCKET:-нет (вне Hyprland)}"
     printf 'правила: %s\n' "$([ -r "$RULES" ] && echo "$RULES" || echo 'нет')"
     printf 'шаринг: %s\n' "${SHARE_CLASSES:-выключен}"
+    if [ -x "$KEYBOARD_MEMORY" ]; then
+        printf 'раскладки: %s\n' "$("$KEYBOARD_MEMORY" status 2>/dev/null | head -n 2 | tr '\n' ' ')"
+    fi
     if [ -r "$SHARE_MARKER" ]; then
         printf 'активный шаринг: %s\n' "$(marker_value "$SHARE_MARKER" addr)"
     fi

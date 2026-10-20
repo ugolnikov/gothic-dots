@@ -45,6 +45,15 @@ EOF
 #!/usr/bin/env bash
 exit 0
 EOF
+    cat >"$MODS/keyboard-memory.sh" <<'EOF'
+#!/usr/bin/env bash
+case "${1:-}" in
+    restore) printf 'keyboard restore %s\n' "$2" >>"$CALLS" ;;
+    remember-active) printf 'keyboard remember %s\n' "$2" >>"$CALLS" ;;
+    status) printf 'память раскладок: тест\nзаписей: 0\n' ;;
+esac
+exit 0
+EOF
     chmod +x "$STUB_BIN"/* "$MODS"/*
 
     printf 'off\n' >"$STATE_DIR/dnd"
@@ -131,6 +140,18 @@ EOF
     run "$EVENTD" handle 'fullscreen>>0xabc,0'
     [ "$status" -eq 0 ]
     grep -qx 'fullscreen-off 0xabc' "$CALLS"
+}
+
+@test "activewindow restores the keyboard memory for its class" {
+    run "$EVENTD" handle 'activewindow>>firefox,Title, with comma'
+    [ "$status" -eq 0 ]
+    grep -qx 'keyboard restore firefox' "$CALLS"
+}
+
+@test "activelayout remembers the layout for the active class" {
+    run "$EVENTD" handle 'activelayout>>kbd,Russian'
+    [ "$status" -eq 0 ]
+    grep -qx 'keyboard remember Russian' "$CALLS"
 }
 
 @test "run --fake replays a file of events" {
