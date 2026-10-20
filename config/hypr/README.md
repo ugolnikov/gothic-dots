@@ -51,8 +51,9 @@ config/hypr/
 ├── scripts/               # controls, quick, session, settings, palette,
 │                          #   theme(-mode), wallpaper(-picker), screenshot,
 │                          #   keyboard-memory, scratchpad, power, battery,
-│                          #   eventd, ambience, preset, effects, clipboard,
-│                          #   dismiss, filemanager, launcher, notifications
+│                          #   monitors, eventd, ambience, preset, effects,
+│                          #   clipboard, dismiss, filemanager, launcher,
+│                          #   notifications
 ├── packages.txt           # repository packages
 ├── aur.packages.txt       # AUR packages (paru/yay)
 └── bootstrap.sh           # install packages, then symlink the configs
@@ -234,6 +235,25 @@ reads `~/.config/hypr/scratchpads.tsv` (`name<TAB>class<TAB>command`) and uses
 workspace membership as the only state: it toggles a window already in
 `special:<name>`, moves a window of that class if it is elsewhere, and spawns
 one only if neither exists. `install.sh` seeds `term` and `music`.
+
+## Monitor arrangements
+
+`scripts/monitors.sh` snapshots the connected outputs into
+`~/.config/hypr/monitors/<name>.tsv` and applies them back. Rows are matched by
+EDID description first, then by output name, so a monitor on a different port
+is still found; mirrors are remapped to the current names, and disabled outputs
+are switched off after the enabled ones.
+
+```bash
+~/.config/hypr/scripts/monitors.sh save work
+~/.config/hypr/scripts/monitors.sh apply work
+~/.config/hypr/scripts/monitors.sh current
+~/.config/hypr/scripts/monitors.sh auto work   # apply on hotplug
+```
+
+`eventd` calls `autoload` on `monitoradded` / `monitorremoved`; `autostart.conf`
+calls it at login. Automatic application is off until `monitors-auto` exists;
+`conf.d/monitors.conf` stays the static baseline.
 
 ## Ambience (time of day)
 

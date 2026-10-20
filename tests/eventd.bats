@@ -54,6 +54,14 @@ case "${1:-}" in
 esac
 exit 0
 EOF
+    cat >"$MODS/monitors.sh" <<'EOF'
+#!/usr/bin/env bash
+case "${1:-}" in
+    autoload) printf 'monitors autoload\n' >>"$CALLS" ;;
+    status) printf 'раскладки: тест\nсохранено: 0\nавтоприменение: выключено\n' ;;
+esac
+exit 0
+EOF
     chmod +x "$STUB_BIN"/* "$MODS"/*
 
     printf 'off\n' >"$STATE_DIR/dnd"
@@ -126,10 +134,12 @@ EOF
     run "$EVENTD" handle 'monitoradded>>DP-1'
     [ "$status" -eq 0 ]
     grep -qx 'monitor-added DP-1' "$CALLS"
+    grep -qx 'monitors autoload' "$CALLS"
 
     run "$EVENTD" handle 'monitorremoved>>DP-1'
     [ "$status" -eq 0 ]
     grep -qx 'monitor-removed DP-1' "$CALLS"
+    [ "$(grep -c 'monitors autoload' "$CALLS")" -eq 2 ]
 }
 
 @test "fullscreen events pick the on/off hook" {
@@ -180,6 +190,7 @@ EOF
     [[ "$output" == *"правила: $EVENTD_RULES"* ]]
     [[ "$output" == *"шаринг: portal*"* ]]
     [[ "$output" == *"хуки: $HOOKS"* ]]
+    [[ "$output" == *"мониторы: автоприменение: выключено"* ]]
 }
 
 @test "run without a Hyprland socket fails loudly" {

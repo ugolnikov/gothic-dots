@@ -314,6 +314,29 @@ The config is `~/.config/hypr/scratchpads.tsv`, one line per scratchpad:
 `SUPER + grave` still toggles the original `magic` special workspace; the menu
 is additive, not a replacement.
 
+## Monitors
+
+`config/hypr/scripts/monitors.sh` saves the current output arrangement and puts
+it back later. A profile is a TSV in `~/.config/hypr/monitors/<name>.tsv`; each
+row records the output, its EDID description, mode, position, scale,
+transform, mirror and disabled flag. On apply the output is matched by
+description first and by name second, so a monitor moved to another port is
+still recognised.
+
+```bash
+~/.config/hypr/scripts/monitors.sh save work     # snapshot the current setup
+~/.config/hypr/scripts/monitors.sh apply work
+~/.config/hypr/scripts/monitors.sh current
+~/.config/hypr/scripts/monitors.sh list
+~/.config/hypr/scripts/monitors.sh menu
+```
+
+Automatic application is opt-in: `monitors.sh auto work` writes the
+`~/.config/hypr/monitors-auto` marker, and `eventd` applies that profile on
+`monitoradded` / `monitorremoved` (after a short settle delay). `autostart.conf`
+also calls `autoload` at login. `auto off` stops it. Without the marker the
+static `conf.d/monitors.conf` remains the only source of monitor rules.
+
 ## Ambience
 
 `config/hypr/scripts/ambience.sh` owns *when* the desktop changes, never *what*:
@@ -449,6 +472,7 @@ gothic keyboard list              # per-class layout memory
 gothic scratchpad toggle term     # named dropdowns
 gothic power performance          # saver | balanced | performance | cycle
 gothic battery status             # capacity and notified thresholds
+gothic monitors save work         # save/apply monitor arrangements
 gothic update                      # snapshot, upgrade, doctor, diff
 gothic keybinds | settings | doctor | logs | menu | version
 ```

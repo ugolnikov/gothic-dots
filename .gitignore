@@ -45,6 +45,8 @@ config/hypr/keyboard-memory.tsv
 config/hypr/scratchpads.tsv
 config/hypr/ocr.conf
 config/hypr/battery-notified
+config/hypr/monitors/
+config/hypr/monitors-auto
 
 # --- Per-machine Hyprland overrides (seeded from *.EXAMPLE by install.sh) ---
 config/hypr/conf.d/*.local.conf
