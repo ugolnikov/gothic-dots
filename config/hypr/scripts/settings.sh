@@ -66,6 +66,15 @@ toggle_light() {
     note "Светлая тема: $(light_state)"
 }
 
+ambience_state() {
+    if [ -e "$STATE/ambience" ]; then echo "вкл"; else echo "выкл"; fi
+}
+
+toggle_ambience() {
+    "$SCRIPTS/ambience.sh" toggle >/dev/null 2>&1 || true
+    note "Распорядок: $(ambience_state)"
+}
+
 random_state() {
     if [ -e "$STATE/random-wallpaper" ]; then echo "вкл"; else echo "выкл"; fi
 }
@@ -142,8 +151,8 @@ show_binds() {
 }
 
 anim_state() {
-    if [ -f "$CONFIG/hypr/conf.d/animations.dynamic.conf" ] &&
-        grep -q 'true' "$CONFIG/hypr/conf.d/animations.dynamic.conf"; then
+    # Владелец анимаций — effects.sh; settings только показывает и передаёт.
+    if [ "$("$SCRIPTS/effects.sh" status 2>/dev/null)" = on ]; then
         echo "вкл"
     else
         echo "выкл"
@@ -185,6 +194,11 @@ main() {
     local choice
     choice="$(printf '%s\n' \
         "Обои" \
+        "Быстрые переключатели" \
+        "Сессия (снимок окон)" \
+        "Лаунчер: режимы" \
+        "Распорядок: $(ambience_state)" \
+        "$(preset_label)" \
         "$(theme_label)" \
         "Терминал: $(cur terminal foot)" \
         "SHELL: ${SHELL##*/}" \
@@ -203,6 +217,11 @@ main() {
 
     case "$choice" in
         "Обои") choose_wallpaper ;;
+        "Быстрые переключатели") exec "$SCRIPTS/quick.sh" ;;
+        "Сессия (снимок окон)") exec "$SCRIPTS/session.sh" menu ;;
+        "Лаунчер: режимы") exec "$SCRIPTS/launcher.sh" menu ;;
+        "Распорядок:"*) toggle_ambience ;;
+        "Пресет:"*) exec "$SCRIPTS/preset.sh" menu ;;
         Тема:*) toggle_theme ;;
         Терминал:*) choose_terminal ;;
         SHELL:*) choose_shell ;;

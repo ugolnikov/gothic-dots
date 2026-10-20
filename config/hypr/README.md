@@ -48,9 +48,10 @@ config/hypr/
 │   └── binds.conf         # keybinds
 ├── hypridle.conf          # idle / lock by timeout
 ├── hyprlock.conf          # lock screen
-├── scripts/               # settings, palette, theme(-mode), wallpaper(-picker),
-│                          #   screenshot, clipboard, dismiss, filemanager,
-│                          #   launcher, run-in-terminal, notifications, system-setup
+├── scripts/               # controls, quick, session, settings, palette,
+│                          #   theme(-mode), wallpaper(-picker), screenshot,
+│                          #   clipboard, dismiss, filemanager, launcher,
+│                          #   run-in-terminal, notifications, system-setup
 ├── packages.txt           # repository packages
 ├── aur.packages.txt       # AUR packages (paru/yay)
 └── bootstrap.sh           # install packages, then symlink the configs
@@ -67,6 +68,9 @@ accent, thin borders, sharp corners, no blur or shadows. The palette is
 * rofi — `config/rofi/colors.rasi`
 * tofi — `config/tofi/config`
 * foot — `config/foot/foot.ini`
+* tmux — `tmux.conf`
+* GTK 3/4 — `config/gtk-3.0/gtk.css`, `config/gtk-4.0/gtk.css`
+* fish — `fish/conf.d/colors.fish`
 * mako — `config/mako/config`
 * swaync — `config/swaync/colors.css`
 
@@ -77,15 +81,17 @@ the two recolor modes mutually exclusive (enabling one disables the other).
 
 * **dark** (default) — the fixed gothic palette above. There is no generated
   content, so every app falls back to the fixed colors.
-* **light** — the "ivory" variant, recoloring Hyprland, Waybar, rofi, kitty and
-  swaync.
+* **light** — the "ivory" variant, recoloring Hyprland, Waybar, rofi, kitty,
+  swaync, foot, tmux, GTK 3/4 and fish.
 * **dynamic** — a palette derived from the wallpaper via
   [wallust](https://codeberg.org/explosion-mental/wallust), recoloring
-  Hyprland, Waybar, rofi, mako, swaync, tofi and Starship through
-  `colors.dynamic.*` / `~/.cache/wallust/*`. It is colorful and fights the gothic
-  look, so it is off by default.
+  Hyprland, Waybar, rofi, mako, swaync, tofi, Starship, foot, tmux, GTK 3/4 and
+  fish through `colors.dynamic.*` / `~/.cache/wallust/*`. It is colorful and
+  fights the gothic look, so it is off by default.
 
-foot, mako, tofi, hyprlock and GTK keep the fixed palette. The mode survives a
+mako, tofi and hyprlock keep the fixed palette, as do the TUIs without an
+include point (btop, micro, lazygit, bat). foot, tmux, GTK and fish import
+their generated file and follow every mode. The mode survives a
 relogin; switch dark ⇄ light from the settings center (**Light theme**) or with
 `SUPER + Shift + T`.
 
@@ -156,11 +162,135 @@ Tuned for minimal input lag and lightness:
   **irqbalance**;
 * TUI tools (**yazi**, **wiremix**) inherit the foot palette — no separate theme.
 
+## Quick controls
+
+`SUPER + Shift + C` opens the rofi quick panel; the active toggles also show as
+a red `DND · NIGHT · CAFFEINE · REC` tag on the Waybar right side (hidden when
+empty). One module owns the state and the actions — `scripts/controls.sh`:
+
+```bash
+~/.config/hypr/scripts/controls.sh status          # all four states
+~/.config/hypr/scripts/controls.sh dnd toggle      # mako / swaync DND
+~/.config/hypr/scripts/controls.sh night on 4000   # hyprsunset (1000..10000K)
+~/.config/hypr/scripts/controls.sh caffeine on     # systemd idle/sleep inhibitor
+~/.config/hypr/scripts/controls.sh record start full audio
+~/.config/hypr/scripts/controls.sh record stop     # ~/Videos/Recordings
+```
+
+Markers live in `~/.config/hypr/` (`dnd`, `night-light`, `caffeine`,
+`recording`). `conf.d/autostart.conf` runs `restore`, so DND, night light and
+caffeine come back after a login; recording never restarts by itself.
+`scripts/quick.sh` is only the panel view — it asks `controls.sh` for each
+state and passes the chosen row back to it. mako gets the DND mode from
+`config/mako/config` (`[mode=do-not-disturb]`), swaync uses its own DND.
+
+## Sessions
+
+`SUPER + Shift + M` opens the session menu (`scripts/session.sh`). A snapshot
+records each window with its workspace, tiled/floating state, geometry, pin and
+fullscreen, together with the argv and cwd read from `/proc`; restore matches
+open windows by class, moves them and launches only what is missing — it never
+closes anything.
+
+```bash
+~/.config/hypr/scripts/session.sh save work       # snapshot
+~/.config/hypr/scripts/session.sh restore work    # put it back
+~/.config/hypr/scripts/session.sh restore work --dry-run
+```
+
+Snapshots live in `~/.config/hypr/sessions/<name>.json` (600, gitignored) and
+`last.json` always mirrors the newest one. Add
+`exec-once = ~/.config/hypr/scripts/session.sh restore last` to
+`conf.d/autostart.conf` if the layout should come back with the session.
+
+## Ambience (time of day)
+
+`scripts/ambience.sh` schedules the desktop: each slot (day / evening / night)
+applies a palette, the night light and DND once, then leaves them alone until the
+next boundary; it can also rotate wallpapers from a directory. It owns only
+*when* — the palette, toggles and wallpaper stay with `palette.sh`,
+`controls.sh` and `theme.sh`.
+
+```bash
+cp config/hypr/ambience.conf.EXAMPLE ~/.config/hypr/ambience.conf
+~/.config/hypr/scripts/ambience.sh on
+~/.config/hypr/scripts/ambience.sh status
+~/.config/hypr/scripts/ambience.sh tick --dry-run
+```
+
+Defaults: day 07:30, evening 19:00, night 22:30; `night_light=auto` and
+`dnd=auto` mean "only at night". The daemon is started from `autostart.conf` and
+no-ops while `~/.config/hypr/ambience` is absent.
+
+## Events
+
+`scripts/eventd.sh` listens on Hyprland's `socket2` (started from
+`autostart.conf`) and handles four things: window rules from
+`~/.config/hypr/windowrules.tsv` (`class<TAB>workspace`), the screen-share DND
+round trip (`share_classes` globs in `eventd.conf`), and monitor / fullscreen
+hooks (`eventd.d/monitor-added.sh`, `monitor-removed.sh`, `fullscreen-on.sh`,
+`fullscreen-off.sh`). `eventd.sh handle '<line>'` processes one event, which is
+how the tests and `run --fake` work.
+
+## Maintenance
+
+`scripts/maintenance.sh` keeps local snapshots of the tracked configs and the
+package list, reports file/package drift, rolls configs back and runs the update
+flow (snapshot → `pacman -Syu` → doctor → diff). `gothic update`, `gothic
+snapshot`, `gothic rollback <name>` and `gothic diff` are the same entry points.
+Snapshots live in `~/.local/state/gothic/snapshots/`; rollback touches only
+files present in the snapshot.
+
+## Presets
+
+`SUPER + Shift + P` (`scripts/preset.sh`) applies a named bundle at once:
+`gaming`, `work`, `present` ship in `presets/`, user files live in
+`~/.config/hypr/presets.local/` and override built-ins by name.
+
+Keys: `palette`, `animations`, `night`, `dnd`, `caffeine`, `bar`, `power`.
+`apply` snapshots only the keys it changes; `off` replays that snapshot; a
+second apply rolls the first back before snapshotting, so `off` always returns
+to the pre-preset state. Animations go through `effects.sh`, the rest through
+`palette.sh`, `controls.sh`, Waybar and `powerprofilesctl`.
+
+```bash
+~/.config/hypr/scripts/preset.sh apply gaming
+~/.config/hypr/scripts/preset.sh off
+~/.config/hypr/scripts/preset.sh list
+```
+
+## Launcher and `gothic`
+
+`SUPER + D` opens applications (tofi, rofi fallback). `SUPER + Shift + D` opens
+the hub: applications, files (`fd`), open windows (`hyprctl`), clipboard
+history, SSH hosts from `~/.ssh/config`, package search and a calculator. Each
+mode is a row provider plus one dmenu; a typed `:verb` in the hub is handed to
+the CLI.
+
+`bin/gothic` is the single CLI over the modules — it owns no state, only
+routing:
+
+```bash
+gothic status
+gothic toggle dnd on
+gothic theme light
+gothic session save work
+gothic record stop
+gothic doctor | logs | menu
+```
+
+See the top-level README for the full command list.
+
 ## Settings center (`SUPER + ,`)
 
 A lightweight rofi menu (`scripts/settings.sh`). Changes on the fly:
 
 * **Wallpaper** — static, animated (GIF/video) or gradient;
+* **Quick controls** — DND, night light, caffeine, screen recording (opens the panel);
+* **Session** — save / restore the window layout (opens its menu);
+* **Launcher modes** — files / windows / clipboard / ssh / packages / calc hub;
+* **Ambience** — the day schedule on / off;
+* **Preset** — apply or drop a named bundle (opens the menu);
 * **Theme** — dark gothic ⇄ wallpaper-derived palette (`palette.sh`);
 * **Terminal** — foot / kitty / alacritty (written to `~/.config/hypr/terminal`);
 * **SHELL** — login shell fish / bash (via `chsh`, password in the terminal);

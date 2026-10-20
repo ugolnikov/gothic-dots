@@ -1,0 +1,249 @@
+#!/usr/bin/env bash
+# gothic — единый вход в модули райса.
+#   gothic status                                  сводка состояния рабочего стола
+#   gothic toggle <dnd|night|caffeine|record> [on|off|toggle]
+#   gothic theme [dark|light|dynamic|toggle|status|clear]
+#   gothic wall [pick|<файл>]
+#   gothic session <save|restore|list|show|delete|menu> [имя] [--dry-run]
+#   gothic record [start [full|region] [audio]|stop|status]
+#   gothic ambience [status|on|off|toggle|tick|next]
+#   gothic preset [apply <name>|off|current|list|show <name>|menu]
+#   gothic update|snapshot [name]|snapshots|diff [name]|rollback <name>|clean
+#   gothic eventd [status|run]
+#   gothic keybinds | settings | doctor | logs | menu | version | help
+#
+# Роутер без собственной логики: каждая подкоманда уходит в модуль, который
+# владеет состоянием, и возвращает его код выхода — второй правды о состоянии
+# здесь нет. Путь к модулям можно подменить через GOTHIC_SCRIPTS (тесты); по
+# умолчанию берётся установленная конфигурация, а до install.sh — чекаут,
+# лежащий рядом с самим CLI.
+set -euo pipefail
+
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+ROOT="$(cd "$(dirname "$SELF")/.." && pwd)"
+CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+if [ -n "${GOTHIC_SCRIPTS:-}" ]; then
+    SCRIPTS="$GOTHIC_SCRIPTS"
+elif [ -d "$CONFIG/hypr/scripts" ]; then
+    SCRIPTS="$CONFIG/hypr/scripts"
+else
+    SCRIPTS="$ROOT/config/hypr/scripts"
+fi
+
+DOCTOR="${GOTHIC_DOCTOR:-$ROOT/scripts/doctor.sh}"
+
+usage() {
+    cat >&2 <<'EOF'
+usage: gothic status
+       gothic toggle <dnd|night|caffeine|record> [on|off|toggle]
+       gothic theme [dark|light|dynamic|toggle|status|clear]
+       gothic wall [pick|<file>]
+       gothic session <save|restore|list|show|delete|menu> [name] [--dry-run]
+       gothic record [start [full|region] [audio]|stop|status]
+       gothic ambience [status|on|off|toggle|tick|next]
+       gothic preset [apply <name>|off|current|list|show <name>|menu]
+       gothic update|snapshot [name]|snapshots|diff [name]|rollback <name>|clean
+       gothic eventd [status|run]
+       gothic keybinds|settings|doctor|logs|menu|version|help
+EOF
+    exit 2
+}
+
+# help — заголовок файла без решёток: та же справка, но с кодом 0.
+help() {
+    awk 'NR == 1 { next } /^#/ { sub(/^# ?/, ""); print; next } { exit }' "$0"
+    exit 0
+}
+
+die() {
+    echo "gothic: $*" >&2
+    exit 2
+}
+
+# module <name> — путь к модулю или внятная ошибка: все подкоманды уходят в
+# готовый скрипт, и «нет файла» не должно выглядеть как неизвестная команда.
+module() {
+    local path="$SCRIPTS/$1"
+    [ -x "$path" ] || die "нет модуля: $path"
+    printf '%s\n' "$path"
+}
+
+# ── status ──────────────────────────────────────────────────────────────────
+status() {
+    local palette sessions last errs
+
+    palette="$("$SCRIPTS/palette.sh" status 2>/dev/null || echo "?")"
+    printf 'палитра: %s\n' "$palette"
+
+    if [ -x "$SCRIPTS/controls.sh" ]; then
+        "$SCRIPTS/controls.sh" status 2>/dev/null | sed 's/^/  /'
+    fi
+
+    sessions=""
+    if [ -x "$SCRIPTS/session.sh" ]; then
+        sessions="$("$SCRIPTS/session.sh" count 2>/dev/null || echo 0)"
+    fi
+    printf 'сессии: %s' "${sessions:-0}"
+    last="$CONFIG/hypr/sessions/last.json"
+    if [ -r "$last" ]; then
+        printf ' (последняя: %s, %s окон)' \
+            "$(jq -r '.saved // "?"' "$last" 2>/dev/null || echo "?")" \
+            "$(jq '.clients | length' "$last" 2>/dev/null || echo "?")"
+    fi
+    printf '\n'
+
+    if command -v hyprctl >/dev/null 2>&1 && hyprctl version >/dev/null 2>&1; then
+        errs="$(hyprctl configerrors 2>/dev/null || true)"
+        if [ -z "$errs" ]; then
+            printf 'hyprland: конфиг без ошибок\n'
+        else
+            printf 'hyprland: ошибки конфига — %s (подробнее: gothic logs)\n' \
+                "$(printf '%s\n' "$errs" | head -n1)"
+        fi
+    fi
+}
+
+# ── logs ────────────────────────────────────────────────────────────────────
+logs() {
+    local errs log
+    if command -v hyprctl >/dev/null 2>&1; then
+        errs="$(hyprctl configerrors 2>/dev/null || true)"
+        if [ -n "$errs" ]; then
+            printf '== ошибки конфига Hyprland ==\n%s\n' "$errs"
+        fi
+    fi
+    log="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr/${HYPRLAND_INSTANCE_SIGNATURE:-}"
+    if [ -r "$log/hyprland.log" ]; then
+        printf '== hyprland.log (последние 40 строк) ==\n'
+        tail -n 40 "$log/hyprland.log"
+    else
+        printf 'gothic: лог Hyprland не найден (%s/hyprland.log)\n' "$log"
+    fi
+}
+
+# ── подкоманды ──────────────────────────────────────────────────────────────
+cmd_toggle() {
+    local name="${1:-}" action="${2:-toggle}"
+    case "$name" in
+        dnd | night | caffeine | record) ;;
+        *) usage ;;
+    esac
+    case "$action" in
+        on | off | toggle) ;;
+        *) usage ;;
+    esac
+    # У записи нет on/off: её вход — start/stop, поэтому переводим глагол.
+    if [ "$name" = record ]; then
+        case "$action" in
+            on) action=start ;;
+            off) action=stop ;;
+        esac
+        exec "$(module controls.sh)" record "$action"
+    fi
+    exec "$(module controls.sh)" "$name" "$action"
+}
+
+cmd_theme() {
+    local action="${1:-status}"
+    case "$action" in
+        status | "") exec "$(module palette.sh)" status ;;
+        dark | light | dynamic) exec "$(module palette.sh)" set "$action" ;;
+        clear) exec "$(module palette.sh)" clear ;;
+        # toggle — та же развилка dark ⇄ light, что у кеймбинда.
+        toggle) exec "$(module theme-mode.sh)" toggle ;;
+        *) usage ;;
+    esac
+}
+
+cmd_wall() {
+    local what="${1:-pick}"
+    case "$what" in
+        pick | "") exec "$(module wallpaper-picker.sh)" ;;
+        next)
+            echo "gothic: ротация обоев — gothic ambience next (расписание: ambience)" >&2
+            exit 1
+            ;;
+        *)
+            [ -f "$what" ] || die "нет файла обоев: $what"
+            exec "$(module wallpaper.sh)" "$what"
+            ;;
+    esac
+}
+
+cmd_session() {
+    local sub="${1:-list}"
+    shift || true
+    case "$sub" in
+        save | restore | list | show | delete | menu) ;;
+        *) usage ;;
+    esac
+    exec "$(module session.sh)" "$sub" "$@"
+}
+
+cmd_record() {
+    local sub="${1:-status}"
+    case "$sub" in
+        status | "") exec "$(module controls.sh)" get recording ;;
+        stop) exec "$(module controls.sh)" record stop ;;
+        start | toggle) exec "$(module controls.sh)" record "$sub" "${2:-full}" "${3:-}" ;;
+        *) usage ;;
+    esac
+}
+
+cmd_version() {
+    local rev
+    rev="$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+    printf 'gothic (gothic-dots) %s\n' "$rev"
+}
+
+main() {
+    case "${1:-}" in
+        "" | status) status ;;
+        toggle)
+            shift
+            cmd_toggle "$@"
+            ;;
+        theme)
+            shift
+            cmd_theme "$@"
+            ;;
+        wall)
+            shift
+            cmd_wall "$@"
+            ;;
+        session)
+            shift
+            cmd_session "$@"
+            ;;
+        record)
+            shift
+            cmd_record "$@"
+            ;;
+        ambience)
+            shift
+            exec "$(module ambience.sh)" "${@:-status}"
+            ;;
+        preset)
+            shift
+            exec "$(module preset.sh)" "${@:-current}"
+            ;;
+        eventd)
+            shift
+            exec "$(module eventd.sh)" "${@:-status}"
+            ;;
+        keybinds) exec "$(module keybinds.sh)" ;;
+        settings) exec "$(module settings.sh)" ;;
+        menu) exec "$(module launcher.sh)" menu ;;
+        doctor) exec "$DOCTOR" ;;
+        update | snapshot | snapshots | diff | rollback | clean)
+            exec "$ROOT/scripts/maintenance.sh" "$@"
+            ;;
+        logs) logs ;;
+        version | --version) cmd_version ;;
+        help | -h | --help) help ;;
+        *) usage ;;
+    esac
+}
+
+main "$@"

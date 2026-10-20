@@ -28,6 +28,34 @@ _Avoid_: flag, sentinel, state file
 An application that reads a target and reloads to pick up the new colours.
 _Avoid_: client, app, themeable app
 
+**Toggle**:
+A session switch whose state outlives a single action — DND, night light, caffeine, recording. A marker records it, `controls.sh` owns it, and the quick panel is only a view.
+_Avoid_: switch, flag, mode
+
+**Quick panel**:
+The rofi menu bound to `SUPER + Shift + C` that shows every toggle and passes the chosen row to `controls.sh`.
+_Avoid_: control center, dashboard
+
+**Session**:
+A saved window layout: per window its workspace, tiled/floating state, geometry and the argv to relaunch it. `session.sh` owns it; restore only moves and launches, never closes.
+_Avoid_: layout, snapshot, workspace profile
+
+**Hook**:
+An executable script in `eventd.d/` that eventd runs for a Hyprland event, named after the event (`monitor-added.sh`, `fullscreen-on.sh`, …).
+_Avoid_: callback, handler
+
+**Preset**:
+A named bundle of settings (palette, animations, toggles, bar, power) that is applied together; apply snapshots only the keys it changes and off replays them.
+_Avoid_: profile, mode, scene
+
+**Slot**:
+A named window of the day (day, evening, night) that ambience applies once: palette, night light and DND are set at its start and left alone until the next boundary.
+_Avoid_: period, phase, schedule entry
+
+**Launcher**:
+The dmenu in front of every provider — applications, files, windows, clipboard, SSH hosts, packages, calculator. Its hub also accepts `:verbs` and hands them to `gothic`.
+_Avoid_: menu, search bar
+
 **Wallpaper**:
 The desktop background image, and the source a dynamic palette is derived from. Chosen independently of the mode.
 _Avoid_: background, backdrop

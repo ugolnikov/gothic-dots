@@ -4,6 +4,7 @@
 # (plus the layout switch / Caps Lock from conf.d/input.conf).
 `SUPER + Return`	terminal (foot)
 `SUPER + D` / `SUPER + Space`	app launcher (tofi)
+`SUPER + Shift + D`	launcher hub (files, windows, clipboard, ssh, packages, calc)
 `SUPER + E`	file manager
 `SUPER + B`	browser
 `SUPER + Q`	close window
@@ -16,6 +17,9 @@
 `SUPER + F`	fullscreen (maximize)
 `SUPER + Shift + F`	true fullscreen
 `SUPER + ,`	settings
+`SUPER + Shift + C`	quick panel (DND, night light, caffeine, recording)
+`SUPER + Shift + M`	session (save / restore window layout)
+`SUPER + Shift + P`	presets (gaming / work / present)
 `SUPER + /`	keybind cheatsheet
 `SUPER + W`	wallpaper picker
 `SUPER + R` / `SUPER + Shift + R`	reload Hyprland / restart Waybar

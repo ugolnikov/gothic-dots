@@ -30,6 +30,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 ├── .markdownlint.jsonc        # Markdown lint rules for the docs
 ├── .gitattributes             # LF normalisation, binary/generated rules
 ├── bin/
+│   ├── gothic                 # one CLI over the desktop modules
 │   └── please                 # run a command from history through sudo
 ├── fish/                      # Fish shell
 │   ├── config.fish
@@ -55,6 +56,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 ├── scripts/
 │   ├── link-plan.sh           # single definition of what is linked where
 │   ├── doctor.sh              # desktop health check (packages, links, fonts)
+│   ├── maintenance.sh         # snapshots, update, diff, rollback
 │   ├── dotfiles-backup.sh     # auto-snapshot and push to origin
 │   ├── gen-keybinds.sh        # regenerate the README keybind table
 │   ├── check-binds.sh         # binds.conf ↔ keybinds.tsv/scripts drift check
@@ -130,6 +132,7 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 |-----|--------|
 | `SUPER + Return` | terminal (foot) |
 | `SUPER + D` / `SUPER + Space` | app launcher (tofi) |
+| `SUPER + Shift + D` | launcher hub (files, windows, clipboard, ssh, packages, calc) |
 | `SUPER + E` | file manager |
 | `SUPER + B` | browser |
 | `SUPER + Q` | close window |
@@ -142,6 +145,9 @@ The table below is generated from `config/hypr/keybinds.tsv` by
 | `SUPER + F` | fullscreen (maximize) |
 | `SUPER + Shift + F` | true fullscreen |
 | `SUPER + ,` | settings |
+| `SUPER + Shift + C` | quick panel (DND, night light, caffeine, recording) |
+| `SUPER + Shift + M` | session (save / restore window layout) |
+| `SUPER + Shift + P` | presets (gaming / work / present) |
 | `SUPER + /` | keybind cheatsheet |
 | `SUPER + W` | wallpaper picker |
 | `SUPER + R` / `SUPER + Shift + R` | reload Hyprland / restart Waybar |
@@ -175,7 +181,10 @@ persisted mode in `~/.config/hypr/palette-mode` — `dark`, `light` or `dynamic`
 writes the generated color files and reloads the apps that consume them.
 `light` (the "ivory" variant) and `dynamic` (wallpaper-derived via
 [wallust](https://codeberg.org/explosion-mental/wallust)) are mutually
-exclusive, and `dark` clears all generated color.
+exclusive, and `dark` clears all generated color. The generated palette reaches
+Hyprland, Waybar, rofi, kitty, swaync, **foot**, **tmux**, **GTK 3/4** and
+**fish** — each config imports or sources its own `*.dynamic.*` file, so adding
+a consumer is one target plus one template.
 
 ```bash
 ~/.config/hypr/scripts/palette.sh status         # dark | light | dynamic
@@ -187,6 +196,182 @@ exclusive, and `dark` clears all generated color.
 
 `SUPER + Shift + T` toggles dark ⇄ light. See
 [`config/hypr/README.md`](config/hypr/README.md) for the full picture.
+
+## Quick controls
+
+`SUPER + Shift + C` opens a rofi panel with four session toggles. Active ones
+also appear as a red `DND · NIGHT · CAFFEINE · REC` tag at the right of Waybar;
+the tag is hidden while nothing is on, so the bar stays minimal. One module,
+`config/hypr/scripts/controls.sh`, owns both the state and the actions:
+
+```bash
+~/.config/hypr/scripts/controls.sh status          # every toggle at once
+~/.config/hypr/scripts/controls.sh dnd toggle      # mako / swaync do-not-disturb
+~/.config/hypr/scripts/controls.sh night on 4000   # hyprsunset, 1000..10000K
+~/.config/hypr/scripts/controls.sh caffeine on     # block idle and sleep
+~/.config/hypr/scripts/controls.sh record start full audio
+~/.config/hypr/scripts/controls.sh record stop     # saved to ~/Videos/Recordings
+```
+
+State lives in markers under `~/.config/hypr/` (`dnd`, `night-light`,
+`caffeine`, `recording`); `conf.d/autostart.conf` runs `controls.sh restore`, so
+DND, night light and caffeine survive a relogin. Recording never restarts by
+itself. `controls.sh reset` turns everything off. The panel is only a view —
+`config/hypr/scripts/quick.sh` reads states and hands the chosen row back to the
+module.
+
+## Sessions
+
+`SUPER + Shift + M` opens the session menu: save the current window layout, or
+put a saved one back. One module, `config/hypr/scripts/session.sh`, owns the
+snapshots — JSON files in `~/.config/hypr/sessions/` (mode 600, gitignored).
+
+```bash
+~/.config/hypr/scripts/session.sh save work       # snapshot the layout
+~/.config/hypr/scripts/session.sh list            # what is saved
+~/.config/hypr/scripts/session.sh show work       # windows, workspaces, argv
+~/.config/hypr/scripts/session.sh restore work    # put it back
+~/.config/hypr/scripts/session.sh restore work --dry-run
+~/.config/hypr/scripts/session.sh delete work
+```
+
+A snapshot records, per window: class, title, workspace (including named
+special workspaces), tiled/floating, position and size, pinned and fullscreen,
+plus the argv and working directory read from `/proc`. Restore never closes
+anything: windows that are already open are matched by class and moved to their
+workspace, missing applications are started with exactly the argv they had
+(no `eval`, arguments keep their spaces and quotes) and are given
+`SESSION_WAIT` seconds to appear. `save` also keeps a copy as `last`, so
+`session.sh restore last` brings back the most recent layout after a crash or a
+compositor restart. To make that automatic, add
+`exec-once = ~/.config/hypr/scripts/session.sh restore last` to
+`conf.d/autostart.conf` — it is deliberately off by default, since a login
+should not launch apps on its own.
+
+## Ambience
+
+`config/hypr/scripts/ambience.sh` owns *when* the desktop changes, never *what*:
+it drives `palette.sh`, `controls.sh` and `theme.sh` on three daily slots. It is
+off by default — copy the example config and switch it on:
+
+```bash
+cp ~/.config/hypr/ambience.conf.EXAMPLE ~/.config/hypr/ambience.conf
+~/.config/hypr/scripts/ambience.sh on
+```
+
+The defaults put day at 07:30, evening at 19:00 and night at 22:30. Each slot
+sets a palette (`dark`, `light`, `dynamic`, or empty to leave it alone), the
+night light (`auto` = only at night, at `night_temp` kelvin) and DND (`auto` =
+only at night). Wallpapers can rotate from `rotate_dir` every
+`rotate_interval` seconds, in `random` or `sequential` order.
+
+A slot is applied once: the marker means a manual `palette.sh set …` lives until
+the next boundary. The daemon starts from `autostart.conf` and ticks every five
+minutes, so enabling ambience takes effect within that window; while the master
+marker is absent it changes nothing.
+
+```bash
+~/.config/hypr/scripts/ambience.sh status        # slot, next boundary, state
+~/.config/hypr/scripts/ambience.sh tick --dry-run
+~/.config/hypr/scripts/ambience.sh next          # rotate the wallpaper now
+~/.config/hypr/scripts/ambience.sh config        # effective values
+```
+
+## Presets
+
+`SUPER + Shift + P` opens the preset menu. A preset is a named bundle of
+`KEY=VALUE` settings — `palette`, `animations`, `night`, `dnd`, `caffeine`,
+`bar`, `power` — applied together:
+
+```bash
+~/.config/hypr/scripts/preset.sh apply gaming
+~/.config/hypr/scripts/preset.sh off          # back to the state before apply
+~/.config/hypr/scripts/preset.sh list
+~/.config/hypr/scripts/preset.sh show present
+```
+
+Built-ins are `gaming` (DND, caffeine, no bar, performance), `work` (bar and
+notifications back, caffeine on) and `present` (quiet, no bar). They live in
+`config/hypr/presets/`; put your own in `~/.config/hypr/presets.local/` — the
+file name is the preset name and it overrides a built-in.
+
+`apply` snapshots the current value of **only the keys the preset changes**;
+`off` replays that snapshot. Applying a second preset first rolls the previous
+one back, so the snapshot always means "the state before any preset", never the
+state of the preset you just left. A key the preset does not mention is left
+alone, and it is not restored later either.
+
+## Events
+
+`config/hypr/scripts/eventd.sh` reacts to Hyprland's event socket
+(`socket2.sock`), started from `autostart.conf`:
+
+* **window rules** — `~/.config/hypr/windowrules.tsv` (`class<TAB>workspace`)
+  moves a window as it opens;
+* **screen sharing** — when a window whose class matches `share_classes` (a
+  comma-separated glob list in `~/.config/hypr/eventd.conf`) opens, DND turns on
+  and caffeine is dropped; closing that window restores exactly the previous
+  state;
+* **hooks** — executable scripts in `~/.config/hypr/eventd.d/`:
+  `monitor-added.sh`, `monitor-removed.sh`, `fullscreen-on.sh`,
+  `fullscreen-off.sh`, each called with the event argument.
+
+```bash
+~/.config/hypr/scripts/eventd.sh status
+~/.config/hypr/scripts/eventd.sh handle 'openwindow>>0xabc,1,firefox,Title'
+~/.config/hypr/scripts/eventd.sh run --fake events.txt   # replay for tests
+```
+
+The daemon is deliberately quiet without configuration: no rules, no
+`share_classes` and no hooks mean the events are simply ignored.
+
+## Maintenance
+
+`scripts/maintenance.sh` (also `gothic update|snapshot|…`) keeps a local
+snapshot store in `~/.local/state/gothic/snapshots/`:
+
+```bash
+gothic snapshot                 # tracked configs + package list + HEAD
+gothic snapshots                # what is stored
+gothic diff [name]              # file and package changes since a snapshot
+gothic rollback <name>          # restore configs (pre-rollback snapshot first)
+gothic update [--dry-run]       # snapshot, pacman -Syu, doctor, diff report
+gothic clean                    # cache / orphans / journal report, read-only
+```
+
+A snapshot is a tar of the tracked files plus `pacman -Q` (or `dpkg-query`), so
+`diff` names added, removed and upgraded packages as well as changed files.
+`update` refuses a dirty tree unless `--force`, and always snapshots before
+touching packages. `rollback` only restores files that are in the snapshot and
+never touches untracked files; it snapshots the current state first, so the
+rollback itself can be undone. `clean` prints sizes and counts and deletes
+nothing.
+
+## Command line: `gothic`
+
+One router over the modules, installed as `~/.local/bin/gothic`. It never
+re-implements state: every subcommand calls the script that owns it and returns
+its exit code.
+
+```bash
+gothic status                     # palette, toggles, session count, config errors
+gothic toggle dnd on              # dnd | night | caffeine | record
+gothic theme light                # dark | light | dynamic | toggle | status
+gothic wall pick                  # or: gothic wall ~/Pictures/wall.png
+gothic session save work          # any session.sh subcommand
+gothic record start region audio  # or: gothic record stop
+gothic ambience toggle             # the day schedule on/off
+gothic preset apply gaming         # or: gothic preset off
+gothic update                      # snapshot, upgrade, doctor, diff
+gothic keybinds | settings | doctor | logs | menu | version
+```
+
+`gothic status` is the one-screen answer to "what is my desktop doing"; `gothic
+doctor` runs the full health check. The launcher speaks the same vocabulary:
+`SUPER + D` still opens applications, `SUPER + Shift + D` opens the hub with
+files, open windows, clipboard history, SSH hosts, packages and a calculator.
+Typing a `:verb` in the hub (e.g. `:theme light`) is passed straight to `gothic`,
+so there is one command surface, not two.
 
 ## Install
 

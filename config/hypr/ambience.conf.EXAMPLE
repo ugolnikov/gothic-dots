@@ -1,0 +1,28 @@
+# Распорядок дня для ambience.sh. Скопируй в ~/.config/hypr/ambience.conf
+# и включи:  ~/.config/hypr/scripts/ambience.sh on
+#
+# Границы — HH:MM по возрастанию; ночь заворачивается через полночь.
+# Пустая палитра означает «не трогать»: ambience не спорит с ручным выбором.
+# Inline-комментарии (# после значения) не поддерживаются — только строки #.
+
+day_start=07:30
+evening_start=19:00
+night_start=22:30
+
+# Палитра на слот: dark | light | dynamic | пусто.
+day_palette=dark
+evening_palette=dynamic
+night_palette=dark
+
+# Ночной свет: auto — только в слоте night; on/off — всегда.
+night_light=auto
+night_temp=3500
+
+# Не беспокоить: auto — только в слоте night; on/off — всегда.
+dnd=auto
+
+# Ротация обоев: раскомментируй каталог. interval в секундах,
+# order — random или sequential.
+# rotate_dir=~/Wallpapers
+rotate_interval=1800
+rotate_order=sequential

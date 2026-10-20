@@ -21,6 +21,27 @@ config/hypr/layout
 config/hypr/conf.d/layout.dynamic.conf
 config/hypr/conf.d/animations.dynamic.conf
 
+# --- Session toggles (scripts/controls.sh) and saved layouts (scripts/session.sh) ---
+config/hypr/dnd
+config/hypr/night-light
+config/hypr/caffeine
+config/hypr/recording
+config/hypr/sessions/
+
+# --- Ambience schedule (scripts/ambience.sh) ---
+config/hypr/ambience
+config/hypr/ambience.conf
+config/hypr/ambience-slot
+config/hypr/ambience-wall
+config/hypr/ambience-rotated
+config/hypr/presets.local/
+config/hypr/preset-active
+config/hypr/preset-previous
+config/hypr/eventd.conf
+config/hypr/windowrules.tsv
+config/hypr/eventd.d/
+config/hypr/eventd-share
+
 # --- Per-machine Hyprland overrides (seeded from *.EXAMPLE by install.sh) ---
 config/hypr/conf.d/*.local.conf
 
@@ -32,6 +53,11 @@ config/waybar/colors.dynamic.css
 config/rofi/colors.dynamic.rasi
 config/kitty/colors.dynamic.conf
 config/swaync/colors.dynamic.css
+config/foot/colors.dynamic.ini
+config/tmux/colors.dynamic.conf
+config/gtk-3.0/colors.dynamic.css
+config/gtk-4.0/colors.dynamic.css
+config/fish/colors.dynamic.fish
 
 # --- Editor / OS junk ---
 .DS_Store

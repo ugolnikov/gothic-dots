@@ -6,17 +6,22 @@
 # (the throwaway config tree), $STUB_BIN (where the fake binaries go) and a log
 # variable — $CALLS or $RELOAD_LOG — that records the stubbed calls.
 
-# palette_target_rel — the five generated files, config-relative, in one place.
+# palette_target_rel — the generated files, config-relative, in one place.
 palette_target_rel() {
     printf '%s\n' \
         hypr/conf.d/colors.dynamic.conf \
         waybar/colors.dynamic.css \
         rofi/colors.dynamic.rasi \
         kitty/colors.dynamic.conf \
-        swaync/colors.dynamic.css
+        swaync/colors.dynamic.css \
+        foot/colors.dynamic.ini \
+        tmux/colors.dynamic.conf \
+        gtk-3.0/colors.dynamic.css \
+        gtk-4.0/colors.dynamic.css \
+        fish/colors.dynamic.fish
 }
 
-# targets — the five generated files under the throwaway config tree.
+# targets — the generated files under the throwaway config tree.
 targets() {
     local rel
     while IFS= read -r rel; do
@@ -66,6 +71,11 @@ assert_light_palette() {
     local rofi="$XDG_CONFIG_HOME/rofi/colors.dynamic.rasi"
     local kitty="$XDG_CONFIG_HOME/kitty/colors.dynamic.conf"
     local swaync="$XDG_CONFIG_HOME/swaync/colors.dynamic.css"
+    local foot="$XDG_CONFIG_HOME/foot/colors.dynamic.ini"
+    local tmux="$XDG_CONFIG_HOME/tmux/colors.dynamic.conf"
+    local gtk3="$XDG_CONFIG_HOME/gtk-3.0/colors.dynamic.css"
+    local gtk4="$XDG_CONFIG_HOME/gtk-4.0/colors.dynamic.css"
+    local fish="$XDG_CONFIG_HOME/fish/colors.dynamic.fish"
 
     expect_line 'col.active_border = rgba(8c1220ff)' "$hypr" || return 1
     expect_line 'background_color = rgba(f2efe7ff)' "$hypr" || return 1
@@ -77,6 +87,12 @@ assert_light_palette() {
     expect_line 'foreground              #2a2723' "$kitty" || return 1
     expect_line '@define-color base     #f2efe7;' "$swaync" || return 1
     expect_line '@define-color text     #2a2723;' "$swaync" || return 1
+    expect_line 'background=f2efe7' "$foot" || return 1
+    expect_line 'foreground=2a2723' "$foot" || return 1
+    expect_line 'set -g status-style "fg=#2a2723,bg=#e7e2d6"' "$tmux" || return 1
+    expect_line '@define-color accent_bg_color #8c1220;' "$gtk3" || return 1
+    expect_line '@define-color accent_bg_color #8c1220;' "$gtk4" || return 1
+    expect_line "set -g fish_color_normal '#2a2723'" "$fish" || return 1
 }
 
 # stub_wallust — substitute the external palette generator with a fake that

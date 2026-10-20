@@ -1,0 +1,6 @@
+/* wallust — обои → GTK 3/4. Генерируется, не редактируй. */
+@define-color accent_color #{{color1}};
+@define-color accent_bg_color #{{color1}};
+@define-color accent_fg_color #{{background}};
+@define-color theme_selected_bg_color #{{color1}};
+@define-color theme_selected_fg_color #{{background}};

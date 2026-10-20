@@ -16,3 +16,7 @@ anchor=top-right
 layer=overlay
 icons=1
 group-by=app-name
+
+# «Не беспокоить»: controls.sh включает режим через `makoctl mode -a`.
+[mode=do-not-disturb]
+invisible=1

@@ -120,7 +120,7 @@ done < <(printf '%s\n' "${module[@]}")
 if grep -qE 'TARGETS\[[0-9]+\]' "$PALETTE_SH"; then
     err "palette.sh indexes TARGETS by position; bind content to named targets"
 fi
-mapfile -t keys < <(grep -oE 'target_for [A-Za-z0-9_-]+' "$PALETTE_SH" |
+mapfile -t keys < <(grep -oE 'target_for [A-Za-z0-9_.-]+' "$PALETTE_SH" |
     awk '{print $2}' | sort -u)
 if [ "${#keys[@]}" -eq 0 ]; then
     err "palette.sh binds no named targets (expected target_for <key> calls)"

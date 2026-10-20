@@ -1,0 +1,15 @@
+# wallust — обои → fish. Генерируется, не редактируй.
+# Подключается в конце fish/conf.d/colors.fish.
+set -g fish_color_normal '#{{foreground}}'
+set -g fish_color_command '#{{foreground}}'
+set -g fish_color_param '#{{color7}}'
+set -g fish_color_quote '#{{color3}}'
+set -g fish_color_comment '#{{color8}}'
+set -g fish_color_error '#{{color1}}'
+set -g fish_color_cwd '#{{color1}}'
+set -g fish_color_autosuggestion '#{{color8}}'
+set -g fish_color_selection '#{{foreground}}' --background='#{{color0}}'
+set -g fish_pager_color_background --background='#{{background}}'
+set -g fish_pager_color_completion '#{{foreground}}'
+set -g fish_pager_color_selected_background --background='#{{color1}}'
+set -g fish_pager_color_selected_completion '#{{background}}'

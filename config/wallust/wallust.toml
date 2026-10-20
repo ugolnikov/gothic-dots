@@ -19,6 +19,11 @@ waybar   = { src = "templates/waybar.css",    dst = "~/.config/waybar/colors.dyn
 rofi     = { src = "templates/rofi.rasi",     dst = "~/.config/rofi/colors.dynamic.rasi" }
 kitty    = { src = "templates/kitty.conf",    dst = "~/.config/kitty/colors.dynamic.conf" }
 swaync   = { src = "templates/swaync.css",    dst = "~/.config/swaync/colors.dynamic.css" }
+foot     = { src = "templates/foot.ini",      dst = "~/.config/foot/colors.dynamic.ini" }
+tmux     = { src = "templates/tmux.conf",     dst = "~/.config/tmux/colors.dynamic.conf" }
+gtk3     = { src = "templates/gtk.css",       dst = "~/.config/gtk-3.0/colors.dynamic.css" }
+gtk4     = { src = "templates/gtk.css",       dst = "~/.config/gtk-4.0/colors.dynamic.css" }
+fish     = { src = "templates/fish.fish",     dst = "~/.config/fish/colors.dynamic.fish" }
 mako     = { src = "templates/mako",          dst = "~/.cache/wallust/mako" }
 starship = { src = "templates/starship.toml", dst = "~/.cache/wallust/starship.toml" }
 tofi     = { src = "templates/tofi",          dst = "~/.cache/wallust/tofi" }
