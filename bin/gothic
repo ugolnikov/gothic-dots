@@ -14,6 +14,7 @@
 #   gothic scratchpad [toggle <name>|menu|list|status]
 #   gothic power [status|saver|balanced|performance|cycle|menu]
 #   gothic battery [status|check]
+#   gothic monitors <save|apply|list|show|delete|current|auto|autoload|menu|status> [name]
 #   gothic keybinds | settings | doctor | logs | menu | version | help
 #
 # Роутер без собственной логики: каждая подкоманда уходит в модуль, который
@@ -53,6 +54,7 @@ usage: gothic status
        gothic scratchpad [toggle <name>|menu|list|status]
        gothic power [status|saver|balanced|performance|cycle|menu]
        gothic battery [status|check]
+       gothic monitors <save|apply|list|show|delete|current|auto|autoload|menu|status> [name]
        gothic keybinds|settings|doctor|logs|menu|version|help
 EOF
     exit 2
@@ -255,6 +257,10 @@ main() {
         battery)
             shift
             exec "$(module battery.sh)" "${@:-status}"
+            ;;
+        monitors)
+            shift
+            exec "$(module monitors.sh)" "${@:-status}"
             ;;
         keybinds) exec "$(module keybinds.sh)" ;;
         settings) exec "$(module settings.sh)" ;;

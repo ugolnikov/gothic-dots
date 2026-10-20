@@ -23,6 +23,7 @@ fi
 HYPRCTL="${EVENTD_HYPRCTL:-hyprctl}"
 CONTROLS="${EVENTD_CONTROLS:-$SCRIPTS/controls.sh}"
 KEYBOARD_MEMORY="${EVENTD_KEYBOARD_MEMORY:-$SCRIPTS/keyboard-memory.sh}"
+MONITORS="${EVENTD_MONITORS:-$SCRIPTS/monitors.sh}"
 CONF="${EVENTD_CONF:-$STATE/eventd.conf}"
 RULES="${EVENTD_RULES:-$STATE/windowrules.tsv}"
 HOOKS="${EVENTD_HOOKS:-$STATE/eventd.d}"
@@ -154,6 +155,11 @@ keyboard_remember() { # keyboard_remember <layout>
     "$KEYBOARD_MEMORY" remember-active "$1" >/dev/null 2>&1 || true
 }
 
+monitors_autoload() {
+    [ -x "$MONITORS" ] || return 0
+    "$MONITORS" autoload >/dev/null 2>&1 || true
+}
+
 handle_event() {
     local line="$1" name data addr rest class
     case "$line" in
@@ -176,8 +182,14 @@ handle_event() {
             addr="${data%%,*}"
             share_stop "$addr"
             ;;
-        monitoradded) run_hook monitor-added "$data" ;;
-        monitorremoved) run_hook monitor-removed "$data" ;;
+        monitoradded)
+            run_hook monitor-added "$data"
+            monitors_autoload
+            ;;
+        monitorremoved)
+            run_hook monitor-removed "$data"
+            monitors_autoload
+            ;;
         activewindow)
             class="${data%%,*}"
             keyboard_restore "$class"
@@ -230,6 +242,9 @@ status() {
     printf 'шаринг: %s\n' "${SHARE_CLASSES:-выключен}"
     if [ -x "$KEYBOARD_MEMORY" ]; then
         printf 'раскладки: %s\n' "$("$KEYBOARD_MEMORY" status 2>/dev/null | head -n 2 | tr '\n' ' ')"
+    fi
+    if [ -x "$MONITORS" ]; then
+        printf 'мониторы: %s\n' "$("$MONITORS" status 2>/dev/null | tail -n 1)"
     fi
     if [ -r "$SHARE_MARKER" ]; then
         printf 'активный шаринг: %s\n' "$(marker_value "$SHARE_MARKER" addr)"
