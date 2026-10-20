@@ -1,0 +1,3 @@
+# Языки OCR. Скопируй в ~/.config/hypr/ocr.conf.
+# Значение уходит в `tesseract -l`; несколько языков — через плюс.
+langs=rus+eng
