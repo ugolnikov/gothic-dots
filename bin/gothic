@@ -8,6 +8,7 @@
 #   gothic record [start [full|region] [audio]|stop|status]
 #   gothic ambience [status|on|off|toggle|tick|next]
 #   gothic preset [apply <name>|off|current|list|show <name>|menu]
+#   gothic update|snapshot [name]|snapshots|diff [name]|rollback <name>|clean
 #   gothic keybinds | settings | doctor | logs | menu | version | help
 #
 # Роутер без собственной логики: каждая подкоманда уходит в модуль, который
@@ -41,6 +42,7 @@ usage: gothic status
        gothic record [start [full|region] [audio]|stop|status]
        gothic ambience [status|on|off|toggle|tick|next]
        gothic preset [apply <name>|off|current|list|show <name>|menu]
+       gothic update|snapshot [name]|snapshots|diff [name]|rollback <name>|clean
        gothic keybinds|settings|doctor|logs|menu|version|help
 EOF
     exit 2
@@ -228,6 +230,9 @@ main() {
         settings) exec "$(module settings.sh)" ;;
         menu) exec "$(module launcher.sh)" menu ;;
         doctor) exec "$DOCTOR" ;;
+        update | snapshot | snapshots | diff | rollback | clean)
+            exec "$ROOT/scripts/maintenance.sh" "$@"
+            ;;
         logs) logs ;;
         version | --version) cmd_version ;;
         help | -h | --help) help ;;

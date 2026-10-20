@@ -56,6 +56,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 ├── scripts/
 │   ├── link-plan.sh           # single definition of what is linked where
 │   ├── doctor.sh              # desktop health check (packages, links, fonts)
+│   ├── maintenance.sh         # snapshots, update, diff, rollback
 │   ├── dotfiles-backup.sh     # auto-snapshot and push to origin
 │   ├── gen-keybinds.sh        # regenerate the README keybind table
 │   ├── check-binds.sh         # binds.conf ↔ keybinds.tsv/scripts drift check
@@ -300,6 +301,28 @@ one back, so the snapshot always means "the state before any preset", never the
 state of the preset you just left. A key the preset does not mention is left
 alone, and it is not restored later either.
 
+## Maintenance
+
+`scripts/maintenance.sh` (also `gothic update|snapshot|…`) keeps a local
+snapshot store in `~/.local/state/gothic/snapshots/`:
+
+```bash
+gothic snapshot                 # tracked configs + package list + HEAD
+gothic snapshots                # what is stored
+gothic diff [name]              # file and package changes since a snapshot
+gothic rollback <name>          # restore configs (pre-rollback snapshot first)
+gothic update [--dry-run]       # snapshot, pacman -Syu, doctor, diff report
+gothic clean                    # cache / orphans / journal report, read-only
+```
+
+A snapshot is a tar of the tracked files plus `pacman -Q` (or `dpkg-query`), so
+`diff` names added, removed and upgraded packages as well as changed files.
+`update` refuses a dirty tree unless `--force`, and always snapshots before
+touching packages. `rollback` only restores files that are in the snapshot and
+never touches untracked files; it snapshots the current state first, so the
+rollback itself can be undone. `clean` prints sizes and counts and deletes
+nothing.
+
 ## Command line: `gothic`
 
 One router over the modules, installed as `~/.local/bin/gothic`. It never
@@ -315,6 +338,7 @@ gothic session save work          # any session.sh subcommand
 gothic record start region audio  # or: gothic record stop
 gothic ambience toggle             # the day schedule on/off
 gothic preset apply gaming         # or: gothic preset off
+gothic update                      # snapshot, upgrade, doctor, diff
 gothic keybinds | settings | doctor | logs | menu | version
 ```
 

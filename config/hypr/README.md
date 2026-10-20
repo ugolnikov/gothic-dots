@@ -222,6 +222,15 @@ Defaults: day 07:30, evening 19:00, night 22:30; `night_light=auto` and
 `dnd=auto` mean "only at night". The daemon is started from `autostart.conf` and
 no-ops while `~/.config/hypr/ambience` is absent.
 
+## Maintenance
+
+`scripts/maintenance.sh` keeps local snapshots of the tracked configs and the
+package list, reports file/package drift, rolls configs back and runs the update
+flow (snapshot → `pacman -Syu` → doctor → diff). `gothic update`, `gothic
+snapshot`, `gothic rollback <name>` and `gothic diff` are the same entry points.
+Snapshots live in `~/.local/state/gothic/snapshots/`; rollback touches only
+files present in the snapshot.
+
 ## Presets
 
 `SUPER + Shift + P` (`scripts/preset.sh`) applies a named bundle at once:

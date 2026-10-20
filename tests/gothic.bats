@@ -206,6 +206,29 @@ EOF
     grep -qx 'doctor' "$CALLS"
 }
 
+@test "maintenance commands are routed to the repo script" {
+    ROOT_SCRIPT="$BATS_TEST_TMPDIR/maintenance.sh"
+    cat >"$ROOT_SCRIPT" <<'EOF'
+#!/usr/bin/env bash
+printf '%s
+' "maintenance $*" >>"$CALLS"
+EOF
+    chmod +x "$ROOT_SCRIPT"
+    # bin/gothic resolves maintenance next to its own repository; point the
+    # test at a copy of the CLI inside a throwaway tree with the stub.
+    mkdir -p "$BATS_TEST_TMPDIR/repo/bin" "$BATS_TEST_TMPDIR/repo/scripts"
+    cp "$GOTHIC" "$BATS_TEST_TMPDIR/repo/bin/gothic"
+    cp "$ROOT_SCRIPT" "$BATS_TEST_TMPDIR/repo/scripts/maintenance.sh"
+
+    run "$BATS_TEST_TMPDIR/repo/bin/gothic" snapshot work
+    [ "$status" -eq 0 ]
+    grep -qx 'maintenance snapshot work' "$CALLS"
+
+    run "$BATS_TEST_TMPDIR/repo/bin/gothic" update --dry-run
+    [ "$status" -eq 0 ]
+    grep -qx 'maintenance update --dry-run' "$CALLS"
+}
+
 @test "help exits zero and prints the command surface" {
     run "$GOTHIC" help
     [ "$status" -eq 0 ]
