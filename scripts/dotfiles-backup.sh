@@ -32,7 +32,12 @@ log() { printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" | tee -a "$LOG"; 
 
 # Serialize runs so a manual invocation and the timer never overlap.
 if command -v flock >/dev/null 2>&1; then
-    exec 9>"${XDG_RUNTIME_DIR:-/tmp}/dotfiles-backup.lock"
+    # XDG_RUNTIME_DIR can be set yet unusable (a read-only /run/user in
+    # containers and sandboxes); fall back to the state dir rather than dying
+    # on the redirect before any work starts.
+    lock_dir="${XDG_RUNTIME_DIR:-/tmp}"
+    [ -w "$lock_dir" ] || lock_dir="$STATE"
+    exec 9>"$lock_dir/dotfiles-backup.lock"
     if ! flock -n 9; then
         log "another run is in progress, exiting"
         exit 0
