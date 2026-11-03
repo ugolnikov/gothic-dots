@@ -25,4 +25,3 @@ Route by size:
 - The user may waive the pipeline explicitly ("просто сделай"); then say so in one line.
 
 Tests, lint (`make lint`) and `bats tests/` must actually run before a PR is called done. Then commit, push, open the PR, wait for CI, merge.
-
