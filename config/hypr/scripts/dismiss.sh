@@ -17,8 +17,8 @@ dismiss_swaync() {
 }
 
 case "$want" in
-    swaync) dismiss_swaync || dismiss_mako ;;
-    *) dismiss_mako || dismiss_swaync ;;
+    swaync) dismiss_swaync || dismiss_mako || true ;;
+    *) dismiss_mako || dismiss_swaync || true ;;
 esac
 
 exit 0
