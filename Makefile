@@ -1,7 +1,7 @@
 # Thin entry points for the common dotfiles tasks. `make` or `make help`.
 .DEFAULT_GOAL := help
 
-SHELL_SH := $(shell git ls-files '*.sh') bin/please .githooks/pre-commit .githooks/pre-push
+SHELL_SH := $(shell git ls-files '*.sh') bin/gothic bin/please .githooks/pre-commit .githooks/pre-push
 SHELL_FISH := $(shell git ls-files '*.fish')
 
 .PHONY: help install first-run test lint fmt doctor backup check-packages tools
