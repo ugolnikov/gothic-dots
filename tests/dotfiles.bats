@@ -191,9 +191,13 @@ EOF
     main_before="$(git -C "$work" rev-parse origin/main)"
 
     echo "# bats snapshot" >>"$work/README.md"
+    # A set but unusable runtime dir must not abort the run: the lock falls
+    # back to the state dir (a read-only /run/user in containers).
+    export XDG_RUNTIME_DIR="$BATS_TEST_TMPDIR/no-such-runtime"
     export XDG_STATE_HOME="$BATS_TEST_TMPDIR/state"
     run "$work/scripts/dotfiles-backup.sh"
     [ "$status" -eq 0 ]
+    [ -f "$XDG_STATE_HOME/dotfiles-backup.lock" ]
 
     run git -C "$work" ls-remote --heads origin
     [[ "$output" == *"refs/heads/snapshots"* ]]
