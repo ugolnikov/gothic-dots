@@ -43,6 +43,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   │   ├── colors.fish        # gothic syntax highlighting (overrides stock fish colors)
 │   │   └── prompt.fish
 │   ├── completions/
+│   │   ├── gothic.fish        # verbs and subcommands of the CLI
 │   │   └── please.fish
 │   └── functions/
 │       ├── cleanup.fish        # aggressive disk cleanup (caches, logs, trash)
@@ -55,14 +56,17 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   └── .profile               # → ~/.profile
 ├── scripts/
 │   ├── link-plan.sh           # single definition of what is linked where
+│   ├── first-run.sh           # one-time setup walk for a fresh clone
 │   ├── doctor.sh              # desktop health check (packages, links, fonts)
 │   ├── maintenance.sh         # snapshots, update, diff, rollback
 │   ├── dotfiles-backup.sh     # auto-snapshot and push to origin
 │   ├── gen-keybinds.sh        # regenerate the README keybind table
 │   ├── check-binds.sh         # binds.conf ↔ keybinds.tsv/scripts drift check
 │   ├── check-coverage.sh      # every tracked config is in the link plan
+│   ├── check-palette-targets.sh # palette targets ↔ wallust config and ignores
 │   ├── check-packages.sh      # packages.txt/aur.packages.txt vs Arch repos + AUR
 │   ├── scan-secrets.sh        # block commits/pushes that look like secrets
+│   ├── dev-tools.sh           # install the pinned local linters
 │   └── server/                # server-only helpers (Ubuntu: apt, fail2ban, postgres)
 │       ├── clean-ubuntu.sh
 │       └── syscheck.sh
@@ -76,8 +80,7 @@ Add your own images to `docs/screenshots/` and reference them here — see
 │   ├── PULL_REQUEST_TEMPLATE.md
 │   └── CODEOWNERS
 ├── SECURITY.md                # no secrets in-tree; report privately
-├── tests/
-│   └── dotfiles.bats          # smoke/regression tests for the tooling
+├── tests/                     # bats suites, one file per area (gothic, theme, session, …)
 ├── systemd/                   # auto-backup units (installed to /etc/systemd/system)
 │   ├── dotfiles-backup.service
 │   └── dotfiles-backup.timer
