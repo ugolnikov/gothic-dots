@@ -291,3 +291,31 @@ EOF
     [ "$status" -eq 2 ]
     [[ "$output" == *"usage:"* ]]
 }
+
+# The completion is hand-written, so guard it against the CLI drifting away:
+# every verb the help text advertises must be offered by the fish completion.
+@test "the completion offers every verb the help prints" {
+    command -v fish >/dev/null || skip "fish not available"
+
+    help_verbs="$("$GOTHIC" help | sed -n 's/^  gothic \([a-z-]*\).*/\1/p' | sort -u)"
+    [ -n "$help_verbs" ]
+
+    completed="$(fish --no-config -c "source '$REPO_ROOT/fish/completions/gothic.fish'; complete -C 'gothic '" | cut -f1 | sort -u)"
+    [ -n "$completed" ]
+
+    for verb in $help_verbs; do
+        [[ "$completed" == *"$verb"* ]] || {
+            echo "no completion for: $verb"
+            return 1
+        }
+    done
+}
+
+@test "the completion offers a verb's subcommands" {
+    command -v fish >/dev/null || skip "fish not available"
+
+    run fish --no-config -c "source '$REPO_ROOT/fish/completions/gothic.fish'; complete -C 'gothic theme '"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"dynamic"* ]]
+    [[ "$output" == *"toggle"* ]]
+}
