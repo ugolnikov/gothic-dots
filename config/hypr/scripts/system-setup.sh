@@ -8,6 +8,9 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # config/hypr/scripts
 ROOT="$(cd "$HERE/../../.." && pwd)"                 # repository root
 ETC="$ROOT/etc"
+# Destination root. It is /etc in real use; the tests point SYSTEM_SETUP_DEST at
+# a throwaway tree so the install and backup paths run without root or /etc.
+DEST="${SYSTEM_SETUP_DEST:-/etc}"
 
 [ -d "$ETC" ] || {
     echo "нет $ETC"
@@ -15,12 +18,12 @@ ETC="$ROOT/etc"
 }
 
 STAMP="$(date +%Y%m%d-%H%M%S)"
-BACKUP="/etc/dotfiles-backup/$STAMP"
+BACKUP="$DEST/dotfiles-backup/$STAMP"
 
-echo "==> system files -> /etc (backup: $BACKUP)"
+echo "==> system files -> $DEST (backup: $BACKUP)"
 while IFS= read -r -d '' src; do
     rel="${src#"$ETC"/}"
-    dst="/etc/$rel"
+    dst="$DEST/$rel"
     if [ -e "$dst" ] && ! cmp -s "$src" "$dst"; then
         sudo mkdir -p "$BACKUP/$(dirname "$rel")"
         sudo cp -a "$dst" "$BACKUP/$rel"

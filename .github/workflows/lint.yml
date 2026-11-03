@@ -49,7 +49,7 @@ jobs:
       - name: shfmt
         run: |
           set -e
-          mapfile -t files < <(git ls-files '*.sh'; printf '%s\n' bin/please .githooks/pre-commit .githooks/pre-push)
+          mapfile -t files < <(git ls-files '*.sh'; printf '%s\n' bin/gothic bin/please .githooks/pre-commit .githooks/pre-push)
           shfmt -i 4 -ci -d "${files[@]}"
 
       - name: actionlint
