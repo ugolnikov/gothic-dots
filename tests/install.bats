@@ -121,3 +121,36 @@ setup_throwaway_home() {
         fi
     done <"$BATS_TEST_TMPDIR/plan"
 }
+
+# --timer renders the service from its template: the clone path, the invoking
+# user and their home must be substituted, or the unit fails silently at boot.
+# sudo is a stub that captures the files it is handed instead of writing /etc.
+@test "install.sh --timer installs a unit with the placeholders filled in" {
+    setup_throwaway_home
+
+    export UNIT_CAPTURE="$BATS_TEST_TMPDIR/units"
+    mkdir -p "$UNIT_CAPTURE"
+    cat >"$BATS_TEST_TMPDIR/stub-bin/sudo" <<'STUB'
+#!/usr/bin/env bash
+if [ "$1" = cp ]; then
+    src="$2"
+    dst="${3:-}"
+    name="$(basename "$dst")"
+    [ -d "$dst" ] && name="$(basename "$src")"
+    cp "$src" "$UNIT_CAPTURE/$name"
+fi
+exit 0
+STUB
+    chmod +x "$BATS_TEST_TMPDIR/stub-bin/sudo"
+
+    run ./install.sh --no-packages --timer
+    [ "$status" -eq 0 ]
+
+    unit="$UNIT_CAPTURE/dotfiles-backup.service"
+    [ -f "$unit" ]
+    [ -f "$UNIT_CAPTURE/dotfiles-backup.timer" ]
+    grep -qx "User=${SUDO_USER:-$(id -un)}" "$unit"
+    grep -qx "Environment=HOME=$HOME" "$unit"
+    grep -qx "ExecStart=$REPO_ROOT/scripts/dotfiles-backup.sh" "$unit"
+    ! grep -q '@' "$unit"
+}
